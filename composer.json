@@ -1,0 +1,38 @@
+{
+    "name": "mak/merck-scraper",
+    "require": {
+	    "php": ">=7.4",
+	    "illuminate/support": "^5.6",
+	    "guzzlehttp/guzzle": "^7.3",
+	    "mailjet/mailjet-apiv3-php": "^1.5",
+	    "monolog/monolog": "^2.3",
+	    "10quality/wp-query-builder": "^1.0",
+        "nesbot/carbon": "^2.31"
+    },
+	"require-dev": {
+		"squizlabs/php_codesniffer": "^3.5",
+	    "roave/security-advisories": "dev-master"
+	},
+	"config": {
+		"optimize-autoloader": true,
+		"preferred-install": "dist"
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"scripts": {
+		"post-root-package-install": [
+			"composer dump-autoload"
+		],
+		"post-root-package-update": [
+			"composer dump-autoload"
+		],
+		"test": [
+			"phpcs"
+		]
+	},
+	"autoload": {
+		"psr-4": {
+			"Merck_Scraper\\": "../merck-scraper"
+		}
+	}
+}

@@ -1,0 +1,26 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+/**
+ * Bootstrap defaults
+ */
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
+@import "~bootstrap/scss/bootstrap-grid";
+@import "~bootstrap/scss/transitions";
+
+@import "settings/variables";
+@import "settings/mixins";
+
+/**
+ * Common component files
+ */
+@import "common/docs";
+@import "common/base";
+@import "common/acf";
+@import "common/custom-fields";
+@import "pages/options-page";
+

@@ -1,0 +1,218 @@
+.acf-field .char-count {
+	display:     inline-block;
+	font-weight: bold;
+	font-style:  italic;
+	margin-top:  .5em;
+}
+
+.postbox-container {
+	.acf-flexible-content .layout .acf-fc-layout-handle {
+		background: $dark-blue;
+		color:      $white;
+	}
+	.acf-icon.-collapse {
+		background-color: #fff !important;
+	}
+	.acf-icon.-cancel:before {
+		line-height: 1.1em;
+	}
+	.acf-icon:before {
+		line-height: 1.2em;
+	}
+	.acf-flexible-content .layout .acf-field {
+		.acf-fc-layout-handle {
+			background: $blue;
+		}
+		.values .values .acf-fc-layout-handle {
+			background: $light-blue;
+			.acf-fc-layout-handle {
+				background: $very-light-blue;
+			}
+		}
+	}
+}
+
+.wp-core-ui .acf-actions .button-primary {
+	background:      $dark-blue;
+	border-color:    $dark-blue $dark-blue $dark-blue;
+	box-shadow:      0 1px 0 $dark-blue;
+	color:           $white;
+	text-decoration: none;
+	text-shadow:     0 -1px 1px $dark-blue, 1px 0 1px $dark-blue, 0 1px 1px $dark-blue, -1px 0 1px $dark-blue;
+	&.disabled {
+		background:      $red !important;
+		border-color:    $red !important;
+		color:           $light-grey !important;
+		opacity:         0.6;
+		text-decoration: none !important;
+		text-shadow:     0 -1px 0 rgba($black, 0.1) !important;
+		cursor:          no-drop !important;
+	}
+}
+
+.postbox,
+.acf-postbox {
+	&.hide { display: none !important; }
+}
+
+.acf-field .char-count {
+	display:     inline-block;
+	font-weight: bold;
+	font-style:  italic;
+	margin-top:  .5em;
+}
+
+a.acf-icon.light {
+	padding: 0;
+}
+
+.acf-label:empty,
+.acf-label:blank { display: none; }
+
+.no-label {
+	.acf-label { display: none!important; }
+}
+
+.hide-wp-tools {
+	.wp-editor-tools {
+		display: none!important;
+	}
+}
+
+@media (min-width: 768px) {
+	body:not(.post-type-acf-field-group) {
+		.acf-settings-wrap {
+			.acf-postbox.seamless {
+				max-width: 80%;
+			}
+		}
+		.acf-tab-wrap {
+			max-width: 100%;
+		}
+		.acf-postbox {
+			.acf-fields {
+				display:         flex;
+				flex-flow:       row wrap;
+				justify-content: space-between;
+				> .acf-field {
+					&:not(.acf-field-tab) {
+						display:       flex;
+						flex-flow:     row wrap;
+						height: auto;
+						align-content: space-between;
+					}
+				}
+			}
+			.acf-field {
+				max-width: 100%;
+				flex:      0 0 100%;
+				> div {
+					max-width: 100%;
+					flex:      0 0 100%;
+					clear:     none;
+				}
+				&.one-twelfth {
+					max-width: 8.33333%;
+					flex:      0 0 8.33333%;
+					clear:     none;
+				}
+				&.one-sixth {
+					max-width: 16.66667%;
+					flex:      0 0 16.66667%;
+					clear:     none;
+				}
+				&.one-fifth {
+					max-width: 20%;
+					flex:      0 0 20%;
+					clear:     none;
+				}
+				&.one-quarter {
+					max-width: 25%;
+					flex:      0 0 25%;
+					clear:     none;
+				}
+				&.one-half {
+					max-width: 50%;
+					flex:      0 0 50%;
+					clear:     none;
+				}
+				&.one-third {
+					max-width: 33.3333333%;
+					flex:      0 0 33.3333333%;
+					clear:     none;
+				}
+				&.two-fifths {
+					max-width: 40%;
+					flex:      0 0 40%;
+					clear:     none;
+				}
+				&.two-thirds {
+					max-width: 66.6666667%;
+					flex:      0 0 66.6666667%;
+					clear:     none;
+				}
+				&.three-quarters {
+					max-width: 75%;
+					flex:      0 0 75%;
+					clear:     none;
+				}
+				&.full {
+					max-width: 100%;
+					flex:      0 0 100%;
+					clear:     none;
+				}
+				&.fill {
+					flex: 1 0 auto;
+				}
+				&.message-title {
+					border-bottom: 1px solid #fff;
+					margin-bottom: -1px;
+					padding-bottom: 0;
+					position: relative;
+					z-index: 10;
+				}
+				&.header-title {
+					label {
+						font-size: 1.5rem;
+					}
+				}
+				input {
+					&.disabled {
+						background-color: #e9ecef;
+						opacity: 1;
+					}
+				}
+			}
+			.acf-repeater .acf-fields {
+				display:   flex;
+				flex-wrap: wrap;
+				.acf-field {
+					display:         flex;
+					justify-content: space-between;
+				}
+			}
+			&.seamless {
+				.acf-fields {
+					display:         flex !important;
+					flex-flow:       row wrap;
+					justify-content: space-between;
+					> .acf-field {
+						display:       flex;
+						flex-flow:     row wrap;
+						align-content: space-between;
+					}
+				}
+			}
+		}
+	}
+}
+
+@media (min-width: 992px) {
+	body:not(.post-type-acf-field-group) {
+		.acf-settings-wrap {
+			.acf-postbox.seamless {
+				max-width: 65%;
+			}
+		}
+	}
+}

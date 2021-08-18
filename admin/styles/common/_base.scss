@@ -1,0 +1,87 @@
+//  admin_styles
+// ======================================
+i.mce-i-external-link:before {
+	content:         "\f08e";
+	font-family:     FontAwesome;
+	font-style:      normal;
+	font-weight:     normal;
+	text-decoration: inherit;
+	color:           $dark-grey;
+	font-size:       1em;
+}
+
+.mce-content-body {
+	a.blue-btn,
+	a.blue-btn[data-mce-selected] {
+		display:            inline-block;
+		width:              auto;
+		border:             none;
+		background-color:   $light-blue;
+		color:              $white;
+		letter-spacing:     0.2px;
+		text-align:         center;
+		padding:            14px 28px !important;
+		font-size:          16px;
+		border-radius:      50px;
+		-webkit-transition: 0.6s all;
+		-o-transition:      0.6s all;
+		transition:         0.6s all;
+		cursor:             pointer;
+		&:hover {
+			color:           $white;
+			background:      $very-light-blue !important;
+			text-decoration: underline;
+		}
+		&:focus {
+			background:         $dark-blue !important;
+			box-shadow:         inset 0 1px 5px 0 rgba($black, 0.2);
+			color:              $white;
+		}
+	}
+	a.green-btn,
+	a.green-btn[data-mce-selected] {
+		display:            inline-block;
+		font-weight:        bold;
+		letter-spacing:     2px;
+		height:             36px;
+		width:              130px;
+		text-transform:     uppercase;
+		position:           relative;
+		transform:          perspective(1px) translateZ(0);
+		transition:         .5s;
+		background:         $green;
+		font-size:          14px;
+		color:              $white;
+		text-align:         center;
+		line-height:        34px;
+		border:             none;
+		border-radius:      25px;
+		-webkit-appearance: none;
+		&:hover {
+			background: $light-green;
+			color:      $white;
+		}
+		&:focus {
+			background: $dark-green;
+			box-shadow: inset 0 1px 5px 0 rgba(0, 0, 0, 0.20);
+		}
+	}
+}
+
+body {
+	&.admin-bar {
+		.toggle-doormat {
+			display: block;
+			&.enabled {
+				a {
+					color: #68b36b !important;
+				}
+			}
+			&.disabled {
+				a {
+					color: #ef5350 !important;
+				}
+			}
+		}
+	}
+}

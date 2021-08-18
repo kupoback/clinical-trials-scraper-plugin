@@ -1,0 +1,83 @@
+//  map_admin
+// ======================================
+
+// Variables
+$white: #FFFFFF;
+$black: #212529;
+$d-grey: #495057;
+$grey: #CED4DA;
+$l-grey: #E9ECEF;
+$green: #27AE60;
+$blue: #3498db;
+$l-red: #E74C3C;
+$red: #c0392b;
+
+// Markup
+.mb-1 {
+	margin-bottom: 1em;
+}
+
+.custom-fields {
+	label {
+		display: block;
+	}
+}
+
+.merck-scraper-fields-elements-inside {
+	position: relative;
+	&:after { content: ''; display: table; clear: both;}
+	* { -webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box; }
+	.merck-scraper-fields-section-label { border-bottom: 1px solid $d-grey; padding-bottom: .5rem; }
+	
+	label,
+	.label { display: inline-block; margin-bottom: .5rem; font-size: 1rem; font-weight: 400; line-height: 1.5; color: $black; text-align: left; }
+	input { display: block; width: 100%; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; color: $d-grey; background-color: $white; background-clip: padding-box; border: 1px solid $grey; border-radius: .25rem; transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+		&[type="button"] { display: inline-block; cursor: pointer; width: auto; font-family: sans-serif; font-weight: 400; text-align: center; white-space: nowrap; vertical-align: middle; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; border: 1px solid $green; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; border-radius: .25rem; transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out; color: $white; background-color: $green;
+			&:disabled { color: $white; background-color: $blue; border-color: $blue; }
+		}
+	}
+	textarea { display: block; width: 100%; height: auto; padding: .375rem .75rem; font-size: 1rem; font-weight: 400; line-height: 1.5; color: $d-grey; background-color: $white; background-clip: padding-box; border: 1px solid #ced4da; border-radius: .25rem; transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; overflow: auto; resize: vertical; margin: 0; font-family: inherit;
+		&:disabled { color: $white; background-color: $blue; border-color: $blue; }
+	}
+	select { display: inline-block; width: 100%; height: calc(2.25rem - -2px); padding: .375rem 1.75rem .375rem .75rem; line-height: 1.5; color: $d-grey; vertical-align: middle; border: 1px solid $grey; border-radius: .25rem; }
+	
+	.readonly {
+		input, textarea {
+			&:read-only {background-color: $l-grey;border-color: $white;box-shadow: none;cursor: not-allowed; }
+		}
+		input[type="checkbox"] {
+			&:disabled {cursor: not-allowed;}
+			+ label { cursor: not-allowed;}
+		}
+	}
+	
+	.merck-scraper-fields-checkbox {
+		field { position: relative; display: block; padding-left: 1.25rem; float: left;
+			&:not(:first-of-type) { margin-left: 1.25rem; }
+			input { display: inline-block; width: auto; position: absolute; margin-top: .3rem; margin-left: -1.25rem; box-sizing: border-box; padding: 0;}
+			label { margin-bottom: 0; margin-left: .25rem; display: inline-block; }
+		}
+	}
+	
+	
+	.merck-scraper-fields-row { display: -webkit-box; display: -ms-flexbox; display: flex; -ms-flex-wrap: wrap; flex-wrap: wrap; margin-right: -15px; margin-left: -15px; margin-bottom: 20px;
+		&:last-of-type { margin-bottom: 0; }
+		&.loading { opacity: 0.5; }
+		.merck-scraper-fields-field { margin-bottom: 20px; position: relative; -webkit-box-flex: 0; -ms-flex: 0 0 100%; flex: 0 0 100%; width: 100%; min-height: 1px; padding-left: 15px; padding-right: 15px;
+			&:nth-last-of-type(2),
+			&:last-of-type { margin-bottom: 0 }
+		}
+	}
+	
+}
+
+
+
+@media (min-width: 768px) {
+	.merck-scraper-fields-elements-inside .merck-scraper-fields-row .merck-scraper-fields-field.one-quarter { -webkit-box-flex: 0; -ms-flex: 0 0 25%; flex: 0 0 25%; max-width: 25%; }
+	.merck-scraper-fields-elements-inside .merck-scraper-fields-row .merck-scraper-fields-field.one-half { -webkit-box-flex: 0; -ms-flex: 0 0 50%; flex: 0 0 50%; max-width: 50%; }
+	.merck-scraper-fields-elements-inside .merck-scraper-fields-row .merck-scraper-fields-field.one-fifth { -webkit-box-flex: 0; -ms-flex: 0 0 20%; flex: 0 0 20%; max-width: 20%; }
+	.merck-scraper-fields-elements-inside .merck-scraper-fields-row .merck-scraper-fields-field.one-third {-webkit-box-flex: 0; -ms-flex: 0 0 33.3333333%; flex: 0 0 33.3333333%; max-width: 33.3333333%;}
+	.merck-scraper-fields-elements-inside .merck-scraper-fields-row .merck-scraper-fields-field.two-thirds {-webkit-box-flex: 0; -ms-flex: 0 0 66.6666667%; flex: 0 0 66.6666667%; max-width: 66.6666667%;}
+	.merck-scraper-fields-elements-inside .merck-scraper-fields-row .merck-scraper-fields-field.three-quarters {-webkit-box-flex: 0; -ms-flex: 0 0 75%; flex: 0 0 75%; max-width: 75%;}
+}

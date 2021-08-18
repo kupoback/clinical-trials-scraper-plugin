@@ -1,0 +1,195 @@
+.merck-scraper-settings {
+	/**
+    * Specific components
+    */
+	@import "~bootstrap/scss/buttons";
+	@import "~bootstrap/scss/progress";
+	@import "~bootstrap/scss/accordion";
+	@import "~bootstrap/scss/alert";
+	@import "~bootstrap/scss/forms";
+	
+	&__textarea {
+		display:          block;
+		width:            100%;
+		height:           auto;
+		padding:          .375rem .75rem;
+		font-size:        1rem;
+		font-weight:      400;
+		line-height:      1.5;
+		color:            $d-grey;
+		background-color: $white;
+		background-clip:  padding-box;
+		border:           1px solid #ced4da;
+		border-radius:    .25rem;
+		transition:       border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+		overflow:         auto;
+		resize:           vertical;
+		margin:           0;
+		font-family:      inherit;
+		&:disabled {
+			color:            $white;
+			background-color: $blue;
+			border-color:     $blue;
+		}
+	}
+	
+	h2, h3, h4, h5, h6, .h2, .h3, .h4, .h5, .h6 {
+		margin-top: 0;
+		margin-bottom: .5rem;
+		font-weight: 500;
+		line-height: 1.2;
+	}
+	
+	h2, .h2 {
+		font-size: 2rem;
+	}
+	
+	h3, .h3 {
+		font-size: 1.75rem;
+	}
+	
+	h4, .h4 {
+		font-size: 1.5rem;
+	}
+	
+	h5, .h5 {
+		font-size: 1.25rem;
+	}
+	
+	h6, .h6 {
+		font-size: 1rem;
+	}
+	
+	.small {
+		font-size: .875rem;
+	}
+	
+	.helper-text {
+		color: #6c757d!important;
+	}
+	
+	.lead-text {
+		font-size: 1.25rem;
+		font-weight: 300;
+	}
+	
+	input, optgroup, select, textarea {
+		margin: 0;
+		font-family: inherit;
+		font-size: inherit;
+		line-height: inherit;
+	}
+	
+	textarea {
+		resize: vertical;
+	}
+	
+	.form-field-container {
+		label {
+			display: inline-block;
+			font-weight: bold;
+		}
+		.form-label {
+			margin-bottom: .5rem;
+		}
+		.form-control {
+			display: block;
+			width: 100%;
+			padding: .375rem .75rem;
+			font-size: 1rem;
+			font-weight: 400;
+			line-height: 1.5;
+			color: #212529;
+			background-color: #fff;
+			background-clip: padding-box;
+			border: 1px solid #ced4da;
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			appearance: none;
+			border-radius: .25rem;
+			transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+		}
+		textarea {
+			min-height: calc(1.5em + (.75rem + 2px));
+		}
+	}
+	
+}
+
+.merck-scraper-import {
+	&__container {
+		margin-top: 2rem;
+		margin-bottom: 2rem;
+	}
+	&__row {
+		> div {
+			&:not(:last-of-type) {
+				margin-bottom: 1rem;
+			}
+		}
+	}
+	&__body {
+		&__status {
+			&-position {
+				span {
+					font-weight: bold;
+				}
+			}
+		}
+	
+	}
+	&__button-group {
+		&__btn-all {}
+		&__btn-clear {
+			color: white !important;
+		}
+	}
+}
+
+.merck-scraper-log {
+	.accordion-item {
+		margin-bottom: .5rem;
+		
+		@media only screen and (min-width: 1024px) {
+			margin-bottom: 1rem;
+		}
+	}
+	
+	.accordion-header {
+		position: relative;
+	}
+	
+	.delete-file {
+		display: flex;
+		margin-right: 0.5rem;
+		position: absolute;
+		right: 40px;
+		z-index: 10;
+		height: 100%;
+		align-items: center;
+		&:hover {
+			cursor: pointer;
+		}
+	}
+	
+	.accordion-button {
+		&:not(.collapsed) {
+			@extend .alert-success
+		}
+	}
+	
+	.err {
+		.accordion-button {
+			&:not(.collapsed) {
+				@extend .alert-danger
+			}
+		}
+	}
+}
+
+.swal2-container {
+	.swal2-title,
+	.swal2-content {
+		margin: 1rem 0;
+	}
+}
