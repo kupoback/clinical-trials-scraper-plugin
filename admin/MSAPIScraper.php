@@ -140,6 +140,7 @@ class MSAPIScraper
     {
         // Callback to the frontend to let them know we're starting the import
         self::updatePosition("Starting Import");
+        ini_set('memory_limit', '2G');
 
         $nctid_field = $request->get_param('nctidField') ?? '';
         // $search_keywords  = self::acfOptionField('search_keywords');
@@ -247,6 +248,7 @@ class MSAPIScraper
         // Restore the max_execution_time
         ini_restore('post_max_size');
         ini_restore('max_execution_time');
+        ini_restore('memory_limit');
 
         // Clear position
         self::clearPosition();
