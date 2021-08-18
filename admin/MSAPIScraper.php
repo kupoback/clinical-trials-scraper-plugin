@@ -140,7 +140,9 @@ class MSAPIScraper
     {
         // Callback to the frontend to let them know we're starting the import
         self::updatePosition("Starting Import");
-        ini_set('memory_limit', '2G');
+        set_time_limit(300);
+        ini_set('memory_limit', '2048M');
+        ini_set('post_max_size', '512M');
 
         $nctid_field = $request->get_param('nctidField') ?? '';
         // $search_keywords  = self::acfOptionField('search_keywords');
@@ -247,6 +249,7 @@ class MSAPIScraper
 
         // Restore the max_execution_time
         ini_restore('post_max_size');
+        ini_restore('upload_max_filesize');
         ini_restore('max_execution_time');
         ini_restore('memory_limit');
 
@@ -266,8 +269,9 @@ class MSAPIScraper
      */
     protected function studyImport(object $field_data, int $position_index, int $total_count)
     {
-        ini_set('post_max_size', '180');
+        set_time_limit(180);
         ini_set('max_execution_time', '180');
+        
         $return           = collect([]);
         $id_module        = self::parseId($field_data->get('IdentificationModule'));
         $status_module    = self::parseStatus($field_data->get('StatusModule'));
