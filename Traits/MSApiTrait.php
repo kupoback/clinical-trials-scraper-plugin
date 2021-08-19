@@ -142,7 +142,7 @@ trait MSApiTrait
         $response = get_option('merck_import_position');
         $current_time = self::timeNowFormated();
 
-        if (!empty($response)) {
+        if ($response && !empty($response)) {
             // Get the time that the import was last updated
             $updated_time = $response['time'];
             // Check the number of minutes past

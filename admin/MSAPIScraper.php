@@ -154,14 +154,17 @@ class MSAPIScraper
             'body_text' => 'Body Text',
         ];
 
+        $starting_rank = self::acfOptionField('min_import_rank') ?: 1;
+        $max_rank = self::acfOptionField('max_import_rank') ?: 30;
+
         /**
          * Grab the data from the gov't site
          */
         $client_args = [
             // 'expr'    => 'AREA[LeadSponsorName]"Merck Sharp & Dohme Corp."',
             'expr'    => 'keynote AND AREA[LeadSponsorName]"Merck Sharp & Dohme Corp." AND AREA[LocationCountry]"United States"',
-            'min_rnk' => 1,
-            'max_rnk' => 100,
+            'min_rnk' => $starting_rank,
+            'max_rnk' => $max_rank,
         ];
 
         if ($nctid_field) {
@@ -184,19 +187,49 @@ class MSAPIScraper
 
             // Grab the total number of studies found
             $total_found = $api_data->NStudiesFound ?? 0;
+            // Number of items we're grabbing
+            $max_grabbed = $max_rank;
 
-            // Map through our studies and begin assigning data to fields
-            if ($total_found > 0) {
-                // Grab a list of trashed posts that are supposed to be archived
-                $trashed_posts = collect(self::dbArchivedPosts());
-                if ($trashed_posts->isNotEmpty()) {
-                    $trashed_posts = $trashed_posts
-                        ->map(function ($post) {
-                            return self::dbFetchNctId(intval($post->ID));
-                        });
+            /**
+             * Determine how many times we need to loop through the items based on the amount found
+             * versus the max number of item's we're getting
+             */
+            $loop_number = round($total_found / $max_grabbed);
+
+            // Grab a list of trashed posts that are supposed to be archived
+            $trashed_posts = collect(self::dbArchivedPosts());
+            if ($trashed_posts->isNotEmpty()) {
+                $trashed_posts = $trashed_posts
+                    ->map(function ($post) {
+                        return self::dbFetchNctId(intval($post->ID));
+                    });
+            }
+
+            $current_position = 1;
+            /**
+             * Iterate through the import if the import max count is
+             * higher than the max_rnk set.
+             */
+            for ($iteration = 1; $iteration <= $loop_number; $iteration++) {
+                // Increase the min_rnk and max_rnk for each loop above the first
+                if ($iteration > 1) {
+                    $client_args['min_rnk'] = $client_args['min_rnk'] + $max_rank;
+                    $client_args['max_rnk'] = $client_args['max_rnk'] + $max_rank;
+                    $client_http = self::httpCallback('/api/query/full_studies', "GET", $client_args, ['delay' => 120]);
+
+                    if (!is_wp_error($client_http)) {
+                        // Grab the results
+                        $api_data = json_decode($client_http->getBody()->getContents());
+
+                        // Set data root to first object key
+                        $api_data = $api_data->FullStudiesResponse ?? null;
+                    } else {
+                        $this->errorLog->error("Error grabbing items during ranks {$client_args['min_rnk']} - {$client_args['max_rnk']}.");
+                        $this->errorLog->error(json_decode($client_http->getBody()->getContents()));
+                        // We don't want to stop the import, in case the issues were just at one instance
+                        continue;
+                    }
                 }
-
-                // $api_clone_field = 'field_610969b8d8ebe';
 
                 $studies = collect($api_data->FullStudies)
                     ->filter(function ($study) use ($trashed_posts) {
@@ -213,32 +246,11 @@ class MSAPIScraper
                     })
                     ->values();
 
-                $total_import = $studies->count();
+                if ($studies->count() > 0) {
+                    $position = self::studyImportLoop($studies, $current_position, $total_found);
+                    $current_position = $current_position + $position;
+                }
 
-                self::updatePosition(
-                    "Trials Found",
-                    [
-                        'position' => 1,
-                        'total_import' => $total_import,
-                    ]
-                );
-
-                $studies = $studies
-                    ->map(function ($study, $index) use ($total_import) {
-                        $study_data = collect($study);
-                        return self::studyImport(
-                            collect(
-                                $study_data
-                                    ->get('Study')
-                                    ->ProtocolSection
-                            ),
-                            $index,
-                            $total_import,
-                        );
-                    })
-                    ->filter();
-
-                $this->apiLog->info("Imported", $studies->toArray());
             }
         } else {
             $this->errorLog->error(json_decode($client_http->getBody()->getContents()));
@@ -260,6 +272,49 @@ class MSAPIScraper
     }
 
     /**
+     * A separated loop to handle pagination of posts
+     *
+     * @param Collection $api_data         The return data from the API, filtered through a Collection
+     * @param int        $current_position The current position of the import
+     * @param int        $total_found      The number of items found
+     *
+     * @throws Exception
+     */
+    private function studyImportLoop(Collection $studies, int $current_position, int $total_found)
+    {
+        // Map through our studies and begin assigning data to fields
+        if ($studies->count() > 0) {
+            self::updatePosition(
+                "Trials Found",
+                [
+                    'position' => 1,
+                    'total_import' => $total_found,
+                ]
+            );
+            $studies = $studies
+                ->map(function ($study, $index) use ($current_position, $total_found) {
+                    $study_data = collect($study);
+                    $position = ($current_position + $index) + 1;
+                    return self::studyImport(
+                        collect(
+                            $study_data
+                                ->get('Study')
+                                ->ProtocolSection
+                        ),
+                        $position,
+                        $total_found,
+                    );
+                })
+                ->filter();
+
+            $this->apiLog->info("Imported", $studies->toArray());
+
+            return $studies->count();
+        }
+        return 0;
+    }
+
+    /**
      * Setups the post creation or update based on the data imported.
      *
      * @param object $field_data Data retrieved from the API
@@ -271,7 +326,7 @@ class MSAPIScraper
     {
         set_time_limit(180);
         ini_set('max_execution_time', '180');
-        
+
         $return           = collect([]);
         $id_module        = self::parseId($field_data->get('IdentificationModule'));
         $status_module    = self::parseStatus($field_data->get('StatusModule'));

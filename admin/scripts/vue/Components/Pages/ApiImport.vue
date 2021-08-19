@@ -19,6 +19,9 @@
                                 :helper="status.helper"
                                 :position="status.position"
                                 :total-count="status.totalCount" />
+                <p v-if="status.helper"
+                   class="merck-scraper-import__body__status-helper"
+                   v-html="status.helper" />
             </div>
             <div class="merck-scraper-import__button-group col-12">
                 <div class="row">
@@ -94,6 +97,8 @@
                     config.nctidField = this.nctidField;
                 }
                 
+                this.timeout = 100;
+                
                 await axios
                     .post(`${this.api}`, config,)
                     .catch(err => console.log(err));
@@ -102,6 +107,7 @@
                 axios
                     .get(`${this.apiPosition}`)
                     .then(({data}) => {
+                        this.timeout = data.status === 200 ? 200 : 10000;
                         this.status = data.status === 200 && data;
                         this.importRunning = data.status === 200;
                     })
@@ -113,6 +119,7 @@
                     .then(({data}) => {
                         this.status = data.status === 200 && data;
                         this.importRunning = data.status === 200;
+                        this.timeout = 10000;
                     })
                     .catch(err => console.log(err.toJSON()));
             },

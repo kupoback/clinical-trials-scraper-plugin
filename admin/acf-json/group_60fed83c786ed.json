@@ -4,7 +4,7 @@
     "fields": [
         {
             "key": "field_6104147622270",
-            "label": "API Fields",
+            "label": "API Settings",
             "name": "",
             "type": "tab",
             "instructions": "",
@@ -52,6 +52,65 @@
             "maxlength": "",
             "rows": "",
             "new_lines": ""
+        },
+        {
+            "key": "field_611e6d493a1bd",
+            "label": "Import Rank",
+            "name": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "The Minimum Import Rank is the starting rank number to begin the import from.<br \/><br \/>\r\nThe Maximum Import Rank is the maximum number of items per API call to be made.<br \/><br \/>\r\n<b>Note<\/b>: The maximum number is 100, but to keep call times low, and preventing memory leaks, it's recommended to set a max to 30. The API has a loop in place to increase the minimum rank and maximum rank, depending on the number of results returned, and will adjust the API call to reflect this.",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_611e6c8bed208",
+            "label": "Min Import Rank",
+            "name": "min_import_rank",
+            "type": "number",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "one-half",
+                "id": ""
+            },
+            "default_value": 1,
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "min": 1,
+            "max": "",
+            "step": 1
+        },
+        {
+            "key": "field_611e6caeed209",
+            "label": "Max Import Rank",
+            "name": "max_import_rank",
+            "type": "number",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "one-half",
+                "id": ""
+            },
+            "default_value": 30,
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "min": 2,
+            "max": 100,
+            "step": 1
         },
         {
             "key": "field_610414572226f",
@@ -196,5 +255,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1629227545
+    "modified": 1629384186
 }
