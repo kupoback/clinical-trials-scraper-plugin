@@ -232,7 +232,7 @@ class MSAPIScraper
                 }
 
                 $studies = collect($api_data->FullStudies)
-                    ->filter(function ($study) use ($trashed_posts) {
+                    ->filter(function ($study) use ($total_found, $trashed_posts) {
                         // Filter the data removing ones that are marked as "trash"
                         $collect_study   = collect($study)
                             ->get('Study')
@@ -347,6 +347,11 @@ class MSAPIScraper
         // Grabs the post_id from the DB based on the NCT ID value
         $post_id = intval(self::dbFetchPostId('meta_value', $nct_id));
 
+        // Default post status
+        $do_not_import = false;
+        $trial_status = sanitize_title($status_module->get('trial_status'));
+        $allowed_status = ['recruiting', 'active-not-recruiting'];
+
         $post_default = [
             'post_title' => '',
             'post_name'  => '',
@@ -364,15 +369,28 @@ class MSAPIScraper
 
         $post_args = collect(wp_parse_args($parse_args, $post_default));
 
-        if ($post_id === 0) {
-            $post_args->put('post_status', 'draft');
+        // Update some parameters to not import the post OR set it's status to trash
+        if (!in_array($trial_status, $allowed_status)) {
+            $do_not_import = true;
+            $post_args->put('post_status', 'trash');
+        }
 
+        if ($post_id === 0) {
+            // Don't import the post and dump out of the loop for this item
+            if ($do_not_import) {
+                return self::doNotImportTrial(0, $post_args->get('post_title'), $nct_id, 'Did not create new trial post.');
+            }
+
+            // All new trials are set to draft status
+            $post_args->put('post_status', 'draft');
+            // Setup the post for creation
             $post_id = wp_insert_post(
                 $post_args
                     ->toArray(),
                 "Failed to create post."
             );
         } else {
+            // Updating our post
             $post_args->put('ID', $post_id);
             wp_update_post(
                 $post_args
@@ -380,6 +398,9 @@ class MSAPIScraper
                 "Failed to update post."
             );
         }
+
+        // Grab the post status
+        $status = get_post_status($post_id);
 
         /**
          * Bail out if we don't have a post_id
@@ -404,70 +425,89 @@ class MSAPIScraper
             ],
         );
 
-        $acf_fields = $this->acfFields;
+        $message = "Imported with post status set to {$status}";
 
-        /**
-         * Check to make sure we're still able to grab out ACF values
-         */
-        if ($acf_fields->isNotEmpty()) {
-            // Setup our collection to pull data from
-            $field_data = collect([])
-                ->put('nct_id', $nct_id)
-                ->put('official_title', $id_module->get('official_title'))
-                ->put('start_date', $status_module->get('start_date'))
-                ->put('primary_completion_date', $status_module->get('primary_completion_date'))
-                ->put('completion_date', $status_module->get('completion_date'))
-                ->put('lead_sponsor_name', $sponsor_module->get('lead_sponsor_name'))
-                ->put('gender', $eligibile_module->get('gender'))
-                ->put('minimum_age', $eligibile_module->get('minimum_age'))
-                ->put('maximum_age', $eligibile_module->get('maximum_age'))
-                // ->put('interventions', $arms_module->get('interventions'))
-                ->put('phase', $design_module->get('phase'))
-                // ->put('other_ids', '')
-                ->put('locations', $contact_module->get('locations'));
+        // Update the post meta if the trial is marked as allowed by it's trial status
+        if (!$do_not_import) {
+            $acf_fields = $this->acfFields;
 
-            // Map through our fields and update their values
-            $acf_fields
-                ->map(function ($field) use ($field_data, $post_id, $return) {
-                    $data_name = $field['data_name'] ?? '';
-                    if ($field['type'] === 'repeater') {
-                        $sub_fields = $field['sub_fields'] ?? false;
-                        if ($sub_fields && $sub_fields->isNotEmpty()) {
-                            // Retrieve the data based on the parent data_name
-                            $arr_data = $field_data->get($data_name) ?? false;
+            /**
+             * Check to make sure we're still able to grab out ACF values
+             */
+            if ($acf_fields->isNotEmpty()) {
+                // Setup our collection to pull data from
+                $field_data = collect([])
+                    ->put('nct_id', $nct_id)
+                    ->put('official_title', $id_module->get('official_title'))
+                    ->put('start_date', $status_module->get('start_date'))
+                    ->put('primary_completion_date', $status_module->get('primary_completion_date'))
+                    ->put('completion_date', $status_module->get('completion_date'))
+                    ->put('lead_sponsor_name', $sponsor_module->get('lead_sponsor_name'))
+                    ->put('gender', $eligibile_module->get('gender'))
+                    ->put('minimum_age', $eligibile_module->get('minimum_age'))
+                    ->put('maximum_age', $eligibile_module->get('maximum_age'))
+                    // ->put('interventions', $arms_module->get('interventions'))
+                    ->put('phase', $design_module->get('phase'))
+                    // ->put('other_ids', '')
+                    ->put('locations', $contact_module->get('locations'));
 
-                            if ($arr_data) {
-                                return self::updateACF($field['name'], $arr_data, $post_id);
+                // Map through our fields and update their values
+                $acf_fields
+                    ->map(function ($field) use ($field_data, $post_id, $return) {
+                        $data_name = $field['data_name'] ?? '';
+                        if ($field['type'] === 'repeater') {
+                            $sub_fields = $field['sub_fields'] ?? false;
+                            if ($sub_fields && $sub_fields->isNotEmpty()) {
+                                // Retrieve the data based on the parent data_name
+                                $arr_data = $field_data->get($data_name) ?? false;
+
+                                if ($arr_data) {
+                                    return self::updateACF($field['name'], $arr_data, $post_id);
+                                }
+                                return false;
                             }
                             return false;
                         }
-                        return false;
-                    }
 
-                    return self::updateACF($field['name'], $field_data->get($data_name), $post_id);
+                        return self::updateACF($field['name'], $field_data->get($data_name), $post_id);
+                    });
+            }
+
+            /**
+             * Setup the taxonomy terms
+             */
+            collect()
+                // Set the key as the taxonomy name
+                ->put('study_keyword', $condition_module->get('keywords'))
+                ->put('conditions', $condition_module->get('conditions'))
+                ->put('trial_status', $status_module->get('trial_status'))
+                // ->put('trial_category', [])
+                ->each(function ($terms, $taxonomy) use ($post_id) {
+                    return wp_set_object_terms($post_id, $terms, $taxonomy);
                 });
         }
 
-        /**
-         * Setup the taxonomy terms
-         */
-        collect()
-            // Set the key as the taxonomy name
-            ->put('study_keyword', $condition_module->get('keywords'))
-            ->put('conditions', $condition_module->get('conditions'))
-            ->put('trial_status', $status_module->get('trial_status'))
-            // ->put('trial_category', [])
-            ->each(function ($terms, $taxonomy) use ($post_id) {
-                return wp_set_object_terms($post_id, $terms, $taxonomy);
-            });
-
         $return->put('ID', $post_id);
         $return->put('NAME', $post_args->get('post_title'));
-        $return->put('NCDIT', $nct_id);
+        $return->put('NCDID', $nct_id);
+        $return->put('MESSAGE', $message);
 
         ini_restore('post_max_size');
         ini_restore('max_execution_time');
 
         return $return;
     }
+
+    protected function doNotImportTrial(int $post_id = 0, $post_title = '', $nct_id = '', $message = '')
+    {
+        return collect(
+            [
+                'ID' => $post_id,
+                'NAME' => $post_title,
+                'NCDID' => $nct_id,
+                'MESSAGE' => $message
+            ]
+        );
+    }
+
 }
