@@ -1,11 +1,11 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'f74e5342a71704390cd014a5246f3781a32fd584',
+        'reference' => 'f45bb3b37103cbbf7b5005628c8972baed67430b',
         'name' => 'mak/merck-scraper',
         'dev' => true,
     ),
@@ -119,12 +119,12 @@
             'dev_requirement' => false,
         ),
         'mak/merck-scraper' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'f74e5342a71704390cd014a5246f3781a32fd584',
+            'reference' => 'f45bb3b37103cbbf7b5005628c8972baed67430b',
             'dev_requirement' => false,
         ),
         'mockery/mockery' => array(
@@ -146,12 +146,12 @@
             'dev_requirement' => false,
         ),
         'nesbot/carbon' => array(
-            'pretty_version' => '2.51.1',
-            'version' => '2.51.1.0',
+            'pretty_version' => '2.52.0',
+            'version' => '2.52.0.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../nesbot/carbon',
             'aliases' => array(),
-            'reference' => '8619c299d1e0d4b344e1f98ca07a1ce2cfbf1922',
+            'reference' => '369c0e2737c56a0f39c946dd261855255a6fccbe',
             'dev_requirement' => false,
         ),
         'psr/container' => array(
@@ -247,7 +247,7 @@
             'type' => 'metapackage',
             'install_path' => NULL,
             'aliases' => array(),
-            'reference' => '6da216d969efa7e52cc7d0af125b8c8bb9caed25',
+            'reference' => '3c3cc12a9f163e589a12b9ea756c5a2dae9c59dd',
             'dev_requirement' => true,
         ),
         'squizlabs/php_codesniffer' => array(

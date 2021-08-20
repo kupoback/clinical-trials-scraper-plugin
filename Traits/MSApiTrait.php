@@ -142,24 +142,28 @@ trait MSApiTrait
         $response = get_option('merck_import_position');
         $current_time = self::timeNowFormated();
 
+        $return = [
+            'helper'     => null,
+            'name'       => null,
+            'position'   => null,
+            'totalCount' => null,
+            'status'     => 400,
+            'time'       => null,
+        ];
+
         if ($response && !empty($response)) {
             // Get the time that the import was last updated
             $updated_time = $response['time'];
-            // Check the number of minutes past
-            $time_diff = abs($current_time->getTimestamp() - $updated_time->getTimeStamp()) / 60;
-            if ($time_diff <= 3) {
-                return $response;
+            if (is_object($updated_time)) {
+                // Check the number of minutes past
+                $time_diff = abs($current_time->getTimestamp() - $updated_time->getTimeStamp()) / 60;
+                if ($time_diff <= 3) {
+                    $return = $response;
+                }
             }
         }
 
-        return [
-                'helper'     => null,
-                'name'       => null,
-                'position'   => null,
-                'totalCount' => null,
-                'status'     => 400,
-                'time'       => null,
-            ];
+        return $return;
     }
 
     /**
