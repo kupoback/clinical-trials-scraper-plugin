@@ -279,7 +279,7 @@ class MSAdmin
              */
             $where = preg_replace(
                 "/\(\s*{$wpdb->posts}.post_title\s+LIKE\s*(\'[^\']+\')\s*\)/",
-                "({$wpdb->posts}.post_title LIKE $1) OR ({$wpdb->postmeta}.meta_key = 'api_data_nct_id' AND {$wpdb->postmeta}.meta_value LIKE $1)",
+                "({$wpdb->posts}.post_title LIKE %$1%) OR ({$wpdb->postmeta}.meta_key = 'api_data_nct_id' AND {$wpdb->postmeta}.meta_value LIKE %$1%)",
                 $where
             );
 
