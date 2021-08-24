@@ -131,6 +131,23 @@ class MSMainClass
 
         $this->loader->addAction('admin_enqueue_scripts', $plugin_admin, 'enqueueStyles');
         $this->loader->addAction('admin_enqueue_scripts', $plugin_admin, 'enqueueScripts');
+        $this->loader->addAction('manage_trials_posts_columns', $plugin_admin, 'addColumns');
+        $this->loader->addAction(
+            'manage_trials_posts_custom_column',
+            $plugin_admin,
+            'showCustomCol',
+            10,
+            2
+        );
+
+        /**
+         * Filters and Actions to expand the Admin Columns for the Trials Post type, including filters and searching for custom ACF field
+         */
+        $this->loader->addAction('pre_get_posts', $plugin_admin, 'trialsAdminQuery');
+        $this->loader->addFilter('manage_edit-trials_sortable_columns', $plugin_admin, 'filterCustomCol');
+        $this->loader->addFilter('posts_join', $plugin_admin, 'trialsAdminJoin');
+        $this->loader->addFilter('posts_where', $plugin_admin, 'trialsAdminWhere');
+        $this->loader->addFilter('posts_distinct', $plugin_admin, 'trialsAdminDistc');
 
         // ACF JSON related
         $this->loader->addAction('acf/update_field_group', $plugin_admin, 'saveACFJson', 1, 1);

@@ -4,6 +4,8 @@ declare(strict_types = 1);
 
 namespace Merck_Scraper\admin;
 
+use WPDB;
+
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -169,4 +171,154 @@ class MSAdmin
         $paths[] = dirname(__FILE__) . '/acf-json';
         return $paths;
     }
+
+    /**
+     * Adds custom columns to the trials post type
+     *
+     * @param array $columns An array of the existing registered columns
+     *
+     * @return array
+     */
+    public function addColumns(array $columns)
+    {
+        // Save the $columns['date'] field
+        $post_date = $columns['date'];
+        unset($columns['date']);
+
+        // Add any custom columns here before the `date` field
+        $custom_columns = [
+            'nct_id' => __("NCT ID", 'merck-scraper'),
+            'date'   => $post_date,
+        ];
+
+        return array_merge(
+            $columns,
+            $custom_columns
+        );
+    }
+
+    /**
+     * Displays the data for the custom field defined in addAcfColumns
+     *
+     * @param string $column_key The column key name
+     * @param int    $post_id    The post_id
+     */
+    public function showCustomCol(string $column_key, int $post_id)
+    {
+        if ($column_key === 'nct_id') {
+            printf(
+                '<span style="">%s</span>',
+                get_field('api_data_nct_id', $post_id) ?: '-',
+            );
+        }
+    }
+
+    /**
+     * Sets up the custom columns to be filterable
+     *
+     * @param array $columns An array of registered admin columns
+     *
+     * @return mixed
+     */
+    public function filterCustomCol(array $columns)
+    {
+        $columns['nct_id'] = 'nct_id';
+        return $columns;
+    }
+
+    /**
+     * Currently allows us to filter any custom columns appended to the $query
+     *
+     * @param $query
+     */
+    public function trialsAdminQuery($query)
+    {
+        if ($query->get('post_type') === 'trials' && is_admin()) {
+            if (!$query->is_main_query()) {
+                return;
+            }
+
+            if ('nct_id' === $query->get('orderby')) {
+                $query->set('orderby', 'meta_value');
+                $query->set('meta_key', 'api_data_nct_id');
+            }
+        }
+    }
+
+    /**
+     * This adjusts the join query for the Trials Admin Search capability to look for the postmeta table
+     *
+     * @param string $join The join clause
+     *
+     * @return mixed|string
+     */
+    public function trialsAdminJoin(string $join)
+    {
+        global $wpdb;
+
+        if (self::isTrialsAdmin()) {
+            $join .= " LEFT JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id";
+        }
+
+        return $join;
+    }
+
+    /**
+     * This is the where query for the Trials Admin Search capability for the api_data_nct_id
+     *
+     * @param string $where The where clause
+     *
+     * @return null|array|mixed|string|string[]
+     */
+    public function trialsAdminWhere(string $where)
+    {
+        global $pagenow, $wpdb;
+        if (self::isTrialsAdmin()) {
+            /**
+             * Extend the post_title search to search the api_data_nct_id
+             */
+            $where = preg_replace(
+                "/\(\s*{$wpdb->posts}.post_title\s+LIKE\s*(\'[^\']+\')\s*\)/",
+                "({$wpdb->posts}.post_title LIKE $1) OR ({$wpdb->postmeta}.meta_key = 'api_data_nct_id' AND {$wpdb->postmeta}.meta_value LIKE $1)",
+                $where
+            );
+
+            /**
+             * Remove searching for the post_content
+             */
+            $where = preg_replace(
+                "/OR\s+\(\s*{$wpdb->posts}.post_content\s+LIKE\s*(\'[^\']+\')\s*\)/",
+                "",
+                $where
+            );
+        }
+        return $where;
+    }
+
+    /**
+     * This is setting the $where disctict clause
+     *
+     * @param string $where
+     *
+     * @return string
+     */
+    public function trialsAdminDistc(string $where)
+    {
+        global $wpdb;
+        if (self::isTrialsAdmin()) {
+            return "DISTINCT";
+        }
+        return $where;
+    }
+
+    /**
+     * Checks whether we're on the admin edit-trials archive page
+     *
+     * @return bool
+     */
+    protected function isTrialsAdmin()
+    {
+        return get_current_screen()->id === 'edit-trials' && is_search();
+    }
+
 }
