@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace Merck_Scraper\admin;
 
 use WPDB;
-use function get_current_screen;
 
 /**
  * The admin-specific functionality of the plugin.
@@ -319,7 +318,7 @@ class MSAdmin
      */
     protected function isTrialsAdmin()
     {
-        return get_current_screen()->id === 'edit-trials' && is_search();
+        return is_admin() && get_current_screen()->id === 'edit-trials' && is_search();
     }
 
 }
