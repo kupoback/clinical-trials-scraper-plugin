@@ -183,6 +183,25 @@
             "maxlength": ""
         },
         {
+            "key": "field_611a919d8b080",
+            "label": "Other ID's",
+            "name": "api_data_other_ids",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": "",
+            "new_lines": "br"
+        },
+        {
             "key": "field_611a91358b076",
             "label": "Dates",
             "name": "",
@@ -373,46 +392,6 @@
             ]
         },
         {
-            "key": "field_611a919d8b080",
-            "label": "Other ID's",
-            "name": "api_data_other_ids",
-            "type": "repeater",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "collapsed": "",
-            "min": 0,
-            "max": 0,
-            "layout": "table",
-            "button_label": "",
-            "sub_fields": [
-                {
-                    "key": "field_611a91a78b081",
-                    "label": "ID",
-                    "name": "id",
-                    "type": "text",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "",
-                        "id": ""
-                    },
-                    "default_value": "",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "maxlength": ""
-                }
-            ]
-        },
-        {
             "key": "field_611a91b08b082",
             "label": "Locations",
             "name": "api_data_locations",
@@ -565,5 +544,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1629142190
+    "modified": 1629813606
 }

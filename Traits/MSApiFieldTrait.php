@@ -26,11 +26,21 @@ trait MSApiFieldTrait
      */
     protected function parseId(object $id_module)
     {
+        $other_ids = collect($id_module->SecondaryIdInfoList->SecondaryIdInfo ?? []);
+        if ($other_ids->isNotEmpty()) {
+            $other_ids = $other_ids
+                ->map(function ($second_id) {
+                    return $second_id->SecondaryId ?? '';
+                })
+                ->filter();
+        }
+
         return collect(
             [
                 'post_title'     => $id_module->BriefTitle ?? '',
                 'nct_id'         => $id_module->NCTId ?? '',
                 'official_title' => $id_module->OfficialTitle ?? '',
+                'other_ids'      => $other_ids,
             ]
         );
     }

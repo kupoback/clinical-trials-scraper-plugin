@@ -446,9 +446,9 @@ class MSAPIScraper
                     ->put('gender', $eligibile_module->get('gender'))
                     ->put('minimum_age', $eligibile_module->get('minimum_age'))
                     ->put('maximum_age', $eligibile_module->get('maximum_age'))
+                    ->put('other_ids', $id_module->get('other_ids'))
                     // ->put('interventions', $arms_module->get('interventions'))
                     ->put('phase', $design_module->get('phase'))
-                    // ->put('other_ids', '')
                     ->put('locations', $contact_module->get('locations'));
 
                 // Map through our fields and update their values
@@ -465,6 +465,19 @@ class MSAPIScraper
                                     return self::updateACF($field['name'], $arr_data, $post_id);
                                 }
                                 return false;
+                            }
+                            return false;
+                        }
+
+                        if ($field['type'] === 'textarea') {
+                            if ($field_data->isNotEmpty()) {
+                                return self::updateACF(
+                                    $field['name'],
+                                    $field_data
+                                        ->get($data_name)
+                                        ->implode(PHP_EOL),
+                                    $post_id
+                                );
                             }
                             return false;
                         }

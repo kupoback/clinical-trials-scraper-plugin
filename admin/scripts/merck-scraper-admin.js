@@ -16,9 +16,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
                 const elmInput = elm.querySelectorAll('input[id*="acf-field"]:not([id*="acfcloneindex"])');
                 if (elmInput.length) {
                     // Disable them
-                    [...elmInput].map(elm => {
-                        disableElmAtts(elm);
-                    });
+                    [...elmInput].map(elm => disableElmAtts(elm));
                 }
                 const elmBtn = elm.querySelectorAll('[class*="button"]');
                 if (elmBtn.length) {
@@ -28,6 +26,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         elm.style.cursor = 'not-allowed';
                         disableElmAtts(elm);
                     });
+                }
+                const elmTextArea = elm.querySelectorAll('textarea[id*="acf-field"]');
+                if (elmTextArea.length) {
+                    [...elmTextArea].map(elm => disableElmAtts(elm));
                 }
             });
         }
