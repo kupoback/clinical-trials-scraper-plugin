@@ -318,7 +318,11 @@ class MSAdmin
      */
     protected function isTrialsAdmin()
     {
-        return is_admin() && get_current_screen()->id === 'edit-trials' && is_search();
+        if (is_admin()) {
+            $current_screen = get_current_screen();
+            $post_edit_screen = ['edit-trials', 'edit-events', 'edit-products', 'edit-leadership'];
+            return is_object($current_screen) && in_array($current_screen->id, $post_edit_screen) && is_search();
+        }
     }
 
 }
