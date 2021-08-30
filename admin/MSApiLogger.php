@@ -5,7 +5,7 @@ declare(strict_types = 1);
 namespace Merck_Scraper\admin;
 
 use Carbon\Carbon;
-use Merck_Scraper\Traits\MSApiTrait;
+use Merck_Scraper\Traits\MSApi;
 use WP_Error;
 use WP_HTTP_Response;
 use WP_REST_Request;
@@ -22,7 +22,7 @@ use WP_REST_Server;
 class MSApiLogger
 {
 
-    use MSApiTrait;
+    use MSApi;
 
     /**
      * Folder for the api logs

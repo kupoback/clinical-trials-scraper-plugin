@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace Merck_Scraper\admin;
 
-use Merck_Scraper\Traits\MSAdminTrait;
+use Merck_Scraper\Traits\MSAdmin;
 
 /**
  * Registers the custom taxonomy for the custom post type
@@ -16,7 +16,7 @@ use Merck_Scraper\Traits\MSAdminTrait;
 class MSCustomTax
 {
 
-    use MSAdminTrait;
+    use MSAdmin;
 
     /**
      * Sets up the taxonomies used on the site. The key for each array item is the taxonomy name

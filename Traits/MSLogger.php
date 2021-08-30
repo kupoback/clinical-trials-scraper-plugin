@@ -5,10 +5,7 @@ declare(strict_types = 1);
 namespace Merck_Scraper\Traits;
 
 use DateTimeZone;
-use Monolog\Formatter\JsonFormatter;
 use Monolog\Formatter\LineFormatter;
-use Monolog\Formatter\NormalizerFormatter;
-use Monolog\Formatter\ScalarFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 

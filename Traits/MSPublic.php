@@ -11,6 +11,6 @@ namespace Merck_Scraper\Traits;
  * @subpackage Merck_Scraper/Traits
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
-trait MSPublicTrait
+trait MSPublic
 {
 }

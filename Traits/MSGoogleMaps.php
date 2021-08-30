@@ -4,9 +4,6 @@ declare(strict_types = 1);
 
 namespace Merck_Scraper\Traits;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Collection;
 use WP_Error;
 
@@ -21,7 +18,7 @@ trait MSGoogleMaps
 {
 
     use MSAcf;
-    use MSApiTrait;
+    use MSApi;
     use MSHttpCallback;
 
     /**
@@ -46,13 +43,6 @@ trait MSGoogleMaps
      * @var string $geoCodeEP
      */
     private string $geoCodeEP = '/maps/api/geocode/json';
-
-    /**
-     * The client call
-     *
-     * @var Client
-     */
-    private Client $client;
 
     /**
      * The error message for REST API
@@ -173,44 +163,38 @@ trait MSGoogleMaps
      * Makes an API call to Google Maps, and returns with the response or WP_Error
      *
      * @param $param
-     *
-     * @throws ClientException
      */
     protected function googleMapsApiCB($address)
     {
         $coords = '';
-        try {
-            $api_key  = self::acfOptionField('google_maps_api_key');
-            $response = self::httpCallback(
-                $this->googleApiUrl,
-                $this->geoCodeEP,
-                "GET",
-                [
-                    'address' => $address,
-                    'key'     => $api_key,
+        $api_key  = self::acfOptionField('google_maps_api_key');
+        $response = self::httpCallback(
+            $this->googleApiUrl,
+            $this->geoCodeEP,
+            "GET",
+            [
+                'address' => $address,
+                'key'     => $api_key,
+            ],
+            [
+                'http_args' => [
+                    'delay' => 180,
                 ],
-                [
-                    'http_args' => [
-                        'delay' => 180,
-                    ],
-                    'guzzle'    => [
-                        'verify' => false,
-                    ],
-                ]
-            );
+                'guzzle'    => [
+                    'verify' => false,
+                ],
+            ]
+        );
 
-            if ($response->getStatusCode() == '200') {
-                $body_res = (string) $response->getBody();
-                $body_res = json_decode($body_res);
+        if ($response->getStatusCode() == '200') {
+            $body_res = (string) $response->getBody();
+            $body_res = json_decode($body_res);
 
-                if ($body_res->status === 'OK' && !empty($body_res->results)) {
-                    return $body_res->results[0];
-                } else {
-                    return new WP_Error($response->getStatusCode(), $body_res->error_message ?? '');
-                }
+            if ($body_res->status === 'OK' && !empty($body_res->results)) {
+                return $body_res->results[0];
+            } else {
+                return new WP_Error($response->getStatusCode(), $body_res->error_message ?? '');
             }
-        } catch (GuzzleException $exception) {
-            return new WP_Error($exception->getCode(), $exception->getMessage());
         }
 
         return $coords;

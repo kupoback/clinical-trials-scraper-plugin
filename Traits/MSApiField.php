@@ -6,7 +6,6 @@ namespace Merck_Scraper\Traits;
 
 use Illuminate\Support\Collection;
 use Merck_Scraper\Helper\Helper;
-use Merck_Scraper\Traits\MsContentFormat;
 
 /**
  * Traits for the Merck Scraper API fields
@@ -15,7 +14,7 @@ use Merck_Scraper\Traits\MsContentFormat;
  * @subpackage Merck_Scraper/Traits
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
-trait MSApiFieldTrait
+trait MSApiField
 {
 
     use MsContentFormat;

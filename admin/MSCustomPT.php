@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace Merck_Scraper\admin;
 
-use Merck_Scraper\Traits\MSAdminTrait;
+use Merck_Scraper\Traits\MSAdmin;
 
 /**
  * Registers the custom post type for the plugin
@@ -16,7 +16,7 @@ use Merck_Scraper\Traits\MSAdminTrait;
 class MSCustomPT
 {
 
-    use MSAdminTrait;
+    use MSAdmin;
 
     /**
      * Registers all necessary post types

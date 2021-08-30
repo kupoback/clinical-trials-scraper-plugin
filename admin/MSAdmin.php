@@ -4,8 +4,6 @@ declare(strict_types = 1);
 
 namespace Merck_Scraper\admin;
 
-use WPDB;
-
 /**
  * The admin-specific functionality of the plugin.
  *

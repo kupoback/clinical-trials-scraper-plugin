@@ -9,8 +9,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Merck_Scraper\Helper\MSMailer;
 use Merck_Scraper\Traits\MSAcf;
-use Merck_Scraper\Traits\MSApiFieldTrait;
-use Merck_Scraper\Traits\MSApiTrait;
+use Merck_Scraper\Traits\MSApiField;
+use Merck_Scraper\Traits\MSApi;
 use Merck_Scraper\Traits\MSDBCallbacks;
 use Merck_Scraper\Traits\MSGoogleMaps;
 use Merck_Scraper\Traits\MSHttpCallback;
@@ -25,12 +25,12 @@ use WP_REST_Server;
 class MSAPIScraper
 {
 
-    use MSApiTrait;
+    use MSApi;
     use MSAcf;
     use MSGoogleMaps;
     use MSLogger;
     use MSHttpCallback;
-    use MSApiFieldTrait;
+    use MSApiField;
     use MSDBCallbacks;
 
     /**

@@ -18,7 +18,7 @@ use WP_REST_Server;
  * @subpackage Merck_Scraper/Traits
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
-trait MSApiTrait
+trait MSApi
 {
 
     /**
@@ -210,6 +210,5 @@ trait MSApiTrait
     {
         return new DateTime();
     }
-
     //endregion
 }

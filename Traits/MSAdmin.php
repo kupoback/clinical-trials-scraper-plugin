@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
  * @subpackage Merck_Scraper/Traits
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
-trait MSAdminTrait
+trait MSAdmin
 {
     /**
      * Creates the array needed to register the post type

@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace Merck_Scraper\frontend;
 
-use Merck_Scraper\Traits\MSApiTrait;
+use Merck_Scraper\Traits\MSApi;
 use Merck_Scraper\Traits\MSGoogleMaps;
 use WP_Error;
 use WP_HTTP_Response;
@@ -24,7 +24,7 @@ use WP_REST_Server;
 class MSAPI
 {
 
-    use MSApiTrait;
+    use MSApi;
     use MSGoogleMaps;
 
     public function __construct()
