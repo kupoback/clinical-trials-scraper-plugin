@@ -304,13 +304,14 @@ trait MSApiField
             $locations = $locations
                 ->map(function ($location) {
                     $us_names = ["United States", "United States of America", "USA"];
-                    $status = ['Recruiting'];
-                    if (in_array($location->LocationCountry, $us_names) && in_array($location->LocationStatus, $status)) {
+                    $location_status = $location->LocationStatus ?? '';
+                    $status = ['Recruiting', ''];
+                    if (in_array($location->LocationCountry, $us_names) && in_array($location_status, $status)) {
                         return [
                             'city'              => $location->LocationCity ?? '',
                             'country'           => $location->LocationCountry ?? '',
                             'facility'          => $location->LocationFacility ?? '',
-                            'recruiting_status' => $location->LocationStatus ?? '',
+                            'recruiting_status' => $location_status,
                             'state'             => $location->LocationState ?? '',
                             'zip'               => $location->LocationZip ?? '',
                         ];
