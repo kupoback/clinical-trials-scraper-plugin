@@ -6,6 +6,7 @@ namespace Merck_Scraper\Traits;
 
 use Illuminate\Support\Collection;
 use Merck_Scraper\Helper\Helper;
+use Merck_Scraper\Traits\MsContentFormat;
 
 /**
  * Traits for the Merck Scraper API fields
@@ -16,6 +17,8 @@ use Merck_Scraper\Helper\Helper;
  */
 trait MSApiFieldTrait
 {
+
+    use MsContentFormat;
 
     /**
      * Parses the IdentificationModule object field, returning the Post Title, NCTID, and Official Title field
@@ -278,8 +281,8 @@ trait MSApiFieldTrait
         return collect(
             [
                 'gender'      => $eligibility_module->Gender ?? '',
-                'minimum_age' => $eligibility_module->MinimumAge ?? '',
-                'maximum_age' => $eligibility_module->MaximumAge ?? '',
+                'minimum_age' => self::stripYears($eligibility_module->MinimumAge ?? '') ?: 0,
+                'maximum_age' => self::stripYears($eligibility_module->MaximumAge ?? '') ?: 999,
             ]
         );
     }
@@ -293,19 +296,29 @@ trait MSApiFieldTrait
      */
     protected function parseLocation(object $location_module)
     {
+        /**
+         * Map through all the locations, and set them up for import. During this time
+         * we will be getting the latitude and longitude from Google Maps
+         */
         $locations = collect($location_module->LocationList->Location ?? []);
         if ($locations->isNotEmpty()) {
             $locations = $locations
                 ->map(function ($location) {
-                    return [
-                        'city'              => $location->LocationCity ?? '',
-                        'country'           => $location->LocationCountry ?? '',
-                        'facility'          => $location->LocationFacility ?? '',
-                        'recruiting_status' => $location->LocationStatus ?? '',
-                        'state'             => $location->LocationState ?? '',
-                        'zip'               => $location->LocationZip ?? '',
-                    ];
-                });
+                    $us_names = ["United States", "United States of America", "USA"];
+                    $status = ['Recruiting'];
+                    if (in_array($location->LocationCountry, $us_names) && in_array($location->LocationStatus, $status)) {
+                        return [
+                            'city'              => $location->LocationCity ?? '',
+                            'country'           => $location->LocationCountry ?? '',
+                            'facility'          => $location->LocationFacility ?? '',
+                            'recruiting_status' => $location->LocationStatus ?? '',
+                            'state'             => $location->LocationState ?? '',
+                            'zip'               => $location->LocationZip ?? '',
+                        ];
+                    }
+                    return false;
+                })
+                ->filter();
         }
 
         return collect(

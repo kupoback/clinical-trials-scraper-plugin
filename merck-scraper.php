@@ -43,17 +43,6 @@ require plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 // require plugin_dir_path(__FILE__) . 'build/vendor/autoload.php';
 
 /**
- * Create a .env file if it's never made
- */
-if (!file_exists(plugin_dir_path(__FILE__) . '.env')) {
-    touch(plugin_dir_path(__FILE__) . '.env');
-}
-
-// Setup dotenv to work
-$dotenv = Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
-/**
  * Currently plugin version.
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.

@@ -10,6 +10,7 @@ use Merck_Scraper\admin\MSAPIScraper;
 use Merck_Scraper\admin\MSCustomPT;
 use Merck_Scraper\admin\MSCustomTax;
 use Merck_Scraper\admin\MSOptionsPage;
+use Merck_Scraper\frontend\MSAPI;
 use Merck_Scraper\frontend\MSPublic;
 
 /**
@@ -191,7 +192,8 @@ class MSMainClass
         $this->loader->addAction('wp_enqueue_scripts', $plugin_public, 'enqueueStyles');
         $this->loader->addAction('wp_enqueue_scripts', $plugin_public, 'enqueueScripts');
 
-        // $public_api = new MSAPI();
+        $public_api = new MSAPI();
+        $this->loader->addRestRoute($public_api, 'registerEndpoint');
     }
 
     /**

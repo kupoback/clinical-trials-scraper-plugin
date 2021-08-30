@@ -47,8 +47,6 @@ trait MSApiTrait
     protected function registerRoute(string $route = '', $rest_type = WP_REST_Server::READABLE, array $callback = [], string $query_args = '', array $args = [])
     {
         $rest_prefix = "{$this->apiNamespace}/{$this->apiVersion}";
-        // $query_args = '/committees/(?P<key>[[:alnum:]]+)'
-        // $args = ['key' => ['required' => true,],],
 
         if ($query_args) {
             $route = "{$route}/{$query_args}";

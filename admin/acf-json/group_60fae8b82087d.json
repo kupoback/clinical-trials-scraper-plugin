@@ -449,6 +449,25 @@
                     "maxlength": ""
                 },
                 {
+                    "key": "field_612d42b9e845e",
+                    "label": "Street",
+                    "name": "street",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                },
+                {
                     "key": "field_611a91d78b085",
                     "label": "City",
                     "name": "city",
@@ -523,6 +542,48 @@
                     "prepend": "",
                     "append": "",
                     "maxlength": ""
+                },
+                {
+                    "key": "field_612d26c3e0258",
+                    "label": "Latitude",
+                    "name": "latitude",
+                    "type": "number",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "one-half",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "min": "",
+                    "max": "",
+                    "step": ""
+                },
+                {
+                    "key": "field_612d26cbe0259",
+                    "label": "Longitude",
+                    "name": "longitude",
+                    "type": "number",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "one-half",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "min": "",
+                    "max": "",
+                    "step": ""
                 }
             ]
         }
@@ -544,5 +605,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1629813606
+    "modified": 1630356183
 }

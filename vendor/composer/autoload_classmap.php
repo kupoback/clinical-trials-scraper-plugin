@@ -448,6 +448,7 @@ return array(
     'Merck_Scraper\\Traits\\MSApiFieldTrait' => $baseDir . '/Traits/MSApiFieldTrait.php',
     'Merck_Scraper\\Traits\\MSApiTrait' => $baseDir . '/Traits/MSApiTrait.php',
     'Merck_Scraper\\Traits\\MSDBCallbacks' => $baseDir . '/Traits/MSDBCallbacks.php',
+    'Merck_Scraper\\Traits\\MSEmail' => $baseDir . '/Traits/MSEmail.php',
     'Merck_Scraper\\Traits\\MSGoogleMaps' => $baseDir . '/Traits/MSGoogleMaps.php',
     'Merck_Scraper\\Traits\\MSHttpCallback' => $baseDir . '/Traits/MSHttpCallback.php',
     'Merck_Scraper\\Traits\\MSLogger' => $baseDir . '/Traits/MSLogger.php',

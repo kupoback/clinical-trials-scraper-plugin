@@ -6,7 +6,9 @@ namespace Merck_Scraper\Traits;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use Merck_Scraper\Helper\Helper;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Collection;
+use WP_Error;
 
 /**
  * Traits for the Google Maps get location
@@ -18,11 +20,13 @@ use Merck_Scraper\Helper\Helper;
 trait MSGoogleMaps
 {
 
-    use MSApiTrait;
     use MSAcf;
+    use MSApiTrait;
+    use MSHttpCallback;
 
     /**
      * The google maps API key
+     *
      * @var string
      */
     private string $apiKey = '';
@@ -34,7 +38,14 @@ trait MSGoogleMaps
      * @access   private
      * @var      string $google_api_url The URL request from Google
      */
-    private string $googleApiUrl = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
+    private string $googleApiUrl = 'https://maps.googleapis.com';
+
+    /**
+     * The endpoint to get the geocode
+     *
+     * @var string $geoCodeEP
+     */
+    private string $geoCodeEP = '/maps/api/geocode/json';
 
     /**
      * The client call
@@ -50,54 +61,158 @@ trait MSGoogleMaps
      */
     private array $error;
 
-    public function __construct()
+    protected function getFullLocation(array $location = [])
     {
-        $this->apiKey = self::acfOptionField('google_maps_api_key');
-        $this->client = new Client(['verify' => false]);
+        $gm_api_callback = self::googleMapsApiCB(
+            collect($location)
+                ->implode('+')
+        );
+
+        if (!is_wp_error($gm_api_callback)) {
+            $address = self::parseAddress(collect($gm_api_callback->address_components));
+            if ($gm_api_callback->geometry->location ?? false) {
+                $address->put('latitude', $gm_api_callback->geometry->location->lat);
+                $address->put('longitude', $gm_api_callback->geometry->location->lng);
+            }
+
+            return $address->filter();
+        }
+        return new WP_Error($gm_api_callback);
     }
 
     /**
      * Grabs the lat/lng for a place based on the address
      *
+     * @param array $location
+     */
+    protected function getLatLng(array $location = [])
+    {
+        $gm_api_callback = self::googleMapsApiCB(
+            collect($location)
+                ->implode('+')
+        );
+        if (!is_wp_error($gm_api_callback)) {
+            if ($gm_api_callback->geometry ?? false) {
+                return $gm_api_callback->geometry->location ?? false;
+            }
+        }
+        return $gm_api_callback;
+    }
+
+    /**
+     * Parses the Google Maps API address_components
+     *
+     * @param Collection $address
+     *
+     * @return Collection
+     */
+    protected function parseAddress(Collection $address)
+    {
+        if ($address->isNotEmpty()) {
+            $accepted_types = [
+                'subpremise', // Floor/Apt/Unit Number
+                'street_number', // Street number
+                'route', // Street Name
+                'locality', // City
+                'administrative_area_level_1', // State
+                'postal_code', // Zip Code
+                'country', // Country Name
+            ];
+            $address        = $address
+                ->filter(function ($array) use ($accepted_types) {
+                    $types = collect($array->types)
+                        ->filter(function ($type) use ($accepted_types) {
+                            return in_array($type, $accepted_types);
+                        })
+                        ->filter()
+                        ->values();
+                    return $types->isNotEmpty();
+                })
+                ->mapWithKeys(function ($array) {
+                    $types    = collect($array->types)
+                        ->filter(function ($type) {
+                            return $type !== 'political';
+                        });
+                    $the_type = $types->first();
+                    switch ($the_type) {
+                        case "locality":
+                            $the_type = 'city';
+                            break;
+                        case "administrative_area_level_1":
+                            $the_type = 'state';
+                            break;
+                        case "postal_code":
+                            $the_type = 'zipcode';
+                            break;
+                        default:
+                            break;
+                    }
+                    return [$the_type => $array->long_name];
+                })
+                ->filter();
+
+            $subprem       = $address->pull('subpremise');
+            $street_number = $address->pull('street_number');
+            $street_name   = $address->pull('route');
+
+            if ($subprem && $street_number && $street_name) {
+                $street_address = "{$subprem} {$street_number} {$street_name}";
+            } elseif (!$subprem && $street_number && $street_name) {
+                $street_address = "{$street_number} {$street_name}";
+            } else {
+                $street_address = $street_name ?: '';
+            }
+            $address->put('street', $street_address);
+
+            return $address->filter();
+        }
+        return collect();
+    }
+
+    /**
+     * Makes an API call to Google Maps, and returns with the response or WP_Error
+     *
      * @param $param
      *
      * @throws ClientException
      */
-    public function getCoordinates($param)
+    protected function googleMapsApiCB($address)
     {
         $coords = '';
         try {
-            $request_uri = $this->googleApiUrl;
-            $address = urlencode(implode('+', $param));
-            $uri_key = "&key={$this->apiKey}";
-
-            $response = $this->client
-                ->request(
-                    'GET',
-                    $request_uri . $address . $uri_key
-                );
+            $api_key  = self::acfOptionField('google_maps_api_key');
+            $response = self::httpCallback(
+                $this->googleApiUrl,
+                $this->geoCodeEP,
+                "GET",
+                [
+                    'address' => $address,
+                    'key'     => $api_key,
+                ],
+                [
+                    'http_args' => [
+                        'delay' => 180,
+                    ],
+                    'guzzle'    => [
+                        'verify' => false,
+                    ],
+                ]
+            );
 
             if ($response->getStatusCode() == '200') {
                 $body_res = (string) $response->getBody();
-                $body_res = json_encode($body_res);
+                $body_res = json_decode($body_res);
 
-                if (!property_exists($body_res, 'error_message') && isset($body_res->results) && count($body_res->results) > 0) {
-                    $latitude = $body_res->results[0]->geometry->location->lat ?: null;
-                    $longitude = $body_res->results[0]->geometry->location->lng ?: null;
-
-                    $coords = (object) [
-                        'lat' => !is_null($latitude) ? (float) $latitude : null,
-                        'lng' => !is_null($longitude) ? (float) $longitude : null,
-                    ];
+                if ($body_res->status === 'OK' && !empty($body_res->results)) {
+                    return $body_res->results[0];
                 } else {
-                    $coords = 'Google Map API - ' . $body_res->error_message;
+                    return new WP_Error($response->getStatusCode(), $body_res->error_message ?? '');
                 }
             }
-        } catch (ClientException $exception) {
-            $coords = $exception->getResponse()->getBody()->getContents();
+        } catch (GuzzleException $exception) {
+            return new WP_Error($exception->getCode(), $exception->getMessage());
         }
 
         return $coords;
     }
-
 }

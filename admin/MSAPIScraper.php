@@ -12,6 +12,7 @@ use Merck_Scraper\Traits\MSAcf;
 use Merck_Scraper\Traits\MSApiFieldTrait;
 use Merck_Scraper\Traits\MSApiTrait;
 use Merck_Scraper\Traits\MSDBCallbacks;
+use Merck_Scraper\Traits\MSGoogleMaps;
 use Merck_Scraper\Traits\MSHttpCallback;
 use Merck_Scraper\Traits\MSLogger;
 use Monolog\Logger;
@@ -26,6 +27,7 @@ class MSAPIScraper
 
     use MSApiTrait;
     use MSAcf;
+    use MSGoogleMaps;
     use MSLogger;
     use MSHttpCallback;
     use MSApiFieldTrait;
@@ -67,6 +69,12 @@ class MSAPIScraper
     private Logger $errorLog;
 
     /**
+     * Sets a global Carbon DateTime for the instantiated class.
+     * @var Carbon $nowTime
+     */
+    private Carbon $nowTime;
+
+    /**
      * MSAPIScraper constructor.
      *
      * @param string $apiLogDirectory The path string of the dir for the API Log
@@ -81,7 +89,9 @@ class MSAPIScraper
             ],
         ];
 
-        $timestamp      = Carbon::now()->timestamp;
+        $this->nowTime = Carbon::now();
+
+        $timestamp      = $this->nowTime->timestamp;
         $this->errorLog = self::initLogger("api-error", "error-{$timestamp}", "{$apiLogDirectory}/error");
         $this->apiLog   = self::initLogger("api-import", "api-{$timestamp}", "{$apiLogDirectory}/log", Logger::INFO);
     }
@@ -167,6 +177,9 @@ class MSAPIScraper
             'max_rnk' => $max_rank,
         ];
 
+        /**
+         * Updates the expr field to get a single ID
+         */
         if ($nctid_field) {
             $client_args['expr'] = "AREA[NCTId]{$nctid_field}";
         }
@@ -175,8 +188,9 @@ class MSAPIScraper
          * Parse and organize each field and single-level sub field
          */
         $this->acfFields = self::trialsFieldGroup();
+        $studies_imported = collect();
 
-        $client_http = self::httpCallback('/api/query/full_studies', "GET", $client_args, ['delay' => 120]);
+        $client_http = self::scraperHttpCB('/api/query/full_studies', "GET", $client_args, ['delay' => 120]);
 
         // Check that our HTTP request was successful
         if (!is_wp_error($client_http)) {
@@ -194,7 +208,8 @@ class MSAPIScraper
              * Determine how many times we need to loop through the items based on the amount found
              * versus the max number of item's we're getting
              */
-            $loop_number = round($total_found / $max_grabbed);
+            $loop_number = intval(round($total_found / $max_grabbed));
+            $loop_number = $loop_number === 0 ? 1 : $loop_number;
 
             // Grab a list of trashed posts that are supposed to be archived
             $trashed_posts = collect(self::dbArchivedPosts());
@@ -206,6 +221,8 @@ class MSAPIScraper
             }
 
             $current_position = 1;
+            error_log(print_r(gettype($loop_number), true));
+            error_log(print_r($loop_number, true));
             /**
              * Iterate through the import if the import max count is
              * higher than the max_rnk set.
@@ -215,7 +232,7 @@ class MSAPIScraper
                 if ($iteration > 1) {
                     $client_args['min_rnk'] = $client_args['min_rnk'] + $max_rank;
                     $client_args['max_rnk'] = $client_args['max_rnk'] + $max_rank;
-                    $client_http = self::httpCallback('/api/query/full_studies', "GET", $client_args, ['delay' => 120]);
+                    $client_http = self::scraperHttpCB('/api/query/full_studies', "GET", $client_args, ['delay' => 120]);
 
                     if (!is_wp_error($client_http)) {
                         // Grab the results
@@ -247,17 +264,26 @@ class MSAPIScraper
                     ->values();
 
                 if ($studies->count() > 0) {
-                    $position = self::studyImportLoop($studies, $current_position, $total_found);
+                    $studies = self::studyImportLoop($studies, $current_position, $total_found);
+                    $position = $studies['numOfStudies'];
+                    $studies_imported->push($studies['studies']);
                     $current_position = $current_position + $position;
                 }
-
             }
         } else {
             $this->errorLog->error(json_decode($client_http->getBody()->getContents()));
         }
 
+        // if ($studies_imported->isNotEmpty()) {
+        //     $studies_imported = $studies_imported
+        //         ->flatten(1)
+        //         ->map(function ($study) {
+        //
+        //             return $study;
+        //         });
         // Email notification on completion
         // MSMailer::mailer($this->sendTo, $email_body);
+        // }
 
         // Restore the max_execution_time
         ini_restore('post_max_size');
@@ -309,7 +335,10 @@ class MSAPIScraper
 
             $this->apiLog->info("Imported", $studies->toArray());
 
-            return $studies->count();
+            return [
+                'numOfStudies' => $studies->count(),
+                'studies' => $studies,
+            ];
         }
         return 0;
     }
@@ -319,7 +348,7 @@ class MSAPIScraper
      *
      * @param object $field_data Data retrieved from the API
      *
-     * @return false|mixed
+     * @return false|Collection
      * @throws Exception
      */
     protected function studyImport(object $field_data, int $position_index, int $total_count)
@@ -378,7 +407,12 @@ class MSAPIScraper
         if ($post_id === 0) {
             // Don't import the post and dump out of the loop for this item
             if ($do_not_import) {
-                return self::doNotImportTrial(0, $post_args->get('post_title'), $nct_id, 'Did not create new trial post.');
+                return self::doNotImportTrial(
+                    0,
+                    $post_args->get('post_title'),
+                    $nct_id,
+                    __('Did not create new trial post.', 'merck-scraper')
+                );
             }
 
             // All new trials are set to draft status
@@ -415,11 +449,11 @@ class MSAPIScraper
             return false;
         }
 
-        $position_index = $position_index++;
+        $update_index = $position_index + 1;
         self::updatePosition(
             "Trials Import",
             [
-                'position' => $position_index !== $total_count ? $position_index : $total_count,
+                'position' => $update_index !== $total_count ? $update_index : $total_count,
                 'total_count' => $total_count,
                 'helper' => "Importing {$post_args->get('post_title')}",
             ],
@@ -461,6 +495,44 @@ class MSAPIScraper
                                 // Retrieve the data based on the parent data_name
                                 $arr_data = $field_data->get($data_name) ?? false;
 
+                                /**
+                                 * Since we're dealing with locations, we'll need to get the geolocation for each location
+                                 * To help save on API calls made for each import, we only need to update if the latitude
+                                 * or longitude doesn't exist.
+                                 *
+                                 * @TODO Look into refactoring or finding a better way to check if location change or what not
+                                 */
+                                if ($data_name === 'locations') {
+                                    $existing_data = collect(get_field('api_data_locations', $post_id))
+                                        ->map(function ($location, $index) use ($arr_data) {
+                                            $api_data = $arr_data->get($index);
+                                            $latitude = $location['latitude'] ?? '';
+                                            $longitude = $location['longitude'] ?? '';
+
+                                            if ((!$latitude || $latitude === 0) && (!$longitude || $longitude === 0)) {
+                                                $gm_geocoder_data = self::getFullLocation(
+                                                    collect(
+                                                        [
+                                                            $location['facility'],
+                                                            $location['city'],
+                                                            $location['state'],
+                                                            $location['zipcode'],
+                                                            $location['country'],
+                                                        ]
+                                                    )
+                                                        ->filter()
+                                                        ->toArray()
+                                                );
+                                                $gm_geocoder_data->put('facility', $api_data['facility']);
+                                                $gm_geocoder_data->put('recruiting_status', $api_data['recruiting_status']);
+                                                $location = $gm_geocoder_data->toArray();
+                                            }
+
+                                            return $location;
+                                        });
+                                    $arr_data = $existing_data->toArray();
+                                }
+
                                 if ($arr_data) {
                                     return self::updateACF($field['name'], $arr_data, $post_id);
                                 }
@@ -469,6 +541,7 @@ class MSAPIScraper
                             return false;
                         }
 
+                        // Setup name escaping for textareas
                         if ($field['type'] === 'textarea') {
                             if ($field_data->isNotEmpty()) {
                                 return self::updateACF(
@@ -511,6 +584,16 @@ class MSAPIScraper
         return $return;
     }
 
+    /**
+     * Trial not to import
+     *
+     * @param int    $post_id
+     * @param string $post_title
+     * @param string $nct_id
+     * @param string $message
+     *
+     * @return Collection
+     */
     protected function doNotImportTrial(int $post_id = 0, $post_title = '', $nct_id = '', $message = '')
     {
         return collect(
@@ -522,5 +605,4 @@ class MSAPIScraper
             ]
         );
     }
-
 }

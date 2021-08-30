@@ -324,5 +324,4 @@ class MSAdmin
             return is_object($current_screen) && in_array($current_screen->id, $post_edit_screen) && is_search();
         }
     }
-
 }

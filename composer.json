@@ -21,10 +21,10 @@
 	"prefer-stable": true,
 	"scripts": {
 		"post-root-package-install": [
-			"composer dump-autoload"
+			"composer dump-autoload -o"
 		],
 		"post-root-package-update": [
-			"composer dump-autoload"
+			"composer dump-autoload -o"
 		],
 		"test": [
 			"phpcs"

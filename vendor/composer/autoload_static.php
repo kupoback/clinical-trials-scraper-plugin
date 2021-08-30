@@ -611,6 +611,7 @@ class ComposerStaticInit0f246aa3b22301ce36a9a171feaccc63
         'Merck_Scraper\\Traits\\MSApiFieldTrait' => __DIR__ . '/../..' . '/Traits/MSApiFieldTrait.php',
         'Merck_Scraper\\Traits\\MSApiTrait' => __DIR__ . '/../..' . '/Traits/MSApiTrait.php',
         'Merck_Scraper\\Traits\\MSDBCallbacks' => __DIR__ . '/../..' . '/Traits/MSDBCallbacks.php',
+        'Merck_Scraper\\Traits\\MSEmail' => __DIR__ . '/../..' . '/Traits/MSEmail.php',
         'Merck_Scraper\\Traits\\MSGoogleMaps' => __DIR__ . '/../..' . '/Traits/MSGoogleMaps.php',
         'Merck_Scraper\\Traits\\MSHttpCallback' => __DIR__ . '/../..' . '/Traits/MSHttpCallback.php',
         'Merck_Scraper\\Traits\\MSLogger' => __DIR__ . '/../..' . '/Traits/MSLogger.php',

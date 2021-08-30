@@ -5,7 +5,7 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'f45bb3b37103cbbf7b5005628c8972baed67430b',
+        'reference' => '0e9d29da050505d240b703241071050c42ba9b86',
         'name' => 'mak/merck-scraper',
         'dev' => true,
     ),
@@ -124,7 +124,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'f45bb3b37103cbbf7b5005628c8972baed67430b',
+            'reference' => '0e9d29da050505d240b703241071050c42ba9b86',
             'dev_requirement' => false,
         ),
         'mockery/mockery' => array(
@@ -247,7 +247,7 @@
             'type' => 'metapackage',
             'install_path' => NULL,
             'aliases' => array(),
-            'reference' => '3c3cc12a9f163e589a12b9ea756c5a2dae9c59dd',
+            'reference' => '6d604407c2d843377061735cd8ede558826e12c2',
             'dev_requirement' => true,
         ),
         'squizlabs/php_codesniffer' => array(
@@ -287,12 +287,12 @@
             'dev_requirement' => false,
         ),
         'symfony/translation' => array(
-            'pretty_version' => 'v5.3.4',
-            'version' => '5.3.4.0',
+            'pretty_version' => 'v5.3.7',
+            'version' => '5.3.7.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/translation',
             'aliases' => array(),
-            'reference' => 'd89ad7292932c2699cbe4af98d72c5c6bbc504c1',
+            'reference' => '4d595a6d15fd3a2c67f6f31d14d15d3b7356d7a6',
             'dev_requirement' => false,
         ),
         'symfony/translation-contracts' => array(
