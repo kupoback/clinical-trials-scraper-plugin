@@ -171,6 +171,23 @@ class MSAdmin
     }
 
     /**
+     * Sets up and registers custom cron schedules
+     *
+     * @param array $schedules An array of current schedules
+     *
+     * @return array
+     */
+    public function customSchedule(array $schedules)
+    {
+        $schedules['thursday_api'] = [
+            'interval' => 604800,
+            'display'  => __("Thursday Once Weekly")
+        ];
+
+        return $schedules;
+    }
+
+    /**
      * Adds custom columns to the trials post type
      *
      * @param array $columns An array of the existing registered columns

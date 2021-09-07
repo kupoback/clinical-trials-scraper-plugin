@@ -15,7 +15,7 @@ use Monolog\ResettableInterface;
 use Monolog\Processor\ProcessorInterface;
 
 /**
- * Helper trait for implementing ProcessableInterface
+ * MSHelper trait for implementing ProcessableInterface
  *
  * @author Jordi Boggiano <j.boggiano@seld.be>
  *

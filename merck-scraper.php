@@ -4,7 +4,9 @@ declare(strict_types = 1);
 
 namespace Merck_Scraper;
 
-use Dotenv\Dotenv;
+use Exception;
+use Illuminate\Support\Carbon;
+use Merck_Scraper\admin\MSAPIScraper;
 use Merck_Scraper\includes\MSMainClass;
 use Merck_Scraper\includes\MSActivator;
 use Merck_Scraper\includes\MSDeactivator;
@@ -35,7 +37,7 @@ use Merck_Scraper\includes\MSDeactivator;
  */
 
 // If this file is called directly, abort.
-if (! defined('WPINC')) {
+if (!defined('WPINC')) {
     die;
 }
 
@@ -55,7 +57,6 @@ define('MERCK_SCRAPER_VERSION', '1.0.0');
 define("MERCK_SCRAPER_LOG_DIR", WP_CONTENT_DIR . '/ms-logs');
 
 define("MERCK_SCRAPER_API_LOG_DIR", MERCK_SCRAPER_LOG_DIR . "/api");
-
 
 /**
  * The code that runs during plugin activation.
@@ -94,10 +95,10 @@ if (!class_exists('ACF')) {
                 )
             );
         }
-    }, 20);
+    },
+               20);
     MSDeactivator::deactivate();
 }
-
 
 /**
  * Begins execution of the plugin.
@@ -113,4 +114,37 @@ function run_ms()
     $plugin = new MSMainClass();
     $plugin->executePlugin();
 }
+
 run_ms();
+
+/**
+ * This is the cron job setup function
+ */
+function execute_scraper()
+{
+    $scaper_class = new MSAPIScraper();
+
+    $logger = $scaper_class->setLogger('cron-job', 'cron', MERCK_SCRAPER_LOG_DIR . '/cron');
+
+    try {
+        $scaper_class->apiImport();
+    } catch (Exception $exception) {
+        $logger->error(__("Erorr executing the cron job", 'merck-scraper'), $exception->getTrace());
+    }
+}
+
+add_action('ms_govt_scrape_cron', 'execute_scraper');
+
+/**
+ * If the cron job isn't scheduled to run, we'll set it up to run
+ */
+if (!wp_next_scheduled('ms_govt_scrape_cron')) {
+    // Grab the next day, and set it up
+    $next_thursday = Carbon::now('America/New_York')
+                           ->next(Carbon::THURSDAY);
+    wp_schedule_event(
+        $next_thursday->timestamp,
+        'thursday_api',
+        'ms_govt_scrape_cron'
+    );
+}

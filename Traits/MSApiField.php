@@ -5,7 +5,7 @@ declare(strict_types = 1);
 namespace Merck_Scraper\Traits;
 
 use Illuminate\Support\Collection;
-use Merck_Scraper\Helper\Helper;
+use Merck_Scraper\Helper\MSHelper as Helper;
 
 /**
  * Traits for the Merck Scraper API fields
@@ -16,8 +16,6 @@ use Merck_Scraper\Helper\Helper;
  */
 trait MSApiField
 {
-
-    use MsContentFormat;
 
     /**
      * Parses the IdentificationModule object field, returning the Post Title, NCTID, and Official Title field
@@ -280,8 +278,8 @@ trait MSApiField
         return collect(
             [
                 'gender'      => $eligibility_module->Gender ?? '',
-                'minimum_age' => self::stripYears($eligibility_module->MinimumAge ?? '') ?: 0,
-                'maximum_age' => self::stripYears($eligibility_module->MaximumAge ?? '') ?: 999,
+                'minimum_age' => Helper::stripYears($eligibility_module->MinimumAge ?? '') ?: 0,
+                'maximum_age' => Helper::stripYears($eligibility_module->MaximumAge ?? '') ?: 999,
             ]
         );
     }

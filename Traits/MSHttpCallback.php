@@ -28,8 +28,8 @@ use WP_Error;
 trait MSHttpCallback
 {
 
-    use MSLogger;
-    use MSAcf;
+    use MSLoggerTrait;
+    use MSAcfTrait;
 
     /**
      * Basic HTTP callback setup

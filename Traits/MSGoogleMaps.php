@@ -17,8 +17,8 @@ use WP_Error;
 trait MSGoogleMaps
 {
 
-    use MSAcf;
-    use MSApi;
+    use MSAcfTrait;
+    use MSApiTrait;
     use MSHttpCallback;
 
     /**
@@ -67,7 +67,8 @@ trait MSGoogleMaps
 
             return $address->filter();
         }
-        return new WP_Error($gm_api_callback);
+
+        return $gm_api_callback;
     }
 
     /**
@@ -166,7 +167,6 @@ trait MSGoogleMaps
      */
     protected function googleMapsApiCB($address)
     {
-        $coords = '';
         $api_key  = self::acfOptionField('google_maps_api_key');
         $response = self::httpCallback(
             $this->googleApiUrl,
@@ -197,6 +197,6 @@ trait MSGoogleMaps
             }
         }
 
-        return $coords;
+        return new WP_Error(300, __("There was an error with the Google Maps Call"));
     }
 }

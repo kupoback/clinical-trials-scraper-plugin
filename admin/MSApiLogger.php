@@ -4,8 +4,7 @@ declare(strict_types = 1);
 
 namespace Merck_Scraper\admin;
 
-use Carbon\Carbon;
-use Merck_Scraper\Traits\MSApi;
+use Merck_Scraper\Traits\MSApiTrait;
 use WP_Error;
 use WP_HTTP_Response;
 use WP_REST_Request;
@@ -22,7 +21,7 @@ use WP_REST_Server;
 class MSApiLogger
 {
 
-    use MSApi;
+    use MSApiTrait;
 
     /**
      * Folder for the api logs
@@ -165,7 +164,7 @@ class MSApiLogger
     public function apiLogger(WP_REST_Request $request)
     {
         $message = [];
-        $log_files = $err_files = false;
+        $log_files = false;
 
         $dir_type = $request->get_param('dirType');
 
@@ -201,8 +200,6 @@ class MSApiLogger
         $dir_type = $request['fileDir'];
 
         if ($file_name && $file_type) {
-            $file_dir = null;
-
             if ($dir_type === 'api') {
                 $file_dir = $file_type === 'success' ? $this->apiLogDir : ($file_type === 'err' ? $this->apiErrDir : null);
             } else {

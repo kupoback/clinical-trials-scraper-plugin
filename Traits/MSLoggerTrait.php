@@ -16,7 +16,7 @@ use Monolog\Logger;
  * @subpackage Merck_Scraper/Traits
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
-trait MSLogger
+trait MSLoggerTrait
 {
     /**
      * Sets up the Logger

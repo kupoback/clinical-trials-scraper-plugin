@@ -18,7 +18,7 @@ use WP_REST_Server;
  * @subpackage Merck_Scraper/Traits
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
-trait MSApi
+trait MSApiTrait
 {
 
     /**
@@ -155,7 +155,7 @@ trait MSApi
             if (is_object($updated_time)) {
                 // Check the number of minutes past
                 $time_diff = abs($current_time->getTimestamp() - $updated_time->getTimeStamp()) / 60;
-                if ($time_diff <= 3) {
+                if ($time_diff <= 1) {
                     $return = $response;
                 }
             }

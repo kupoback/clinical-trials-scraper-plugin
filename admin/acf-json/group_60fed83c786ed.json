@@ -36,8 +36,8 @@
         },
         {
             "key": "field_6104468122272",
-            "label": "Search Keywords",
-            "name": "search_keywords",
+            "label": "Allowed Keywords",
+            "name": "allowed_keywords",
             "type": "textarea",
             "instructions": "<p>Please enter in one field per line, or semi-colon separate the field names.<\/p>\r\n<p>These fields will be used for searching the API.<\/p>",
             "required": 0,
@@ -47,7 +47,26 @@
                 "class": "",
                 "id": ""
             },
-            "default_value": "",
+            "default_value": "keynote",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": "",
+            "new_lines": ""
+        },
+        {
+            "key": "field_61310869e2abf",
+            "label": "Disallowed Keywords",
+            "name": "disallowed_keywords",
+            "type": "textarea",
+            "instructions": "<p>Please enter in one field per line, or semi-colon separate the field names.<\/p>\r\n<p>These fields will be used to omit from searching the API.<\/p>",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "cancer\r\ncarcinoma\r\nmelanoma\r\nneoplasm\r\ntumor",
             "placeholder": "",
             "maxlength": "",
             "rows": "",
@@ -255,5 +274,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "",
-    "modified": 1629384186
+    "modified": 1630603430
 }

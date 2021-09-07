@@ -7,12 +7,12 @@ namespace Merck_Scraper\Helper;
 use Error;
 use Mailjet\Client;
 use Mailjet\Resources;
-use Merck_Scraper\Traits\MSAcf;
+use Merck_Scraper\Traits\MSAcfTrait;
 
 class MSMailer
 {
 
-    use MSAcf;
+    use MSAcfTrait;
 
     /**
      * This is an email compiler

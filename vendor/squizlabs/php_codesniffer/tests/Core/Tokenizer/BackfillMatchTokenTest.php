@@ -433,7 +433,7 @@ class BackfillMatchTokenTest extends AbstractMethodUnitTest
 
 
     /**
-     * Helper function to verify that all scope related array indexes for a control structure
+     * MSHelper function to verify that all scope related array indexes for a control structure
      * are set correctly.
      *
      * @param string $token                The control structure token to check.
@@ -497,7 +497,7 @@ class BackfillMatchTokenTest extends AbstractMethodUnitTest
 
 
     /**
-     * Helper function to verify that all parenthesis related array indexes for a control structure
+     * MSHelper function to verify that all parenthesis related array indexes for a control structure
      * token are set correctly.
      *
      * @param int $token The position of the control structure token.

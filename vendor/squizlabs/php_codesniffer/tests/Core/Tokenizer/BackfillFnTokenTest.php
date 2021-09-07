@@ -647,7 +647,7 @@ class BackfillFnTokenTest extends AbstractMethodUnitTest
 
 
     /**
-     * Helper function to check that all token keys are correctly set for T_FN tokens.
+     * MSHelper function to check that all token keys are correctly set for T_FN tokens.
      *
      * @param int  $token                The T_FN token to check.
      * @param bool $skipScopeCloserCheck Whether to skip the scope closer check.
@@ -699,7 +699,7 @@ class BackfillFnTokenTest extends AbstractMethodUnitTest
 
 
     /**
-     * Helper function to check that the scope opener/closer positions are correctly set for T_FN tokens.
+     * MSHelper function to check that the scope opener/closer positions are correctly set for T_FN tokens.
      *
      * @param int    $token              The T_FN token to check.
      * @param int    $openerOffset       The expected offset of the scope opener in relation to

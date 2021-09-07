@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit0f246aa3b22301ce36a9a171feaccc63
+class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
@@ -604,19 +604,18 @@ class ComposerStaticInit0f246aa3b22301ce36a9a171feaccc63
         'Mailjet\\Request' => __DIR__ . '/..' . '/mailjet/mailjet-apiv3-php/src/Mailjet/Request.php',
         'Mailjet\\Resources' => __DIR__ . '/..' . '/mailjet/mailjet-apiv3-php/src/Mailjet/Resources.php',
         'Mailjet\\Response' => __DIR__ . '/..' . '/mailjet/mailjet-apiv3-php/src/Mailjet/Response.php',
-        'Merck_Scraper\\Helper\\Helper' => __DIR__ . '/../..' . '/Helper/Helper.php',
+        'Merck_Scraper\\Helper\\MSHelper' => __DIR__ . '/../..' . '/Helper/MSHelper.php',
         'Merck_Scraper\\Helper\\MSMailer' => __DIR__ . '/../..' . '/Helper/MSMailer.php',
-        'Merck_Scraper\\Traits\\MSAcf' => __DIR__ . '/../..' . '/Traits/MSAcf.php',
-        'Merck_Scraper\\Traits\\MSAdmin' => __DIR__ . '/../..' . '/Traits/MSAdmin.php',
-        'Merck_Scraper\\Traits\\MSApi' => __DIR__ . '/../..' . '/Traits/MSApi.php',
+        'Merck_Scraper\\Traits\\MSAcfTrait' => __DIR__ . '/../..' . '/Traits/MSAcfTrait.php',
+        'Merck_Scraper\\Traits\\MSAdminTrait' => __DIR__ . '/../..' . '/Traits/MSAdminTrait.php',
         'Merck_Scraper\\Traits\\MSApiField' => __DIR__ . '/../..' . '/Traits/MSApiField.php',
+        'Merck_Scraper\\Traits\\MSApiTrait' => __DIR__ . '/../..' . '/Traits/MSApiTrait.php',
         'Merck_Scraper\\Traits\\MSDBCallbacks' => __DIR__ . '/../..' . '/Traits/MSDBCallbacks.php',
-        'Merck_Scraper\\Traits\\MSEmail' => __DIR__ . '/../..' . '/Traits/MSEmail.php',
+        'Merck_Scraper\\Traits\\MSEmailTrait' => __DIR__ . '/../..' . '/Traits/MSEmailTrait.php',
         'Merck_Scraper\\Traits\\MSGoogleMaps' => __DIR__ . '/../..' . '/Traits/MSGoogleMaps.php',
         'Merck_Scraper\\Traits\\MSHttpCallback' => __DIR__ . '/../..' . '/Traits/MSHttpCallback.php',
-        'Merck_Scraper\\Traits\\MSLogger' => __DIR__ . '/../..' . '/Traits/MSLogger.php',
-        'Merck_Scraper\\Traits\\MSPublic' => __DIR__ . '/../..' . '/Traits/MSPublic.php',
-        'Merck_Scraper\\Traits\\MsContentFormat' => __DIR__ . '/../..' . '/Traits/MsContentFormat.php',
+        'Merck_Scraper\\Traits\\MSLoggerTrait' => __DIR__ . '/../..' . '/Traits/MSLoggerTrait.php',
+        'Merck_Scraper\\Traits\\MSPublicTrait' => __DIR__ . '/../..' . '/Traits/MSPublicTrait.php',
         'Merck_Scraper\\admin\\MSAPIScraper' => __DIR__ . '/../..' . '/admin/MSAPIScraper.php',
         'Merck_Scraper\\admin\\MSAdmin' => __DIR__ . '/../..' . '/admin/MSAdmin.php',
         'Merck_Scraper\\admin\\MSApiLogger' => __DIR__ . '/../..' . '/admin/MSApiLogger.php',
@@ -624,7 +623,7 @@ class ComposerStaticInit0f246aa3b22301ce36a9a171feaccc63
         'Merck_Scraper\\admin\\MSCustomTax' => __DIR__ . '/../..' . '/admin/MSCustomTax.php',
         'Merck_Scraper\\admin\\MSMetaBox' => __DIR__ . '/../..' . '/admin/MSMetaBox.php',
         'Merck_Scraper\\admin\\MSOptionsPage' => __DIR__ . '/../..' . '/admin/MSOptionsPage.php',
-        'Merck_Scraper\\frontend\\MSAPI' => __DIR__ . '/../..' . '/frontend/MSAPI.php',
+        'Merck_Scraper\\frontend\\MSFrontEndAPI' => __DIR__ . '/../..' . '/frontend/MSFrontEndAPI.php',
         'Merck_Scraper\\frontend\\MSPublic' => __DIR__ . '/../..' . '/frontend/MSPublic.php',
         'Merck_Scraper\\includes\\MSActivator' => __DIR__ . '/../..' . '/includes/MSActivator.php',
         'Merck_Scraper\\includes\\MSDeactivator' => __DIR__ . '/../..' . '/includes/MSDeactivator.php',
@@ -976,10 +975,10 @@ class ComposerStaticInit0f246aa3b22301ce36a9a171feaccc63
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit0f246aa3b22301ce36a9a171feaccc63::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit0f246aa3b22301ce36a9a171feaccc63::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit0f246aa3b22301ce36a9a171feaccc63::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit0f246aa3b22301ce36a9a171feaccc63::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5::$classMap;
 
         }, null, ClassLoader::class);
     }

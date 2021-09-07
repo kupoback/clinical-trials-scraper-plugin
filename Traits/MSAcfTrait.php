@@ -11,7 +11,7 @@ namespace Merck_Scraper\Traits;
  * @subpackage Merck_Scraper/Traits
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
-trait MSAcf
+trait MSAcfTrait
 {
     /**
      * Retruns a field value from the Merck Scraper Options page

@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace Merck_Scraper\frontend;
 
-use Merck_Scraper\Traits\MSApi;
+use Merck_Scraper\Traits\MSApiTrait;
 use Merck_Scraper\Traits\MSGoogleMaps;
 use WP_Error;
 use WP_HTTP_Response;
@@ -21,10 +21,10 @@ use WP_REST_Server;
  * @subpackage Merck_Scraper/frontend
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
-class MSAPI
+class MSFrontEndAPI
 {
 
-    use MSApi;
+    use MSApiTrait;
     use MSGoogleMaps;
 
     public function __construct()

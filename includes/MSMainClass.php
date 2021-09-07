@@ -10,7 +10,7 @@ use Merck_Scraper\admin\MSAPIScraper;
 use Merck_Scraper\admin\MSCustomPT;
 use Merck_Scraper\admin\MSCustomTax;
 use Merck_Scraper\admin\MSOptionsPage;
-use Merck_Scraper\frontend\MSAPI;
+use Merck_Scraper\frontend\MSFrontEndAPI;
 use Merck_Scraper\frontend\MSPublic;
 
 /**
@@ -140,6 +140,7 @@ class MSMainClass
             10,
             2
         );
+        $this->loader->addFilter('cron_schedules', $plugin_admin, 'customSchedule');
 
         /**
          * Filters and Actions to expand the Admin Columns for the Trials Post type, including filters and searching for custom ACF field
@@ -162,6 +163,7 @@ class MSMainClass
         // Registers the Scraper API
         $scraper_api = new MSAPIScraper();
         $this->loader->addAction('rest_api_init', $scraper_api, 'registerEndpoint');
+        // $this->loader->addAction('init', $scraper_api, 'registerCronType');
 
         // Registers the Logger API
         $logger_api = new MSApiLogger();
@@ -192,7 +194,7 @@ class MSMainClass
         $this->loader->addAction('wp_enqueue_scripts', $plugin_public, 'enqueueStyles');
         $this->loader->addAction('wp_enqueue_scripts', $plugin_public, 'enqueueScripts');
 
-        $public_api = new MSAPI();
+        $public_api = new MSFrontEndAPI();
         $this->loader->addRestRoute($public_api, 'registerEndpoint');
     }
 
