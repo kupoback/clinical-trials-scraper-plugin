@@ -26,7 +26,7 @@ use WP_REST_Server;
 
 class MSAPIScraper
 {
-
+    //region Class Uses
     use MSApiTrait;
     use MSAcfTrait;
     use MSGoogleMaps;
@@ -34,7 +34,9 @@ class MSAPIScraper
     use MSHttpCallback;
     use MSApiField;
     use MSDBCallbacks;
+    //endregion
 
+    //region Class Vars
     /**
      * Array for who the email needs to be sent to
      *
@@ -88,6 +90,7 @@ class MSAPIScraper
      * @var Carbon $nowTime
      */
     private Carbon $nowTime;
+    //endregion
 
     /**
      * MSAPIScraper constructor.
@@ -197,24 +200,28 @@ class MSAPIScraper
         // ];
 
         $starting_rank = self::acfOptionField('min_import_rank') ?: 1;
-        $max_rank      = self::acfOptionField('max_import_rank') ?: 30;
+        $max_rank      = self::acfOptionField('max_import_rank') ?: 100;
 
         $keywords_text = '';
+        $sponsor_search = '( AREA[LeadSponsorName] "Merck Sharp & Dohme Corp." )';
+        $country_search = 'SEARCH[Location] EXPAND[Term] COVER[FullMatch] ( AREA[LocationPath] "US" AND ( AREA[LocationCountry] "United States" OR CONST[0.95] ) )';
+        // $country_search = 'SEARCH[Location](AREA[LocationCountry]"United States")';
+        $trial_status = 'AND AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( "Recruiting" OR "Not yet recruiting" )';
         if ($this->allowedKeywords->isNotEmpty()) {
             $keywords_text = "({$this->allowedKeywords->implode(' OR ')})";
         }
         if ($this->disallowKeywords->isNotEmpty()) {
             $disallowed_keys = $this->disallowKeywords->implode(' OR ');
-            if ($this->allowedKeywords->isNotEmpty()) {
-                $keywords_text .= " NOT ({$disallowed_keys})";
-            } else {
-                $keywords_text = "NOT ({$disallowed_keys})";
-            }
-            $keywords_text = "NOT ({$disallowed_keys})";
+            // if ($this->allowedKeywords->isNotEmpty()) {
+            //     $keywords_text .= " NOT ({$disallowed_keys})";
+            // } else {
+            //     $keywords_text = "NOT ({$disallowed_keys})";
+            // }
+            // $keywords_text = "NOT ({$disallowed_keys})";
         }
 
         // $expression = 'AREA[LeadSponsorName]"Merck Sharp & Dohme Corp."';
-        $expression = "{$keywords_text} AND (AREA[LeadSponsorName]\"Merck Sharp & Dohme Corp.\") AND (AREA[LocationCountry]\"United States\")";
+        $expression = "{$keywords_text} AND {$sponsor_search} AND {$country_search}";
         if ($nctid_field) {
             $expression = "AREA[NCTId]{$nctid_field}";
             $total_found = 1;
@@ -232,7 +239,6 @@ class MSAPIScraper
             );
         }
 
-        error_log(print_r($expression, true));
         /**
          * Grab the data from the gov't site
          */
@@ -248,89 +254,93 @@ class MSAPIScraper
         $this->acfFields  = self::trialsFieldGroup();
         $studies_imported = collect();
 
-        // $client_http = self::scraperHttpCB('/api/query/full_studies', "GET", $client_args, ['delay' => 120]);
+        $client_http = self::scraperHttpCB('/api/query/full_studies', "GET", $client_args, ['delay' => 120]);
 
         // Check that our HTTP request was successful
-        // if (!is_wp_error($client_http)) {
-        //     $api_data = json_decode($client_http->getBody()->getContents());
-        //
-        //     // Set data root to first object key
-        //     $api_data = $api_data->FullStudiesResponse ?? null;
-        //
-        //     // Number of items we're grabbing
-        //     $max_grabbed = $max_rank;
-        //
-        //     /**
-        //      * Determine how many times we need to loop through the items based on the amount found
-        //      * versus the max number of item's we're getting
-        //      */
-        //     $loop_number = intval(round($total_found / $max_grabbed));
-        //     $loop_number = $loop_number === 0 ? 1 : $loop_number;
-        //
-        //     // Grab a list of trashed posts that are supposed to be archived
-        //     $trashed_posts = collect(self::dbArchivedPosts());
-        //     if ($trashed_posts->isNotEmpty()) {
-        //         $trashed_posts = $trashed_posts
-        //             ->map(function ($post) {
-        //                 return self::dbFetchNctId(intval($post->ID));
-        //             });
-        //     }
-        //
-        //     $current_position = 1;
-        //     /**
-        //      * Iterate through the import if the import max count is
-        //      * higher than the max_rnk set.
-        //      */
-        //     for ($iteration = 1; $iteration < $loop_number; $iteration++) :
-        //         // Increase the min_rnk and max_rnk for each loop above the first
-        //         if ($iteration > 1) {
-        //             $client_args['min_rnk'] = $client_args['min_rnk'] + $max_rank;
-        //             $client_args['max_rnk'] = $client_args['max_rnk'] + $max_rank;
-        //             $client_http            = self::scraperHttpCB('/api/query/full_studies', "GET", $client_args, ['delay' => 120]);
-        //
-        //             if (!is_wp_error($client_http)) {
-        //                 // Grab the results
-        //                 $api_data = json_decode($client_http->getBody()->getContents());
-        //
-        //                 // Set data root to first object key
-        //                 $api_data = $api_data->FullStudiesResponse ?? null;
-        //             } else {
-        //                 $this->errorLog->error("Error grabbing items during ranks {$client_args['min_rnk']} - {$client_args['max_rnk']}.");
-        //                 $this->errorLog->error(json_decode($client_http->getBody()->getContents()));
-        //                 // We don't want to stop the import, in case the issues were just at one instance
-        //                 continue;
-        //             }
-        //         }
-        //
-        //         $studies = collect($api_data->FullStudies)
-        //             ->filter(function ($study) use ($total_found, $trashed_posts) {
-        //                 // Filter the data removing ones that are marked as "trash"
-        //                 $collect_study   = collect($study)
-        //                     ->get('Study')
-        //                     ->ProtocolSection;
-        //                 $study_id_module = collect($collect_study)
-        //                     ->get('IdentificationModule');
-        //
-        //                 $study = self::parseId($study_id_module);
-        //                 $found = $trashed_posts->search($study->get('nct_id'));
-        //                 return is_bool($found);
-        //             })
-        //             ->values();
-        //
-        //         if ($studies->count() > 0) {
-        //             $studies  = self::studyImportLoop(
-        //                 $studies,
-        //                 $current_position,
-        //                 $total_found
-        //             );
-        //             $position = $studies['numOfStudies'];
-        //             $studies_imported->push($studies['studies']);
-        //             $current_position = $current_position + $position;
-        //         }
-        //     endfor;
-        // } else {
-        //     $this->errorLog->error(json_decode($client_http->getBody()->getContents()));
-        // }
+        if (!is_wp_error($client_http)) {
+            $api_data = json_decode($client_http->getBody()->getContents());
+
+            // Set data root to first object key
+            $api_data = $api_data->FullStudiesResponse ?? null;
+
+            // Number of items we're grabbing
+            $max_grabbed = $max_rank;
+
+            $filtered_data = self::filterTrials($api_data);
+
+            /**
+             * Determine how many times we need to loop through the items based on the amount found
+             * versus the max number of item's we're getting
+             */
+            $loop_number = intval(round($total_found / $max_grabbed));
+            $loop_number = $loop_number === 0 ? 1 : $loop_number;
+
+            // Grab a list of trashed posts that are supposed to be archived
+            $trashed_posts = collect(self::dbArchivedPosts());
+            if ($trashed_posts->isNotEmpty()) {
+                $trashed_posts = $trashed_posts
+                    ->map(function ($post) {
+                        return self::dbFetchNctId(intval($post->ID));
+                    });
+            }
+
+            $current_position = 1;
+            /**
+             * Iterate through the import if the import max count is
+             * higher than the max_rnk set.
+             */
+            /**
+            for ($iteration = 1; $iteration < $loop_number; $iteration++) :
+                // Increase the min_rnk and max_rnk for each loop above the first
+                if ($iteration > 1) {
+                    $client_args['min_rnk'] = $client_args['min_rnk'] + $max_rank;
+                    $client_args['max_rnk'] = $client_args['max_rnk'] + $max_rank;
+                    $client_http            = self::scraperHttpCB('/api/query/full_studies', "GET", $client_args, ['delay' => 120]);
+
+                    if (!is_wp_error($client_http)) {
+                        // Grab the results
+                        $api_data = json_decode($client_http->getBody()->getContents());
+
+                        // Set data root to first object key
+                        $api_data = $api_data->FullStudiesResponse ?? null;
+                    } else {
+                        $this->errorLog->error("Error grabbing items during ranks {$client_args['min_rnk']} - {$client_args['max_rnk']}.");
+                        $this->errorLog->error(json_decode($client_http->getBody()->getContents()));
+                        // We don't want to stop the import, in case the issues were just at one instance
+                        continue;
+                    }
+                }
+
+                $studies = collect($api_data->FullStudies)
+                    ->filter(function ($study) use ($total_found, $trashed_posts) {
+                        // Filter the data removing ones that are marked as "trash"
+                        $collect_study   = collect($study)
+                            ->get('Study')
+                            ->ProtocolSection;
+                        $study_id_module = collect($collect_study)
+                            ->get('IdentificationModule');
+
+                        $study = self::parseId($study_id_module);
+                        $found = $trashed_posts->search($study->get('nct_id'));
+                        return is_bool($found);
+                    })
+                    ->values();
+
+                if ($studies->count() > 0) {
+                    $studies  = self::studyImportLoop(
+                        $studies,
+                        $current_position,
+                        $total_found
+                    );
+                    $position = $studies['numOfStudies'];
+                    $studies_imported->push($studies['studies']);
+                    $current_position = $current_position + $position;
+                }
+            endfor;
+            */
+        } else {
+            $this->errorLog->error(json_decode($client_http->getBody()->getContents()));
+        }
 
         // if ($studies_imported->isNotEmpty()) {
         //     $studies_imported = $studies_imported
@@ -379,6 +389,56 @@ class MSAPIScraper
         return 0;
     }
 
+    /**
+     * Trial not to import
+     *
+     * @param int    $post_id
+     * @param string $post_title
+     * @param string $nct_id
+     * @param string $message
+     *
+     * @return Collection
+     */
+    protected function doNotImportTrial(int $post_id = 0, $post_title = '', $nct_id = '', $message = '')
+    {
+        return collect(
+            [
+                'ID'      => $post_id,
+                'NAME'    => $post_title,
+                'NCDID'   => $nct_id,
+                'MESSAGE' => $message,
+            ]
+        );
+    }
+
+    protected function filterTrials($studies)
+    {
+        if ($studies) {
+            return collect($studies->FullStudies)
+                ->filter(function ($study, $key) {
+                    // if ($key > 1) {
+                    //     return $study;
+                    // }
+                    $parse_conditions = self::parseCondition($study->Study->ProtocolSection->ConditionsModule);
+                    $conditions = collect($parse_conditions->get('conditions'));
+                    if ($conditions->isNotEmpty()) {
+                        $disallowed_conds = $this->disallowKeywords->toArray();
+                        error_log(print_r($conditions, true));
+                        $final_conditions = $conditions
+                            ->filter(function ($condition) use ($disallowed_conds) {
+                                $condition = strtolower($condition);
+                                return preg_grep("/^$condition/i", $disallowed_conds);
+                            });
+                        error_log(print_r($final_conditions, true));
+                    }
+
+                    return $study;
+                });
+        }
+        return $studies;
+    }
+
+    //region Import Methods
     /**
      * A separated loop to handle pagination of posts
      *
@@ -702,28 +762,7 @@ class MSAPIScraper
             ->filter()
             ->toArray();
     }
-
-    /**
-     * Trial not to import
-     *
-     * @param int    $post_id
-     * @param string $post_title
-     * @param string $nct_id
-     * @param string $message
-     *
-     * @return Collection
-     */
-    protected function doNotImportTrial(int $post_id = 0, $post_title = '', $nct_id = '', $message = '')
-    {
-        return collect(
-            [
-                'ID'      => $post_id,
-                'NAME'    => $post_title,
-                'NCDID'   => $nct_id,
-                'MESSAGE' => $message,
-            ]
-        );
-    }
+    //endregion
 
     /**
      * A public accessible logger setup

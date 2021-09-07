@@ -5,7 +5,7 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'da661041e5a3dff31ab76e7c1f30f14d1408dbf9',
+        'reference' => '7c584066520af4548c316646a36e016e939eb8f0',
         'name' => 'mak/merck-scraper',
         'dev' => true,
     ),
@@ -124,7 +124,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'da661041e5a3dff31ab76e7c1f30f14d1408dbf9',
+            'reference' => '7c584066520af4548c316646a36e016e939eb8f0',
             'dev_requirement' => false,
         ),
         'mockery/mockery' => array(
@@ -146,12 +146,12 @@
             'dev_requirement' => false,
         ),
         'nesbot/carbon' => array(
-            'pretty_version' => '2.52.0',
-            'version' => '2.52.0.0',
+            'pretty_version' => '2.53.1',
+            'version' => '2.53.1.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../nesbot/carbon',
             'aliases' => array(),
-            'reference' => '369c0e2737c56a0f39c946dd261855255a6fccbe',
+            'reference' => 'f4655858a784988f880c1b8c7feabbf02dfdf045',
             'dev_requirement' => false,
         ),
         'psr/container' => array(
@@ -247,7 +247,7 @@
             'type' => 'metapackage',
             'install_path' => NULL,
             'aliases' => array(),
-            'reference' => '8586b1981b3f897bcc2c50c175127fc8ea85eb6c',
+            'reference' => '05f521f12b6e072bc77aaa78191907987d0454ff',
             'dev_requirement' => true,
         ),
         'squizlabs/php_codesniffer' => array(
