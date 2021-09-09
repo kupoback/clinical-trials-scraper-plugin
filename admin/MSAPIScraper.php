@@ -266,7 +266,7 @@ class MSAPIScraper
             // Number of items we're grabbing
             $max_grabbed = $max_rank;
 
-            $filtered_data = self::filterTrials($api_data);
+            // $filtered_data = self::filterTrials($api_data);
 
             /**
              * Determine how many times we need to loop through the items based on the amount found
@@ -289,7 +289,7 @@ class MSAPIScraper
              * Iterate through the import if the import max count is
              * higher than the max_rnk set.
              */
-            /**
+
             for ($iteration = 1; $iteration < $loop_number; $iteration++) :
                 // Increase the min_rnk and max_rnk for each loop above the first
                 if ($iteration > 1) {
@@ -337,7 +337,6 @@ class MSAPIScraper
                     $current_position = $current_position + $position;
                 }
             endfor;
-            */
         } else {
             $this->errorLog->error(json_decode($client_http->getBody()->getContents()));
         }
@@ -411,7 +410,15 @@ class MSAPIScraper
         );
     }
 
-    protected function filterTrials($studies)
+    /**
+     * Method that runs through the studies, and filters out the ones that contain a condition
+     * that's not allowed
+     *
+     * @param object $studies An object of studies from the API call
+     *
+     * @return null|Collection
+     */
+    protected function filterTrials(object $studies)
     {
         if ($studies) {
             return collect($studies->FullStudies)

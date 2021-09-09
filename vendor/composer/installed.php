@@ -5,7 +5,7 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '7c584066520af4548c316646a36e016e939eb8f0',
+        'reference' => 'e5b0d96f1c2301dd15f51dab0c8fc8347c6b26b8',
         'name' => 'mak/merck-scraper',
         'dev' => true,
     ),
@@ -124,7 +124,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '7c584066520af4548c316646a36e016e939eb8f0',
+            'reference' => 'e5b0d96f1c2301dd15f51dab0c8fc8347c6b26b8',
             'dev_requirement' => false,
         ),
         'mockery/mockery' => array(
@@ -247,7 +247,7 @@
             'type' => 'metapackage',
             'install_path' => NULL,
             'aliases' => array(),
-            'reference' => '05f521f12b6e072bc77aaa78191907987d0454ff',
+            'reference' => '2253b042c4cf1a9413f44a1c224ef2f705517bfb',
             'dev_requirement' => true,
         ),
         'squizlabs/php_codesniffer' => array(
