@@ -97,11 +97,11 @@
                     config.nctidField = this.nctidField;
                 }
                 
-                this.timeout = 100;
-                
                 await axios
                     .post(`${this.api}`, config,)
                     .catch(err => console.log(err));
+    
+                this.timeout = 100;
             },
             getImportPosition() {
                 axios

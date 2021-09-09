@@ -22,6 +22,6 @@ trait MSAcfTrait
      */
     protected function acfOptionField(string $field)
     {
-        return strtolower(get_field($field, 'merck_settings'));
+        return strtolower(get_field($field, 'merck_settings') ?? '');
     }
 }

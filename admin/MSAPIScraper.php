@@ -110,11 +110,11 @@ class MSAPIScraper
         /**
          * Collection of the allowed keywords
          */
-        $this->allowedKeywords = collect(
-            MSHelper::textareaToArr(
-                self::acfOptionField('allowed_keywords')
-            )
-        );
+        // $this->allowedKeywords = collect(
+        //     MSHelper::textareaToArr(
+        //         self::acfOptionField('allowed_keywords')
+        //     )
+        // );
         /**
          * Collection of the disallowed keywords
          */
@@ -200,50 +200,34 @@ class MSAPIScraper
         // ];
 
         $starting_rank = self::acfOptionField('min_import_rank') ?: 1;
-        $max_rank      = self::acfOptionField('max_import_rank') ?: 100;
+        $max_rank      = self::acfOptionField('max_import_rank') ?: 30;
+
+        $trial_status = 'AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( "Recruiting" OR "Not yet recruiting" )';
+        $country_search = 'AND SEARCH[Location] EXPAND[Term] COVER[FullMatch] ( AREA[LocationPath] "US" AND ( AREA[LocationCountry] "United States" OR CONST[0.95] ) )';
+        $sponsor_search = 'AND ( AREA[LeadSponsorName] "Merck Sharp & Dohme Corp." )';
+
+        /**
+         * As of now, no longer using an allowed list of keywords
+         */
+        // if ($this->allowedKeywords->isNotEmpty()) {
+        //     $keywords_text = "({$this->allowedKeywords->implode(' OR ')})";
+        // }
 
         $keywords_text = '';
-        $sponsor_search = '( AREA[LeadSponsorName] "Merck Sharp & Dohme Corp." )';
-        $country_search = 'SEARCH[Location] EXPAND[Term] COVER[FullMatch] ( AREA[LocationPath] "US" AND ( AREA[LocationCountry] "United States" OR CONST[0.95] ) )';
-        // $country_search = 'SEARCH[Location](AREA[LocationCountry]"United States")';
-        $trial_status = 'AND AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( "Recruiting" OR "Not yet recruiting" )';
-        if ($this->allowedKeywords->isNotEmpty()) {
-            $keywords_text = "({$this->allowedKeywords->implode(' OR ')})";
-        }
         if ($this->disallowKeywords->isNotEmpty()) {
-            $disallowed_keys = $this->disallowKeywords->implode(' OR ');
             // if ($this->allowedKeywords->isNotEmpty()) {
             //     $keywords_text .= " NOT ({$disallowed_keys})";
             // } else {
             //     $keywords_text = "NOT ({$disallowed_keys})";
             // }
-            // $keywords_text = "NOT ({$disallowed_keys})";
-        }
-
-        // $expression = 'AREA[LeadSponsorName]"Merck Sharp & Dohme Corp."';
-        $expression = "{$keywords_text} AND {$sponsor_search} AND {$country_search}";
-        if ($nctid_field) {
-            $expression = "AREA[NCTId]{$nctid_field}";
-            $total_found = 1;
-        } else {
-            /**
-             * Updates the expr field to get a single ID
-             */
-            $total_found = self::getTotalToImport(
-                [
-                    // Use the expression above
-                    'expr'    => "{$expression} AND AREA[OverallStatus]\"Recruiting\"",
-                    'min_rnk' => 1,
-                    'max_rnk' => 1,
-                ]
-            );
+            $keywords_text = "NOT ({$this->disallowKeywords->implode(' OR ')}) AND";
         }
 
         /**
          * Grab the data from the gov't site
          */
         $client_args = [
-            'expr'    => $expression,
+            'expr'    => $nctid_field ? "AREA[NCTId]{$nctid_field}" : "{$keywords_text} {$trial_status} {$sponsor_search} {$country_search}",
             'min_rnk' => $starting_rank,
             'max_rnk' => $max_rank,
         ];
@@ -263,16 +247,13 @@ class MSAPIScraper
             // Set data root to first object key
             $api_data = $api_data->FullStudiesResponse ?? null;
 
-            // Number of items we're grabbing
-            $max_grabbed = $max_rank;
-
-            // $filtered_data = self::filterTrials($api_data);
+            $total_found = $nctid_field ? 1 : ($api_data->NStudiesFound ?: 0);
 
             /**
              * Determine how many times we need to loop through the items based on the amount found
              * versus the max number of item's we're getting
              */
-            $loop_number = intval(round($total_found / $max_grabbed));
+            $loop_number = intval(round($total_found / $max_rank));
             $loop_number = $loop_number === 0 ? 1 : $loop_number;
 
             // Grab a list of trashed posts that are supposed to be archived
@@ -289,8 +270,7 @@ class MSAPIScraper
              * Iterate through the import if the import max count is
              * higher than the max_rnk set.
              */
-
-            for ($iteration = 1; $iteration < $loop_number; $iteration++) :
+            for ($iteration = 0; $iteration < $loop_number; $iteration++) :
                 // Increase the min_rnk and max_rnk for each loop above the first
                 if ($iteration > 1) {
                     $client_args['min_rnk'] = $client_args['min_rnk'] + $max_rank;
@@ -408,41 +388,6 @@ class MSAPIScraper
                 'MESSAGE' => $message,
             ]
         );
-    }
-
-    /**
-     * Method that runs through the studies, and filters out the ones that contain a condition
-     * that's not allowed
-     *
-     * @param object $studies An object of studies from the API call
-     *
-     * @return null|Collection
-     */
-    protected function filterTrials(object $studies)
-    {
-        if ($studies) {
-            return collect($studies->FullStudies)
-                ->filter(function ($study, $key) {
-                    // if ($key > 1) {
-                    //     return $study;
-                    // }
-                    $parse_conditions = self::parseCondition($study->Study->ProtocolSection->ConditionsModule);
-                    $conditions = collect($parse_conditions->get('conditions'));
-                    if ($conditions->isNotEmpty()) {
-                        $disallowed_conds = $this->disallowKeywords->toArray();
-                        error_log(print_r($conditions, true));
-                        $final_conditions = $conditions
-                            ->filter(function ($condition) use ($disallowed_conds) {
-                                $condition = strtolower($condition);
-                                return preg_grep("/^$condition/i", $disallowed_conds);
-                            });
-                        error_log(print_r($final_conditions, true));
-                    }
-
-                    return $study;
-                });
-        }
-        return $studies;
     }
 
     //region Import Methods

@@ -94,6 +94,7 @@ class MSHelper
     public static function textareaToArr(string $field)
     {
         $field = str_replace(';', '\n', $field);
+        $field = preg_replace('!\s+!', '\n', $field);
         $field = explode('\n', $field);
         return array_map('trim', $field);
     }
