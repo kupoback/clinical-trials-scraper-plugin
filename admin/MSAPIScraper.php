@@ -8,7 +8,7 @@ use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
-// use Merck_Scraper\Helper\MSMailer;
+use Merck_Scraper\Helper\MSMailer;
 use Merck_Scraper\Helper\MSHelper;
 use Merck_Scraper\Traits\MSAcfTrait;
 use Merck_Scraper\Traits\MSApiField;
@@ -26,6 +26,7 @@ use WP_REST_Server;
 
 class MSAPIScraper
 {
+
     //region Class Uses
     use MSApiTrait;
     use MSAcfTrait;
@@ -34,6 +35,7 @@ class MSAPIScraper
     use MSHttpCallback;
     use MSApiField;
     use MSDBCallbacks;
+
     //endregion
 
     //region Class Vars
@@ -53,12 +55,14 @@ class MSAPIScraper
 
     /**
      * Default array of allowed keywords for HTTP Request
+     *
      * @var array|string[]
      */
     private Collection $allowedKeywords;
 
     /**
      * Default array of keywords for HTTP request
+     *
      * @var array|string[]
      */
     private Collection $disallowKeywords;
@@ -95,32 +99,19 @@ class MSAPIScraper
     /**
      * MSAPIScraper constructor.
      *
-     * @param string $apiLogDirectory The path string of the dir for the API Log
      * @param array  $email_params    An array with the email and the name of who to send the email to
+     * @param string $apiLogDirectory The path string of the dir for the API Log
      */
-    public function __construct($apiLogDirectory = MERCK_SCRAPER_API_LOG_DIR, array $email_params = [])
+    public function __construct(array $email_params = [], $apiLogDirectory = MERCK_SCRAPER_API_LOG_DIR)
     {
-        $this->sendTo = [
-            [
-                'email' => $email_params['email'] ?? 'nmakris@cliquestudios.com',
-                'name'  => $email_params['name'] ?? 'Nick',
-            ],
-        ];
+        $this->sendTo = [$email_params];
 
-        /**
-         * Collection of the allowed keywords
-         */
-        // $this->allowedKeywords = collect(
-        //     MSHelper::textareaToArr(
-        //         self::acfOptionField('allowed_keywords')
-        //     )
-        // );
         /**
          * Collection of the disallowed keywords
          */
         $this->disallowKeywords = collect(
             MSHelper::textareaToArr(
-                self::acfOptionField('disallowed_keywords')
+                self::acfStrOptionFld('disallowed_keywords')
             )
         );
 
@@ -190,44 +181,47 @@ class MSAPIScraper
         ini_set('post_max_size', '512M');
 
         $nctid_field = $request['nctidField'] ?? false;
-        // $fields_to_import = self::acfOptionField('fields_to_import');
-        // $search_keywords  = self::acfOptionField('search_keywords');
         $arr_data = true;
-
-        // $email_body = [
-        //     'subject'   => 'Email Test',
-        //     'body_text' => 'Body Text',
-        // ];
+        $num_not_imported = 0;
 
         $starting_rank = self::acfOptionField('min_import_rank') ?: 1;
         $max_rank      = self::acfOptionField('max_import_rank') ?: 30;
 
-        $trial_status = 'AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( "Recruiting" OR "Not yet recruiting" )';
+        /**
+         * The default search query.
+         *
+         * @uses Status OverallStatus of the Trial, Recruiting and Not yet recruiting
+         * @uses Country The default country is the United States
+         * @uses Sponsor Searches for Merck Sharp & Dohme Corp as the sponsor
+         */
+        $trial_status   = 'AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( "Recruiting" OR "Not yet recruiting" )';
         $country_search = 'AND SEARCH[Location] EXPAND[Term] COVER[FullMatch] ( AREA[LocationPath] "US" AND ( AREA[LocationCountry] "United States" OR CONST[0.95] ) )';
         $sponsor_search = 'AND ( AREA[LeadSponsorName] "Merck Sharp & Dohme Corp." )';
 
-        /**
-         * As of now, no longer using an allowed list of keywords
-         */
-        // if ($this->allowedKeywords->isNotEmpty()) {
-        //     $keywords_text = "({$this->allowedKeywords->implode(' OR ')})";
-        // }
-
         $keywords_text = '';
         if ($this->disallowKeywords->isNotEmpty()) {
-            // if ($this->allowedKeywords->isNotEmpty()) {
-            //     $keywords_text .= " NOT ({$disallowed_keys})";
-            // } else {
-            //     $keywords_text = "NOT ({$disallowed_keys})";
-            // }
             $keywords_text = "NOT ({$this->disallowKeywords->implode(' OR ')}) AND";
+        }
+
+        $expression = "{$keywords_text} {$trial_status} {$sponsor_search} {$country_search}";
+
+        if ($nctid_field) {
+            $expression = collect(
+                MSHelper::textareaToArr(
+                    $nctid_field
+                )
+            )
+                ->map(function ($nct_id) {
+                    return "(AREA[NCTId]{$nct_id})";
+                })
+                ->implode(' AND ');
         }
 
         /**
          * Grab the data from the gov't site
          */
         $client_args = [
-            'expr'    => $nctid_field ? "AREA[NCTId]{$nctid_field}" : "{$keywords_text} {$trial_status} {$sponsor_search} {$country_search}",
+            'expr'    => $expression,
             'min_rnk' => $starting_rank,
             'max_rnk' => $max_rank,
         ];
@@ -265,7 +259,7 @@ class MSAPIScraper
                     });
             }
 
-            $current_position = 1;
+            $current_position = 0;
             /**
              * Iterate through the import if the import max count is
              * higher than the max_rnk set.
@@ -275,7 +269,15 @@ class MSAPIScraper
                 if ($iteration > 1) {
                     $client_args['min_rnk'] = $client_args['min_rnk'] + $max_rank;
                     $client_args['max_rnk'] = $client_args['max_rnk'] + $max_rank;
-                    $client_http            = self::scraperHttpCB('/api/query/full_studies', "GET", $client_args, ['delay' => 120]);
+
+                    $client_http = self::scraperHttpCB(
+                        '/api/query/full_studies',
+                        "GET",
+                        $client_args,
+                        [
+                            'delay' => 120,
+                        ]
+                    );
 
                     if (!is_wp_error($client_http)) {
                         // Grab the results
@@ -291,7 +293,9 @@ class MSAPIScraper
                     }
                 }
 
-                $studies = collect($api_data->FullStudies)
+                $studies = collect($api_data->FullStudies);
+                $inital_count = $studies->count();
+                $studies = $studies
                     ->filter(function ($study) use ($total_found, $trashed_posts) {
                         // Filter the data removing ones that are marked as "trash"
                         $collect_study   = collect($study)
@@ -305,6 +309,8 @@ class MSAPIScraper
                         return is_bool($found);
                     })
                     ->values();
+
+                $num_not_imported = $num_not_imported + ($inital_count - $studies->count());
 
                 if ($studies->count() > 0) {
                     $studies  = self::studyImportLoop(
@@ -321,16 +327,13 @@ class MSAPIScraper
             $this->errorLog->error(json_decode($client_http->getBody()->getContents()));
         }
 
-        // if ($studies_imported->isNotEmpty()) {
-        //     $studies_imported = $studies_imported
-        //         ->flatten(1)
-        //         ->map(function ($study) {
-        //
-        //             return $study;
-        //         });
-        // Email notification on completion
-        // MSMailer::mailer($this->sendTo, $email_body);
-        // }
+        // $studies_imported->push('a')
+        //                  ->push('b')
+        //                  ->push('c')
+        //                  ->push('d')
+        //                  ->push('e');
+
+        self::emailerSetup($studies_imported, $num_not_imported);
 
         // Restore the max_execution_time
         ini_restore('post_max_size');
@@ -342,30 +345,6 @@ class MSAPIScraper
         self::clearPosition();
 
         return rest_ensure_response($arr_data);
-    }
-
-    /**
-     * API call to get the actual number we'll be importing
-     *
-     * @param array $client_args An array of args to build the query
-     *
-     * @return int
-     */
-    private function getTotalToImport($client_args)
-    {
-        $client_http = self::scraperHttpCB(
-            '/api/query/full_studies',
-            "GET",
-            $client_args,
-            ['delay' => 120]
-        );
-
-        if (!is_wp_error($client_http)) {
-            $api_data    = json_decode($client_http->getBody()->getContents());
-            $api_data    = $api_data->FullStudiesResponse ?? null;
-            return $api_data->NStudiesFound ?? 0;
-        }
-        return 0;
     }
 
     /**
@@ -391,6 +370,7 @@ class MSAPIScraper
     }
 
     //region Import Methods
+
     /**
      * A separated loop to handle pagination of posts
      *
@@ -427,7 +407,7 @@ class MSAPIScraper
                 })
                 ->filter();
 
-            $this->apiLog->info("Imported", $studies->toArray());
+            $this->apiLog->info("Imported {$studies->count()} Studies", $studies->toArray());
 
             return [
                 'numOfStudies' => $studies->count(),
@@ -659,6 +639,7 @@ class MSAPIScraper
         $return->put('NAME', $post_args->get('post_title'));
         $return->put('NCDID', $nct_id);
         $return->put('MESSAGE', $message);
+        $return->put('POST_STATUS', $status);
 
         ini_restore('post_max_size');
         ini_restore('max_execution_time');
@@ -715,6 +696,79 @@ class MSAPIScraper
             ->toArray();
     }
     //endregion
+
+    /**
+     * Method that setups and sends out the email after the import has been ran
+     *
+     * @param Collection $studies_imported A Collection of studies that were imported
+     * @param int $num_not_imported The number of studies not imported as they're filtered out
+     */
+    protected function emailerSetup(Collection $studies_imported, int $num_not_imported = 0)
+    {
+        /**
+         * Merck Emailer
+         */
+        if (empty($this->sendTo)) {
+            $this->sendTo = self::acfOptionField('api_logger_email_to');
+        }
+
+        /**
+         * Check if AIO is installed and setup
+         */
+        $login_url = wp_login_url();
+        global $aio_wp_security;
+        if ($aio_wp_security && $aio_wp_security->configs->get_value('aiowps_enable_rename_login_page') ==='1') {
+            $home_url = trailingslashit(home_url()) . (!get_option('permalink_structure') ? '?' : '');
+            $login_url = "{$home_url}{$aio_wp_security->configs->get_value('aiowps_login_page_slug')}";
+        }
+
+        $email_args = [
+            'Variables' => [
+                'timestamp' => $this->nowTime->format("l F j, Y h:i A"),
+                'importstatus' => "There were no updates to the trails imported.",
+                'trials' => '',
+                'wplogin' => $login_url,
+            ]
+        ];
+
+        $new_posts = collect();
+        $trashed_posts = collect();
+        $updated_posts = collect();
+
+        if ($studies_imported->isNotEmpty()) {
+            //' There were updates to the trials listed in the system';
+            $total_studies = $studies_imported->count();
+            if ($total_studies > 1) {
+                $studies_imported = $studies_imported
+                    ->flatten(1);
+            }
+            $studies_imported = $studies_imported
+                ->map(function ($study, $key) use ($new_posts, $trashed_posts, $updated_posts) {
+                    $status = $study->get('POST_STATUS');
+                    switch (strtolower($status)) {
+                        case "draft":
+                            $new_posts->push($study);
+                            break;
+                        case "trash":
+                            $trashed_posts->push($study);
+                            break;
+                        case "publish":
+                            $updated_posts->push($study);
+                            break;
+                        default:
+                            break;
+                    }
+                    return $study;
+                });
+            error_log(print_r($new_posts, true));
+            error_log(print_r($trashed_posts, true));
+            error_log(print_r($updated_posts, true));
+            error_log(print_r($num_not_imported, true));
+        }
+
+        // Email notification on completion
+        // MSMailer::mailer($this->sendTo, $email_body);
+    }
 
     /**
      * A public accessible logger setup

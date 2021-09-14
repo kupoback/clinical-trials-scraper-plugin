@@ -2,7 +2,7 @@
     <Layout container-classes="merck-scraper-import__container"
             row-classes="merck-scraper-import__row">
         <template v-slot:body>
-            <div class="merck-scraper-import__body col-12">
+            <div class="merck-scraper-import__body col-12 mb-3">
                 <p class="h4"
                    v-text="`Click the Import All button below to execute the scrapper.`" />
             </div>
@@ -25,17 +25,19 @@
             </div>
             <div class="merck-scraper-import__button-group col-12">
                 <div class="row">
-                    <div class="col-lg-6">
-                        <div class="form-field-container mt-3 mb-3">
+                    <div class="col-lg-6 mb-3">
+                        <div class="form-field-container">
                             <label for="nctid-field" class="form-label" v-text="`NCT ID's`"/>
                             <textarea v-model="nctidField"
                                       class="form-control"
                                       id="nctid-field"
-                                      rows="3"></textarea>
+                                      rows="3" />
+                            <p class="helper-text">Enter in one NCT ID per line, or separate them with a semi-colon.</p>
                         </div>
                     </div>
                 </div>
-                <p class="h5"
+                <hr>
+                <p class="h5 mt-4 mb-3"
                    v-text="`Trigger Import`" />
                 <p v-if="importRunning" class="helper-text" v-text="`Import running, please wait.`" />
                 <Button v-if="!importRunning"

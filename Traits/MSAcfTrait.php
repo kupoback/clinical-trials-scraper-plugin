@@ -14,6 +14,18 @@ namespace Merck_Scraper\Traits;
 trait MSAcfTrait
 {
     /**
+     * Retruns a field value from the Merck Scraper Options page with a str to lower
+     *
+     * @param string $field The ACF field name
+     *
+     * @return mixed
+     */
+    protected function acfStrOptionFld(string $field)
+    {
+        return strtolower(get_field($field, 'merck_settings') ?? '');
+    }
+
+    /**
      * Retruns a field value from the Merck Scraper Options page
      *
      * @param string $field The ACF field name
@@ -22,6 +34,6 @@ trait MSAcfTrait
      */
     protected function acfOptionField(string $field)
     {
-        return strtolower(get_field($field, 'merck_settings') ?? '');
+        return get_field($field, 'merck_settings') ?? '';
     }
 }

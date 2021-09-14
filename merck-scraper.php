@@ -10,6 +10,7 @@ use Merck_Scraper\admin\MSAPIScraper;
 use Merck_Scraper\includes\MSMainClass;
 use Merck_Scraper\includes\MSActivator;
 use Merck_Scraper\includes\MSDeactivator;
+use Merck_Scraper\Traits\MSAcfTrait;
 
 /**
  * The plugin bootstrap file
@@ -120,8 +121,7 @@ run_ms();
 /**
  * This is the cron job setup function
  */
-function execute_scraper()
-{
+add_action('ms_govt_scrape_cron', function () {
     $scaper_class = new MSAPIScraper();
 
     $logger = $scaper_class->setLogger('cron-job', 'cron', MERCK_SCRAPER_LOG_DIR . '/cron');
@@ -131,9 +131,7 @@ function execute_scraper()
     } catch (Exception $exception) {
         $logger->error(__("Erorr executing the cron job", 'merck-scraper'), $exception->getTrace());
     }
-}
-
-add_action('ms_govt_scrape_cron', 'execute_scraper');
+});
 
 /**
  * If the cron job isn't scheduled to run, we'll set it up to run

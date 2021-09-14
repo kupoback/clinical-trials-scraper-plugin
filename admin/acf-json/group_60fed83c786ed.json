@@ -35,25 +35,6 @@
             "placeholder": ""
         },
         {
-            "key": "field_6104468122272",
-            "label": "Allowed Keywords",
-            "name": "allowed_keywords",
-            "type": "textarea",
-            "instructions": "<p>Please enter in one field per line, or semi-colon separate the field names.<\/p>\r\n<p>These fields will be used for searching the API.<\/p>",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "",
-            "maxlength": "",
-            "rows": "",
-            "new_lines": ""
-        },
-        {
             "key": "field_61310869e2abf",
             "label": "Disallowed Keywords",
             "name": "disallowed_keywords",
@@ -130,6 +111,129 @@
             "min": 2,
             "max": 100,
             "step": 1
+        },
+        {
+            "key": "field_6140c669e83e3",
+            "label": "API Emailer Settings",
+            "name": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "These settings are used to setup the mailer when the Scraper is ran.",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_6140ba8a9993c",
+            "label": "API Logger Email To",
+            "name": "api_logger_email_to",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "collapsed": "field_6140bac420802",
+            "min": 0,
+            "max": 0,
+            "layout": "table",
+            "button_label": "Add Emailer",
+            "sub_fields": [
+                {
+                    "key": "field_6140bab520801",
+                    "label": "Email",
+                    "name": "email",
+                    "type": "email",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_6140bac420802",
+                    "label": "Name",
+                    "name": "name",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                }
+            ]
+        },
+        {
+            "key": "field_6140c6ab34b93",
+            "label": "Use MailJet Template",
+            "name": "use_mailjet_template",
+            "type": "true_false",
+            "instructions": "Whether we're using a custom MailJet template or not.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "one-quarter",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_6140c39ae1577",
+            "label": "API Email Template ID",
+            "name": "api_email_template_id",
+            "type": "number",
+            "instructions": "This is the ID of the template that's setup in MailJet.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_6140c6ab34b93",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "three-quarters",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "min": "",
+            "max": "",
+            "step": ""
         },
         {
             "key": "field_610414572226f",
@@ -274,5 +378,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "Option Settings for the Merck Scraper Plugin",
-    "modified": 1631216357
+    "modified": 1631635175
 }
