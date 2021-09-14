@@ -94,6 +94,8 @@ class MSAPIScraper
      * @var Carbon $nowTime
      */
     private Carbon $nowTime;
+
+    private int $totalFound;
     //endregion
 
     /**
@@ -180,8 +182,8 @@ class MSAPIScraper
         ini_set('memory_limit', '2048M');
         ini_set('post_max_size', '512M');
 
-        $nctid_field = $request['nctidField'] ?? false;
-        $arr_data = true;
+        $nctid_field      = $request['nctidField'] ?? false;
+        $arr_data         = true;
         $num_not_imported = 0;
 
         $starting_rank = self::acfOptionField('min_import_rank') ?: 1;
@@ -241,13 +243,14 @@ class MSAPIScraper
             // Set data root to first object key
             $api_data = $api_data->FullStudiesResponse ?? null;
 
-            $total_found = $nctid_field ? 1 : ($api_data->NStudiesFound ?: 0);
+            $this->totalFound = $nctid_field ? 1 : ($api_data->NStudiesFound ?: 0);
 
             /**
              * Determine how many times we need to loop through the items based on the amount found
              * versus the max number of item's we're getting
              */
-            $loop_number = intval(round($total_found / $max_rank));
+            $loop_number = intval(round($this->totalFound / $max_rank));
+            // Commented out for now as it's not looping properly
             $loop_number = $loop_number === 0 ? 1 : $loop_number;
 
             // Grab a list of trashed posts that are supposed to be archived
@@ -259,14 +262,13 @@ class MSAPIScraper
                     });
             }
 
-            $current_position = 0;
             /**
              * Iterate through the import if the import max count is
              * higher than the max_rnk set.
              */
             for ($iteration = 0; $iteration < $loop_number; $iteration++) :
                 // Increase the min_rnk and max_rnk for each loop above the first
-                if ($iteration > 1) {
+                if ($iteration > 0) {
                     $client_args['min_rnk'] = $client_args['min_rnk'] + $max_rank;
                     $client_args['max_rnk'] = $client_args['max_rnk'] + $max_rank;
 
@@ -293,10 +295,15 @@ class MSAPIScraper
                     }
                 }
 
-                $studies = collect($api_data->FullStudies);
+                $studies      = collect($api_data->FullStudies);
                 $inital_count = $studies->count();
-                $studies = $studies
-                    ->filter(function ($study) use ($total_found, $trashed_posts) {
+                $studies      = $studies
+                    ->map(function ($study) {
+                        $study->Study->ProtocolSection->Rank = $study->Rank;
+                        // error_log(print_r($study->Rank, true));
+                        return $study;
+                    })
+                    ->filter(function ($study) use ($trashed_posts) {
                         // Filter the data removing ones that are marked as "trash"
                         $collect_study   = collect($study)
                             ->get('Study')
@@ -313,14 +320,8 @@ class MSAPIScraper
                 $num_not_imported = $num_not_imported + ($inital_count - $studies->count());
 
                 if ($studies->count() > 0) {
-                    $studies  = self::studyImportLoop(
-                        $studies,
-                        $current_position,
-                        $total_found
-                    );
-                    $position = $studies['numOfStudies'];
+                    $studies  = self::studyImportLoop($studies);
                     $studies_imported->push($studies['studies']);
-                    $current_position = $current_position + $position;
                 }
             endfor;
         } else {
@@ -380,7 +381,7 @@ class MSAPIScraper
      *
      * @throws Exception
      */
-    private function studyImportLoop(Collection $studies, int $current_position, int $total_found)
+    private function studyImportLoop(Collection $studies)
     {
         // Map through our studies and begin assigning data to fields
         if ($studies->count() > 0) {
@@ -388,21 +389,20 @@ class MSAPIScraper
                 "Trials Found",
                 [
                     'position'     => 1,
-                    'total_import' => $total_found,
+                    'total_import' => $this->totalFound ,
                 ]
             );
+
             $studies = $studies
-                ->map(function ($study, $index) use ($current_position, $total_found) {
+                ->map(function ($study, $index) {
                     $study_data = collect($study);
-                    $position   = ($current_position + $index) + 1;
                     return self::studyImport(
                         collect(
                             $study_data
                                 ->get('Study')
                                 ->ProtocolSection
                         ),
-                        $position,
-                        $total_found,
+                        $study->Study->ProtocolSection->Rank
                     );
                 })
                 ->filter();
@@ -425,7 +425,7 @@ class MSAPIScraper
      * @return false|Collection
      * @throws Exception
      */
-    protected function studyImport(object $field_data, int $position_index, int $total_count)
+    protected function studyImport(object $field_data, int $position_index)
     {
         set_time_limit(180);
         ini_set('max_execution_time', '180');
@@ -529,12 +529,11 @@ class MSAPIScraper
             return false;
         }
 
-        $update_index = $position_index + 1;
         self::updatePosition(
             "Trials Import",
             [
-                'position'    => $update_index !== $total_count ? $update_index : $total_count,
-                'total_count' => $total_count,
+                'position'    => $position_index,
+                'total_count' => $this->totalFound,
                 'helper'      => "Importing {$post_args->get('post_title')}",
             ],
         );
@@ -701,7 +700,7 @@ class MSAPIScraper
      * Method that setups and sends out the email after the import has been ran
      *
      * @param Collection $studies_imported A Collection of studies that were imported
-     * @param int $num_not_imported The number of studies not imported as they're filtered out
+     * @param int        $num_not_imported The number of studies not imported as they're filtered out
      */
     protected function emailerSetup(Collection $studies_imported, int $num_not_imported = 0)
     {
@@ -717,21 +716,21 @@ class MSAPIScraper
          */
         $login_url = wp_login_url();
         global $aio_wp_security;
-        if ($aio_wp_security && $aio_wp_security->configs->get_value('aiowps_enable_rename_login_page') ==='1') {
-            $home_url = trailingslashit(home_url()) . (!get_option('permalink_structure') ? '?' : '');
+        if ($aio_wp_security && $aio_wp_security->configs->get_value('aiowps_enable_rename_login_page') === '1') {
+            $home_url  = trailingslashit(home_url()) . (!get_option('permalink_structure') ? '?' : '');
             $login_url = "{$home_url}{$aio_wp_security->configs->get_value('aiowps_login_page_slug')}";
         }
 
         $email_args = [
             'Variables' => [
-                'timestamp' => $this->nowTime->format("l F j, Y h:i A"),
+                'timestamp'    => $this->nowTime->format("l F j, Y h:i A"),
                 'importstatus' => "There were no updates to the trails imported.",
-                'trials' => '',
-                'wplogin' => $login_url,
-            ]
+                'trials'       => '',
+                'wplogin'      => $login_url,
+            ],
         ];
 
-        $new_posts = collect();
+        $new_posts     = collect();
         $trashed_posts = collect();
         $updated_posts = collect();
 
@@ -742,11 +741,12 @@ class MSAPIScraper
                 $studies_imported = $studies_imported
                     ->flatten(1);
             }
-            $studies_imported = $studies_imported
+            $studies_imported
                 ->map(function ($study, $key) use ($new_posts, $trashed_posts, $updated_posts) {
                     $status = $study->get('POST_STATUS');
                     switch (strtolower($status)) {
                         case "draft":
+                        case "pending":
                             $new_posts->push($study);
                             break;
                         case "trash":
@@ -760,10 +760,16 @@ class MSAPIScraper
                     }
                     return $study;
                 });
-            error_log(print_r($new_posts, true));
-            error_log(print_r($trashed_posts, true));
-            error_log(print_r($updated_posts, true));
-            error_log(print_r($num_not_imported, true));
+
+            $new_posts        = sprintf('<li>New Trials: %s</li>', $new_posts->count());
+            $trashed_posts    = sprintf('<li>Removed Trials: %s</li>', $trashed_posts->count());
+            $num_not_imported = sprintf('<li>Trials Not Scraped: %s</li>', $num_not_imported ?? 0);
+            $updated_posts    = sprintf('<li>Updated Posts: %s</li>', $updated_posts->count());
+
+            $email_args['Variables']['trials'] = sprintf(
+                '<ul>%s</ul>',
+                $new_posts . $trashed_posts . $num_not_imported . $updated_posts
+            );
         }
 
         // Email notification on completion
