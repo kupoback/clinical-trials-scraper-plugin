@@ -21,14 +21,14 @@ use Merck_Scraper\Traits\MSAcfTrait;
  * that starts the plugin.
  *
  * @link              https://cliquestudios.com
- * @since             1.0.0
+ * @since             1.0.1
  * @package           Merck_Scraper
  *
  * @wordpress-plugin
  * Plugin Name:       Merck Scrapper
  * Plugin URI:        #
  * Description:       This plugin is used to scrape data from clinicaltrials.gov website
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Clique Studios
  * Author URI:        https://cliquestudios.com
  * License:           GPL-2.0+
@@ -50,7 +50,7 @@ require plugin_dir_path(__FILE__) . 'vendor/autoload.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('MERCK_SCRAPER_VERSION', '1.0.0');
+define('MERCK_SCRAPER_VERSION', '1.0.1');
 
 /**
  * This constant is used to save the logs to a specific directory
