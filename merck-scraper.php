@@ -31,6 +31,9 @@ use Merck_Scraper\Traits\MSAcfTrait;
  * Version:           1.0.1
  * Author:            Clique Studios
  * Author URI:        https://cliquestudios.com
+ * Requires at least: 5.8.1
+ * Tested up to:      5.8.1
+ * Requires PHP:      7.4
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       merck-scraper
