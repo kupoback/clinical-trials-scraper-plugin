@@ -44,7 +44,7 @@ class MSAPIScraper
      *
      * @var string[][]
      */
-    private array $sendTo = [];
+    private Collection $sendTo;
 
     /**
      * The base url for the clinical trials gov't website
@@ -106,7 +106,7 @@ class MSAPIScraper
      */
     public function __construct(array $email_params = [], $apiLogDirectory = MERCK_SCRAPER_API_LOG_DIR)
     {
-        $this->sendTo = [$email_params];
+        $this->sendTo = collect($email_params);
 
         /**
          * Collection of the disallowed keywords
@@ -234,7 +234,14 @@ class MSAPIScraper
         $this->acfFields  = self::trialsFieldGroup();
         $studies_imported = collect();
 
-        $client_http = self::scraperHttpCB('/api/query/full_studies', "GET", $client_args, ['delay' => 120]);
+        $client_http = self::scraperHttpCB(
+            '/api/query/full_studies',
+            "GET",
+            $client_args,
+            [
+                'delay' => 120,
+            ]
+        );
 
         // Check that our HTTP request was successful
         if (!is_wp_error($client_http)) {
@@ -300,7 +307,6 @@ class MSAPIScraper
                 $studies      = $studies
                     ->map(function ($study) {
                         $study->Study->ProtocolSection->Rank = $study->Rank;
-                        // error_log(print_r($study->Rank, true));
                         return $study;
                     })
                     ->filter(function ($study) use ($trashed_posts) {
@@ -320,7 +326,7 @@ class MSAPIScraper
                 $num_not_imported = $num_not_imported + ($inital_count - $studies->count());
 
                 if ($studies->count() > 0) {
-                    $studies  = self::studyImportLoop($studies);
+                    $studies = self::studyImportLoop($studies);
                     $studies_imported->push($studies['studies']);
                 }
             endfor;
@@ -328,13 +334,11 @@ class MSAPIScraper
             $this->errorLog->error(json_decode($client_http->getBody()->getContents()));
         }
 
-        // $studies_imported->push('a')
-        //                  ->push('b')
-        //                  ->push('c')
-        //                  ->push('d')
-        //                  ->push('e');
+        $email = self::emailerSetup($studies_imported, $num_not_imported);
 
-        self::emailerSetup($studies_imported, $num_not_imported);
+        if (is_wp_error($email)) {
+            $this->errorLog->error("Error sending email, check Email log");
+        }
 
         // Restore the max_execution_time
         ini_restore('post_max_size');
@@ -389,7 +393,7 @@ class MSAPIScraper
                 "Trials Found",
                 [
                     'position'     => 1,
-                    'total_import' => $this->totalFound ,
+                    'total_import' => $this->totalFound,
                 ]
             );
 
@@ -587,8 +591,8 @@ class MSAPIScraper
                                      */
                                     if (self::acfOptionField('google_maps_api_key')) {
                                         // We'll want to reset the existing data as some trials be now be considered "Complete"
-                                        self::updateACF($field['name'], [], $post_id);
-                                        $arr_data = self::locationGeocode($arr_data, $nct_id);
+                                        // self::updateACF($field['name'], [], $post_id);
+                                        // $arr_data = self::locationGeocode($arr_data, $nct_id);
                                     } else {
                                         $this->errorLog->error("Skipping geocode setup as there's no Google Maps Key set");
                                     }
@@ -707,8 +711,8 @@ class MSAPIScraper
         /**
          * Merck Emailer
          */
-        if (empty($this->sendTo)) {
-            $this->sendTo = self::acfOptionField('api_logger_email_to');
+        if ($this->sendTo->isEmpty()) {
+            $this->sendTo = collect(self::acfOptionField('api_logger_email_to'));
         }
 
         /**
@@ -721,19 +725,22 @@ class MSAPIScraper
             $login_url = "{$home_url}{$aio_wp_security->configs->get_value('aiowps_login_page_slug')}";
         }
 
+        /**
+         * A list of array fields for the MailJet emailer
+         */
         $email_args = [
-            'Variables' => [
+            'TemplateLanguage' => true,
+            'TemplateID'       => (int) (self::acfOptionField('api_email_template_id') ?? 0),
+            'Variables'        => [
                 'timestamp'    => $this->nowTime->format("l F j, Y h:i A"),
-                'importstatus' => "There were no updates to the trails imported.",
                 'trials'       => '',
                 'wplogin'      => $login_url,
             ],
         ];
 
-        $new_posts     = collect();
-        $trashed_posts = collect();
-        $updated_posts = collect();
-
+        /**
+         * Adds the Trails data to Variables
+         */
         if ($studies_imported->isNotEmpty()) {
             //' There were updates to the trials listed in the system';
             $total_studies = $studies_imported->count();
@@ -741,8 +748,13 @@ class MSAPIScraper
                 $studies_imported = $studies_imported
                     ->flatten(1);
             }
+
+            $new_posts     = collect();
+            $trashed_posts = collect();
+            $updated_posts = collect();
+
             $studies_imported
-                ->map(function ($study, $key) use ($new_posts, $trashed_posts, $updated_posts) {
+                ->map(function ($study) use ($new_posts, $trashed_posts, $updated_posts) {
                     $status = $study->get('POST_STATUS');
                     switch (strtolower($status)) {
                         case "draft":
@@ -773,7 +785,7 @@ class MSAPIScraper
         }
 
         // Email notification on completion
-        // MSMailer::mailer($this->sendTo, $email_body);
+        return (new MSMailer())->mailer($this->sendTo, $email_args);
     }
 
     /**

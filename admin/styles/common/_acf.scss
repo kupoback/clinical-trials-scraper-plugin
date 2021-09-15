@@ -53,6 +53,14 @@
 .postbox,
 .acf-postbox {
 	&.hide { display: none !important; }
+	.acf-repeater {
+		.-collapsed {
+			.-collapsed-target {
+				flex: 0 0 100% !important;
+				max-width: 100% !important;;
+			}
+		}
+	}
 }
 
 .acf-field .char-count {
