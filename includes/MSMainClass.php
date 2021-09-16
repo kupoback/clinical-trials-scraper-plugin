@@ -191,8 +191,8 @@ class MSMainClass
     {
         $plugin_public = new MSPublic($this->getPluginName(), $this->getversion());
 
-        $this->loader->addAction('wp_enqueue_scripts', $plugin_public, 'enqueueStyles');
-        $this->loader->addAction('wp_enqueue_scripts', $plugin_public, 'enqueueScripts');
+        // $this->loader->addAction('wp_enqueue_scripts', $plugin_public, 'enqueueStyles');
+        // $this->loader->addAction('wp_enqueue_scripts', $plugin_public, 'enqueueScripts');
 
         $public_api = new MSFrontEndAPI();
         $this->loader->addRestRoute($public_api, 'registerEndpoint');
