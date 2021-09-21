@@ -28,7 +28,7 @@ use Merck_Scraper\Traits\MSAcfTrait;
  * Plugin Name:       Merck Scrapper
  * Plugin URI:        #
  * Description:       This plugin is used to scrape data from clinicaltrials.gov website
- * Version:           1.0.2
+ * Version:           1.0.3
  * Author:            Clique Studios
  * Author URI:        https://cliquestudios.com
  * Requires at least: 5.8.1
