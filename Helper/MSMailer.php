@@ -6,15 +6,16 @@ namespace Merck_Scraper\Helper;
 
 use Error;
 use Illuminate\Support\Collection;
-use Mailjet\Client;
 use Mailjet\Resources;
 use Merck_Scraper\Traits\MSAcfTrait;
+use Merck_Scraper\Traits\MSEmailTrait;
 use Merck_Scraper\Traits\MSLoggerTrait;
 use Monolog\Logger;
 
 class MSMailer
 {
 
+    use MSEmailTrait;
     use MSAcfTrait;
     use MSLoggerTrait;
 
@@ -29,30 +30,29 @@ class MSMailer
      */
     public function mailer(Collection $send_to = null, array $addt_args = [])
     {
+        // $send_to is required and must be a Collection
         if (is_null($send_to) || $send_to->isEmpty()) {
             return new Error("An email address and Name are required for email submission", 400);
         }
 
-        $api_key         = self::acfOptionField('mailjet_api_key');
-        $api_secret      = self::acfOptionField('mailjet_api_secret_key');
+        // Setup the Email logger
+        $email_logger = self::initLogger(
+            'email-log',
+            'email',
+            MERCK_SCRAPER_LOG_DIR . '/email',
+            Logger::API
+        );
+
         $email_from      = self::acfOptionField('email_from');
         $email_from_name = self::acfOptionField('email_from_name');
 
-        if (!$api_key || !$api_secret) {
-            return new Error("Please check that the API Key or Secret Key are populated and/or valid", 400);
+        $mailjet = self::mailerClient();
+
+        // Quit if the mailerClient fails to setup
+        if (is_wp_error($mailjet)) {
+            $email_logger->error("Failed to setup Email Client", ['message' => $mailjet->get_error_message()]);
+            return new Error("Failed to setup Email Client. {$mailjet->get_error_message()}");
         }
-
-        // Setup the Email logger
-        $email_logger = self::initLogger('email-log', 'email', MERCK_SCRAPER_LOG_DIR . '/email', Logger::API);
-
-        $mailjet = new Client(
-            $api_key,    // f353ad42fe63daac532f4caeacd96a9c
-            $api_secret, // b5d676dce0e6d7df18c01fcaeb5a3d11
-            true,
-            [
-                'version' => 'v3.1',
-            ]
-        );
 
         $send_to = $send_to
             ->map(function ($send_to) {
@@ -75,7 +75,7 @@ class MSMailer
                     ],
                     // Who the emails being sent to
                     'To'   => $send_to,
-                ]
+                ],
             ],
         ];
 
@@ -86,7 +86,7 @@ class MSMailer
             }
         }
 
-        $response = $mailjet->post(Resources::$Email, ['body' => $mailjet_body]);
+        $response  = $mailjet->post(Resources::$Email, ['body' => $mailjet_body]);
         $resp_body = $response->getBody();
 
         if ($response->success()) {
