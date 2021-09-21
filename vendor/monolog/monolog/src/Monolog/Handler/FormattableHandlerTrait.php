@@ -15,7 +15,7 @@ use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\LineFormatter;
 
 /**
- * MSHelper trait for implementing FormattableInterface
+ * Helper trait for implementing FormattableInterface
  *
  * @author Jordi Boggiano <j.boggiano@seld.be>
  */
