@@ -398,7 +398,7 @@ class MSAPIScraper
             );
 
             $studies = $studies
-                ->map(function ($study, $index) {
+                ->map(function ($study) {
                     $study_data = collect($study);
                     return self::studyImport(
                         collect(
@@ -435,17 +435,17 @@ class MSAPIScraper
         ini_set('max_execution_time', '180');
 
         $return           = collect([]);
+        $arms_module      = self::parseArms($field_data->get('ArmsInterventionsModule'));
+        $condition_module = self::parseCondition($field_data->get('ConditionsModule'));
+        $contact_module   = self::parseLocation($field_data->get('ContactsLocationsModule'));
+        $desc_module      = self::parseDescription($field_data->get('DescriptionModule'));
+        $design_module    = self::parseDesign($field_data->get('DesignModule'));
+        $eligibile_module = self::parseEligibility($field_data->get('EligibilityModule'));
         $id_module        = self::parseId($field_data->get('IdentificationModule'));
         $status_module    = self::parseStatus($field_data->get('StatusModule'));
         $sponsor_module   = self::parseSponsors($field_data->get('SponsorCollaboratorsModule'));
-        $desc_module      = self::parseDescription($field_data->get('DescriptionModule'));
-        $condition_module = self::parseCondition($field_data->get('ConditionsModule'));
-        $design_module    = self::parseDesign($field_data->get('DesignModule'));
-        $eligibile_module = self::parseEligibility($field_data->get('EligibilityModule'));
-        $contact_module   = self::parseLocation($field_data->get('ContactsLocationsModule'));
 
         // Not currently used field mappings
-        // $arms_module      = self::parseArms($field_data->get('ArmsInterventionsModule'));
         // $oversite_module = $field_data->get('OversightModule');
         // $outcome_module   = self::parseOutcome($field_data->get('OutcomesModule'));
         // $ipd_module = self::parseIDP($field_data->get('IPDSharingStatementModule'));
@@ -636,6 +636,23 @@ class MSAPIScraper
                 ->each(function ($terms, $taxonomy) use ($post_id) {
                     return wp_set_object_terms($post_id, $terms, $taxonomy);
                 });
+
+            /**
+             * Setup the taxonomy terms for Trial Drugs
+             */
+            if ($arms_module->get('drugs') && $arms_module->get('drugs')->isNotEmpty()) {
+                collect()
+                    ->put('trial_drugs', $arms_module->get('drugs'))
+                    ->each(function ($terms, $taxonomy) use ($post_id) {
+                        if ($terms instanceof Collection) {
+                            $terms = $terms->toArray();
+                        } elseif (is_object($terms)) {
+                            $terms = (array) $terms;
+                        }
+
+                        return wp_set_object_terms($post_id, $terms, $taxonomy);
+                    });
+            }
         }
 
         $return->put('ID', $post_id);
@@ -732,9 +749,9 @@ class MSAPIScraper
             'TemplateLanguage' => true,
             'TemplateID'       => (int) (self::acfOptionField('api_email_template_id') ?? 0),
             'Variables'        => [
-                'timestamp'    => $this->nowTime->format("l F j, Y h:i A"),
-                'trials'       => '',
-                'wplogin'      => $login_url,
+                'timestamp' => $this->nowTime->format("l F j, Y h:i A"),
+                'trials'    => '',
+                'wplogin'   => $login_url,
             ],
         ];
 
@@ -756,19 +773,21 @@ class MSAPIScraper
             $studies_imported
                 ->map(function ($study) use ($new_posts, $trashed_posts, $updated_posts) {
                     $status = $study->get('POST_STATUS');
-                    switch (strtolower($status)) {
-                        case "draft":
-                        case "pending":
-                            $new_posts->push($study);
-                            break;
-                        case "trash":
-                            $trashed_posts->push($study);
-                            break;
-                        case "publish":
-                            $updated_posts->push($study);
-                            break;
-                        default:
-                            break;
+                    if (is_string($status)) {
+                        switch (strtolower($status)) {
+                            case "draft":
+                            case "pending":
+                                $new_posts->push($study);
+                                break;
+                            case "trash":
+                                $trashed_posts->push($study);
+                                break;
+                            case "publish":
+                                $updated_posts->push($study);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     return $study;
                 });

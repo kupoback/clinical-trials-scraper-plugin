@@ -203,6 +203,7 @@ trait MSApiField
      */
     protected function parseArms(object $arms_module)
     {
+        $intervention_arr = collect([]);
         $interventions = $arms_module->InterventionList ?? [];
         if (is_object($interventions) && !empty($interventions->Intervention)) {
             $intervention_arr = collect($interventions->Intervention)
@@ -220,6 +221,13 @@ trait MSApiField
         return collect(
             [
                 'interventions' => $intervention_arr ?? [],
+                'drugs'         => $intervention_arr->isNotEmpty() ?
+                    $intervention_arr
+                        ->map(function ($arr_item) {
+                            return strtolower($arr_item['type']) === 'drug' ? $arr_item['name'] : false;
+                        })
+                        ->filter()
+                    : collect(),
             ]
         );
     }

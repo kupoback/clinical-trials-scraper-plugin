@@ -42,6 +42,9 @@ class MSCustomTax
         // Trial Status
         $tax_array["trial_status"] = self::taxonomyArray("Trial Status", "Trial Status", 'trial-status');
 
+        // Trial Drugs
+        $tax_array["trial_drugs"] = self::taxonomyArray("Trial Drug", "Trial Drugs", 'trial-drugs', false);
+
         // Loops through each tax array item and registers them.
         foreach ($tax_array as $taxonomy => $tax_args) {
             register_taxonomy($taxonomy, ["trials"], $tax_args);
