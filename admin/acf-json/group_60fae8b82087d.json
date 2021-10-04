@@ -20,6 +20,42 @@
             "esc_html": 0
         },
         {
+            "key": "field_615b5cc859f01",
+            "label": "Note",
+            "name": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "full no-label",
+                "id": ""
+            },
+            "message": "The Post Title and Post Content are automatically pulled from the API, and pre-populated. However, once the trial is imported, the title and content can be overwritten without fear of the API deleting that content.",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_615b594f8482e",
+            "label": "Brief Title",
+            "name": "api_data_brief_title",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "full",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
             "key": "field_611a90ad8b06d",
             "label": "Official Title",
             "name": "api_data_official_title",
@@ -29,7 +65,7 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-half",
+                "class": "full",
                 "id": ""
             },
             "default_value": "",
@@ -48,7 +84,7 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-half",
+                "class": "one-third",
                 "id": ""
             },
             "default_value": "",
@@ -67,7 +103,7 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-half",
+                "class": "one-third",
                 "id": ""
             },
             "default_value": "",
@@ -86,7 +122,7 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-half",
+                "class": "one-third",
                 "id": ""
             },
             "default_value": "",
@@ -94,6 +130,25 @@
             "prepend": "",
             "append": "",
             "maxlength": ""
+        },
+        {
+            "key": "field_615b596e8482f",
+            "label": "Trial Purpose",
+            "name": "api_data_trial_purpose",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "full",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": "",
+            "new_lines": ""
         },
         {
             "key": "field_611a90f38b071",
@@ -609,5 +664,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "Default Fields that are mapped and imported from the Merck Scraper",
-    "modified": 1633034681
+    "modified": 1633377561
 }

@@ -504,6 +504,8 @@ class MSAPIScraper
         } else {
             // Updating our post
             $post_args->put('ID', $post_id);
+            $post_args->forget(['post_title', 'post_content',]);
+            error_log(print_r($post_args, true));
             wp_update_post(
                 $post_args
                     ->toArray(),
@@ -538,7 +540,7 @@ class MSAPIScraper
             [
                 'position'    => $position_index,
                 'total_count' => $this->totalFound,
-                'helper'      => "Importing {$post_args->get('post_title')}",
+                'helper'      => "Importing {$id_module->get('brief_title')}",
             ],
         );
 
@@ -555,7 +557,9 @@ class MSAPIScraper
                 // Setup our collection to pull data from
                 $field_data = collect([])
                     ->put('nct_id', $nct_id)
+                    ->put('brief_title', $id_module->get('brief_title'))
                     ->put('official_title', $id_module->get('official_title'))
+                    ->put('trial_purpose', $desc_module->get('trial_purpose'))
                     ->put('start_date', $status_module->get('start_date'))
                     ->put('primary_completion_date', $status_module->get('primary_completion_date'))
                     ->put('completion_date', $status_module->get('completion_date'))
@@ -609,11 +613,16 @@ class MSAPIScraper
                         // Setup name escaping for textareas
                         if ($field['type'] === 'textarea') {
                             if ($field_data->isNotEmpty()) {
+                                if ($field['name'] === 'api_data_other_ids') {
+                                    $field_data = $field_data
+                                        ->get($data_name)
+                                        ->implode(PHP_EOL);
+                                } else {
+                                    $field_data = $field_data->get($data_name);
+                                }
                                 return self::updateACF(
                                     $field['name'],
-                                    $field_data
-                                        ->get($data_name)
-                                        ->implode(PHP_EOL),
+                                    $field_data,
                                     $post_id
                                 );
                             }

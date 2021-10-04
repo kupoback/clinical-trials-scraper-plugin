@@ -38,6 +38,7 @@ trait MSApiField
         return collect(
             [
                 'post_title'     => $id_module->BriefTitle ?? '',
+                'brief_title'     => $id_module->BriefTitle ?? '',
                 'nct_id'         => $id_module->NCTId ?? '',
                 'official_title' => $id_module->OfficialTitle ?? '',
                 'other_ids'      => $other_ids,
@@ -119,6 +120,7 @@ trait MSApiField
         return collect(
             [
                 'post_content' => $description_module->BriefSummary ?? '',
+                'trial_purpose' => $description_module->BriefSummary ?? '',
             ]
         );
     }
@@ -286,8 +288,8 @@ trait MSApiField
         return collect(
             [
                 'gender'      => $eligibility_module->Gender ?? '',
-                'minimum_age' => Helper::stripYears($eligibility_module->MinimumAge ?? '') ?: 0,
-                'maximum_age' => Helper::stripYears($eligibility_module->MaximumAge ?? '') ?: 999,
+                'minimum_age' => intval(Helper::stripYears($eligibility_module->MinimumAge ?? '') ?: 0),
+                'maximum_age' => intval(Helper::stripYears($eligibility_module->MaximumAge ?? '') ?: 999),
             ]
         );
     }
