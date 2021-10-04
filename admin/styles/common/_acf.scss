@@ -52,11 +52,13 @@
 
 .postbox,
 .acf-postbox {
-	&.hide { display: none !important; }
+	&.hide {
+		display: none !important;
+	}
 	.acf-repeater {
 		.-collapsed {
 			.-collapsed-target {
-				flex: 0 0 100% !important;
+				flex:      0 0 100% !important;
 				max-width: 100% !important;;
 			}
 		}
@@ -75,15 +77,19 @@ a.acf-icon.light {
 }
 
 .acf-label:empty,
-.acf-label:blank { display: none; }
+.acf-label:blank {
+	display: none;
+}
 
 .no-label {
-	.acf-label { display: none!important; }
+	.acf-label {
+		display: none !important;
+	}
 }
 
 .hide-wp-tools {
 	.wp-editor-tools {
-		display: none!important;
+		display: none !important;
 	}
 }
 
@@ -106,7 +112,7 @@ a.acf-icon.light {
 					&:not(.acf-field-tab) {
 						display:       flex;
 						flex-flow:     row wrap;
-						height: auto;
+						height:        auto;
 						align-content: space-between;
 					}
 				}
@@ -173,11 +179,11 @@ a.acf-icon.light {
 					flex: 1 0 auto;
 				}
 				&.message-title {
-					border-bottom: 1px solid #fff;
-					margin-bottom: -1px;
+					border-bottom:  1px solid #fff;
+					margin-bottom:  -1px;
 					padding-bottom: 0;
-					position: relative;
-					z-index: 10;
+					position:       relative;
+					z-index:        10;
 				}
 				&.header-title {
 					label {
@@ -187,7 +193,7 @@ a.acf-icon.light {
 				input {
 					&.disabled {
 						background-color: #e9ecef;
-						opacity: 1;
+						opacity:          1;
 					}
 				}
 			}
@@ -223,4 +229,8 @@ a.acf-icon.light {
 			}
 		}
 	}
+}
+
+.hidden, .js .closed .inside, .js .hide-if-js, .no-js .hide-if-no-js, .js.wp-core-ui .hide-if-js, .js .wp-core-ui .hide-if-js, .no-js.wp-core-ui .hide-if-no-js, .no-js .wp-core-ui .hide-if-no-js {
+	display: none !important;
 }

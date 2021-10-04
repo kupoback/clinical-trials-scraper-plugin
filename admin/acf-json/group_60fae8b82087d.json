@@ -148,7 +148,7 @@
             "key": "field_611a91178b074",
             "label": "Minimum Age",
             "name": "api_data_minimum_age",
-            "type": "text",
+            "type": "number",
             "instructions": "",
             "required": 0,
             "conditional_logic": 0,
@@ -161,13 +161,15 @@
             "placeholder": "",
             "prepend": "",
             "append": "",
-            "maxlength": ""
+            "min": "",
+            "max": "",
+            "step": ""
         },
         {
             "key": "field_611a91258b075",
             "label": "Maximum Age",
             "name": "api_data_maximum_age",
-            "type": "text",
+            "type": "number",
             "instructions": "",
             "required": 0,
             "conditional_logic": 0,
@@ -180,7 +182,9 @@
             "placeholder": "",
             "prepend": "",
             "append": "",
-            "maxlength": ""
+            "min": "",
+            "max": "",
+            "step": ""
         },
         {
             "key": "field_611a919d8b080",
@@ -605,5 +609,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "Default Fields that are mapped and imported from the Merck Scraper",
-    "modified": 1631116435
+    "modified": 1633034681
 }
