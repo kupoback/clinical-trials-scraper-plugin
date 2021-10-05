@@ -28,7 +28,7 @@ class MSCustomTax
         $tax_array = [];
 
         // Trial Category Taxonomy
-        $tax_array["trial_category"] = self::taxonomyArray("Trial Category", "Trial Categories", 'trial-category');
+        $tax_array["trial_ta"] = self::taxonomyArray("Therapeutic Area", "Therapeutic Area", 'trial-ta');
 
         // Recruiting Taxonomy
         // $tax_array["recruiting"] = self::taxonomyArray("Recruiting Type", "Recruiting Types", 'recruiting');
