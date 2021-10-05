@@ -316,7 +316,16 @@ trait MSApiField
                 ->map(function ($location) {
                     $us_names = ["United States", "United States of America", "USA"];
                     $location_status = $location->LocationStatus ?? '';
-                    $status = ['Recruiting', ''];
+                    $status = ['Recruiting', 'Active, not recruiting'];
+
+                    /**
+                     * Grab the phone number for the contact
+                     */
+                    $contact_list = $location->LocationContactList ?? false;
+                    if ($contact_list && property_exists($contact_list, 'LocationContact')) {
+                        $phone = $contact_list->LocationContact[0]->LocationContactPhone ?? '';
+                    }
+
                     if (in_array($location->LocationCountry, $us_names) && in_array($location_status, $status)) {
                         return [
                             'city'              => $location->LocationCity ?? '',
@@ -325,6 +334,7 @@ trait MSApiField
                             'recruiting_status' => $location_status,
                             'state'             => $location->LocationState ?? '',
                             'zip'               => $location->LocationZip ?? '',
+                            'phone'             => $phone ?? '',
                         ];
                     }
                     return false;

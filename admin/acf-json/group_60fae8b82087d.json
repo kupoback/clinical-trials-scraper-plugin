@@ -480,7 +480,7 @@
                     "conditional_logic": 0,
                     "wrapper": {
                         "width": "",
-                        "class": "one-half",
+                        "class": "one-third",
                         "id": ""
                     },
                     "default_value": "",
@@ -499,7 +499,26 @@
                     "conditional_logic": 0,
                     "wrapper": {
                         "width": "",
-                        "class": "one-half",
+                        "class": "one-third",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                },
+                {
+                    "key": "field_615c734be3174",
+                    "label": "Phone",
+                    "name": "phone",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "one-third",
                         "id": ""
                     },
                     "default_value": "",
@@ -537,7 +556,7 @@
                     "conditional_logic": 0,
                     "wrapper": {
                         "width": "",
-                        "class": "one-half",
+                        "class": "one-third",
                         "id": ""
                     },
                     "default_value": "",
@@ -556,7 +575,7 @@
                     "conditional_logic": 0,
                     "wrapper": {
                         "width": "",
-                        "class": "one-half",
+                        "class": "one-third",
                         "id": ""
                     },
                     "default_value": "",
@@ -575,7 +594,7 @@
                     "conditional_logic": 0,
                     "wrapper": {
                         "width": "",
-                        "class": "one-half",
+                        "class": "one-third",
                         "id": ""
                     },
                     "default_value": "",
@@ -594,7 +613,7 @@
                     "conditional_logic": 0,
                     "wrapper": {
                         "width": "",
-                        "class": "one-half",
+                        "class": "one-third",
                         "id": ""
                     },
                     "default_value": "",
@@ -613,7 +632,7 @@
                     "conditional_logic": 0,
                     "wrapper": {
                         "width": "",
-                        "class": "one-half",
+                        "class": "one-third",
                         "id": ""
                     },
                     "default_value": "",
@@ -634,7 +653,7 @@
                     "conditional_logic": 0,
                     "wrapper": {
                         "width": "",
-                        "class": "one-half",
+                        "class": "one-third",
                         "id": ""
                     },
                     "default_value": "",
@@ -665,5 +684,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "Default Fields that are mapped and imported from the Merck Scraper",
-    "modified": 1633442759
+    "modified": 1633449056
 }
