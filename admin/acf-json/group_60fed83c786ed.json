@@ -35,6 +35,22 @@
             "placeholder": ""
         },
         {
+            "key": "field_615c5dffc65d4",
+            "label": "Clinical Trials Show Page",
+            "name": "clinical_trials_show_page",
+            "type": "url",
+            "instructions": "Omit the NCT ID from the url",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "https:\/\/clinicaltrials.gov\/ct2\/show\/",
+            "placeholder": ""
+        },
+        {
             "key": "field_61310869e2abf",
             "label": "Disallowed Keywords",
             "name": "disallowed_keywords",
@@ -378,5 +394,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "Option Settings for the Merck Scraper Plugin",
-    "modified": 1631635175
+    "modified": 1633443349
 }

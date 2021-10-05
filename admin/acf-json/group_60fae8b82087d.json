@@ -169,7 +169,7 @@
             "key": "field_611a91008b072",
             "label": "URL",
             "name": "api_data_url",
-            "type": "link",
+            "type": "url",
             "instructions": "",
             "required": 0,
             "conditional_logic": 0,
@@ -178,7 +178,8 @@
                 "class": "one-half",
                 "id": ""
             },
-            "return_format": "array"
+            "default_value": "",
+            "placeholder": ""
         },
         {
             "key": "field_611a91118b073",
@@ -664,5 +665,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "Default Fields that are mapped and imported from the Merck Scraper",
-    "modified": 1633377561
+    "modified": 1633442759
 }

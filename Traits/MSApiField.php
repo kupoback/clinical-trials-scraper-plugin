@@ -35,11 +35,14 @@ trait MSApiField
                 ->filter();
         }
 
+        $base_url = self::acfOptionField('clinical_trials_show_page');
+
         return collect(
             [
                 'post_title'     => $id_module->BriefTitle ?? '',
-                'brief_title'     => $id_module->BriefTitle ?? '',
+                'brief_title'    => $id_module->BriefTitle ?? '',
                 'nct_id'         => $id_module->NCTId ?? '',
+                'url'            => $base_url . $id_module->NCTId,
                 'official_title' => $id_module->OfficialTitle ?? '',
                 'other_ids'      => $other_ids,
             ]

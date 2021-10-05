@@ -1,11 +1,11 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'c500ac1b72f571d8ac67bfd1c159aed15b213510',
+        'reference' => 'c86db444bf350169a610476ca97360ff885cc682',
         'name' => 'mak/merck-scraper',
         'dev' => true,
     ),
@@ -119,12 +119,12 @@
             'dev_requirement' => false,
         ),
         'mak/merck-scraper' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'c500ac1b72f571d8ac67bfd1c159aed15b213510',
+            'reference' => 'c86db444bf350169a610476ca97360ff885cc682',
             'dev_requirement' => false,
         ),
         'mockery/mockery' => array(
@@ -137,12 +137,12 @@
             'dev_requirement' => false,
         ),
         'monolog/monolog' => array(
-            'pretty_version' => '2.3.4',
-            'version' => '2.3.4.0',
+            'pretty_version' => '2.3.5',
+            'version' => '2.3.5.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../monolog/monolog',
             'aliases' => array(),
-            'reference' => '437e7a1c50044b92773b361af77620efb76fff59',
+            'reference' => 'fd4380d6fc37626e2f799f29d91195040137eba9',
             'dev_requirement' => false,
         ),
         'nesbot/carbon' => array(
@@ -247,7 +247,7 @@
             'type' => 'metapackage',
             'install_path' => NULL,
             'aliases' => array(),
-            'reference' => '4911abe63afbbba425931f44a3c62fc002973935',
+            'reference' => '0488e161600117fc3a0d72397dad154729002f54',
             'dev_requirement' => true,
         ),
         'squizlabs/php_codesniffer' => array(
@@ -287,12 +287,12 @@
             'dev_requirement' => false,
         ),
         'symfony/translation' => array(
-            'pretty_version' => 'v5.3.7',
-            'version' => '5.3.7.0',
+            'pretty_version' => 'v5.3.9',
+            'version' => '5.3.9.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/translation',
             'aliases' => array(),
-            'reference' => '4d595a6d15fd3a2c67f6f31d14d15d3b7356d7a6',
+            'reference' => '6e69f3551c1a3356cf6ea8d019bf039a0f8b6886',
             'dev_requirement' => false,
         ),
         'symfony/translation-contracts' => array(

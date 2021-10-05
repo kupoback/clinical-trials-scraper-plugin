@@ -505,7 +505,6 @@ class MSAPIScraper
             // Updating our post
             $post_args->put('ID', $post_id);
             $post_args->forget(['post_title', 'post_content',]);
-            error_log(print_r($post_args, true));
             wp_update_post(
                 $post_args
                     ->toArray(),
@@ -557,6 +556,7 @@ class MSAPIScraper
                 // Setup our collection to pull data from
                 $field_data = collect([])
                     ->put('nct_id', $nct_id)
+                    ->put('url', $id_module->get('url'))
                     ->put('brief_title', $id_module->get('brief_title'))
                     ->put('official_title', $id_module->get('official_title'))
                     ->put('trial_purpose', $desc_module->get('trial_purpose'))
