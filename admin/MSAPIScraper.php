@@ -593,13 +593,13 @@ class MSAPIScraper
                                     /**
                                      * Skip the grabbing of the geocoding if there is no Google Maps API key set
                                      */
-                                    // if (self::acfOptionField('google_maps_api_key')) {
-                                    //     // We'll want to reset the existing data as some trials be now be considered "Complete"
-                                    //     self::updateACF($field['name'], [], $post_id);
-                                    //     $arr_data = self::locationGeocode($arr_data, $nct_id);
-                                    // } else {
-                                    //     $this->errorLog->error("Skipping geocode setup as there's no Google Maps Key set");
-                                    // }
+                                    if (self::acfOptionField('google_maps_api_key')) {
+                                        // We'll want to reset the existing data as some trials be now be considered "Complete"
+                                        self::updateACF($field['name'], [], $post_id);
+                                        $arr_data = self::locationGeocode($arr_data, $nct_id);
+                                    } else {
+                                        $this->errorLog->error("Skipping geocode setup as there's no Google Maps Key set");
+                                    }
                                 }
 
                                 if ($arr_data) {
@@ -699,6 +699,12 @@ class MSAPIScraper
                             $location['country'] ?? '',
                         ]
                     )
+                        ->map(function ($address) {
+                            if ($address) {
+                                return str_replace(' ', '+', $address);
+                            }
+                            return false;
+                        })
                         ->filter()
                         ->toArray()
                 );
