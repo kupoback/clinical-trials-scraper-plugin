@@ -178,10 +178,10 @@ trait MSGoogleMaps
             ],
             [
                 'http_args' => [
-                    'delay' => 180,
+                    'delay' => 200,
                 ],
                 'guzzle'    => [
-                    'verify' => false,
+                    'verify' => true,
                 ],
             ]
         );

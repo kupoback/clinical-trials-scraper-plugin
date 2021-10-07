@@ -178,9 +178,9 @@ class MSAPIScraper
     {
         // Callback to the frontend to let them know we're starting the import
         self::updatePosition("Starting Import");
-        set_time_limit(300);
+        set_time_limit(600);
         ini_set('memory_limit', '2048M');
-        ini_set('post_max_size', '512M');
+        ini_set('post_max_size', '1024M');
 
         $nctid_field      = $request['nctidField'] ?? false;
         $arr_data         = true;
@@ -431,8 +431,8 @@ class MSAPIScraper
      */
     protected function studyImport(object $field_data, int $position_index)
     {
-        set_time_limit(180);
-        ini_set('max_execution_time', '180');
+        set_time_limit(300);
+        ini_set('max_execution_time', '300');
 
         $return           = collect([]);
         $arms_module      = self::parseArms($field_data->get('ArmsInterventionsModule'));

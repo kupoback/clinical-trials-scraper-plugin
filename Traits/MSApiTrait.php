@@ -155,7 +155,7 @@ trait MSApiTrait
             if (is_object($updated_time)) {
                 // Check the number of minutes past
                 $time_diff = abs($current_time->getTimestamp() - $updated_time->getTimeStamp()) / 60;
-                if ($time_diff <= 1) {
+                if ($time_diff <= 3) {
                     $return = $response;
                 }
             }
