@@ -167,7 +167,7 @@ trait MSGoogleMaps
      */
     protected function googleMapsApiCB($address)
     {
-        $geocode_api_key  = self::acfOptionField('google_maps_geocoding_api_key');
+        $geocode_api_key  = self::acfOptionField('google_maps_server_side_api_key');
         $response = self::httpCallback(
             $this->googleApiUrl,
             $this->geoCodeEP,

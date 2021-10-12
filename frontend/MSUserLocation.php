@@ -182,6 +182,8 @@ class MSUserLocation
             return $this->noUserIp;
         }
 
+        error_log(print_r($this->userLocation, true));
+
         $err_return = $this->errReturn;
 
         $err_return['zipcode']     = false;

@@ -288,10 +288,10 @@
         },
         {
             "key": "field_615f1fbcff639",
-            "label": "Google Maps Geocoding API Key",
-            "name": "google_maps_geocoding_api_key",
+            "label": "Google Maps Server Side API Key",
+            "name": "google_maps_server_side_api_key",
             "type": "text",
-            "instructions": "Make sure this key is not domain locked. It appears to not work if it is restricted.",
+            "instructions": "This key is used for server side API requests, and cannot be domain locked. Only IP locked.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -413,5 +413,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "Option Settings for the Merck Scraper Plugin",
-    "modified": 1633624049
+    "modified": 1634066754
 }
