@@ -599,6 +599,7 @@ return array(
     'Merck_Scraper\\admin\\MSOptionsPage' => $baseDir . '/../merck-scraper/admin/MSOptionsPage.php',
     'Merck_Scraper\\frontend\\MSFrontEndAPI' => $baseDir . '/../merck-scraper/frontend/MSFrontEndAPI.php',
     'Merck_Scraper\\frontend\\MSPublic' => $baseDir . '/../merck-scraper/frontend/MSPublic.php',
+    'Merck_Scraper\\frontend\\MSUserLocation' => $baseDir . '/../merck-scraper/frontend/MSUserLocation.php',
     'Merck_Scraper\\includes\\MSActivator' => $baseDir . '/../merck-scraper/includes/MSActivator.php',
     'Merck_Scraper\\includes\\MSDeactivator' => $baseDir . '/../merck-scraper/includes/MSDeactivator.php',
     'Merck_Scraper\\includes\\MSI18n' => $baseDir . '/../merck-scraper/includes/MSI18n.php',

@@ -714,7 +714,8 @@ class MSAPIScraper
                 if (!is_wp_error($gm_geocoder_data)) {
                     $gm_geocoder_data
                         ->put('facility', $facility)
-                        ->put('recruiting_status', ($location['recruiting_status'] ?? ''));
+                        ->put('recruiting_status', ($location['recruiting_status'] ?? ''))
+                        ->put('phone', ($location['phone'] ?? ''));
 
                     return $gm_geocoder_data
                         ->toArray();

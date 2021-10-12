@@ -5,7 +5,7 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '13116f29c841816182f3e56d44eddb6c7f554e3d',
+        'reference' => '82343bccaf4729e4326782025dfcb08a93525350',
         'name' => 'mak/merck-scraper',
         'dev' => true,
     ),
@@ -157,7 +157,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '13116f29c841816182f3e56d44eddb6c7f554e3d',
+            'reference' => '82343bccaf4729e4326782025dfcb08a93525350',
             'dev_requirement' => false,
         ),
         'mockery/mockery' => array(
@@ -356,12 +356,12 @@
             'dev_requirement' => true,
         ),
         'squizlabs/php_codesniffer' => array(
-            'pretty_version' => '3.6.0',
-            'version' => '3.6.0.0',
+            'pretty_version' => '3.6.1',
+            'version' => '3.6.1.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../squizlabs/php_codesniffer',
             'aliases' => array(),
-            'reference' => 'ffced0d2c8fa8e6cdc4d695a743271fab6c38625',
+            'reference' => 'f268ca40d54617c6e06757f83f699775c9b3ff2e',
             'dev_requirement' => true,
         ),
         'symfony/deprecation-contracts' => array(

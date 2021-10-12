@@ -813,6 +813,7 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
         'Merck_Scraper\\admin\\MSOptionsPage' => __DIR__ . '/../..' . '/../merck-scraper/admin/MSOptionsPage.php',
         'Merck_Scraper\\frontend\\MSFrontEndAPI' => __DIR__ . '/../..' . '/../merck-scraper/frontend/MSFrontEndAPI.php',
         'Merck_Scraper\\frontend\\MSPublic' => __DIR__ . '/../..' . '/../merck-scraper/frontend/MSPublic.php',
+        'Merck_Scraper\\frontend\\MSUserLocation' => __DIR__ . '/../..' . '/../merck-scraper/frontend/MSUserLocation.php',
         'Merck_Scraper\\includes\\MSActivator' => __DIR__ . '/../..' . '/../merck-scraper/includes/MSActivator.php',
         'Merck_Scraper\\includes\\MSDeactivator' => __DIR__ . '/../..' . '/../merck-scraper/includes/MSDeactivator.php',
         'Merck_Scraper\\includes\\MSI18n' => __DIR__ . '/../..' . '/../merck-scraper/includes/MSI18n.php',
