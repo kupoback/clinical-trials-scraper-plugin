@@ -5,7 +5,7 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '82343bccaf4729e4326782025dfcb08a93525350',
+        'reference' => '4117e5891bcc561a2d6ae62015e2e928746d990e',
         'name' => 'mak/merck-scraper',
         'dev' => true,
     ),
@@ -74,6 +74,15 @@
             'install_path' => __DIR__ . '/../geocoder-php/free-geoip-provider',
             'aliases' => array(),
             'reference' => '8f61d1729440e5fe8391ec7bb9dd42c8b3d2e055',
+            'dev_requirement' => false,
+        ),
+        'geocoder-php/google-maps-provider' => array(
+            'pretty_version' => '4.6.0',
+            'version' => '4.6.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../geocoder-php/google-maps-provider',
+            'aliases' => array(),
+            'reference' => '1e88138b66bf31b7e025b7bd579edb2cc9690414',
             'dev_requirement' => false,
         ),
         'geocoder-php/provider-implementation' => array(
@@ -157,7 +166,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '82343bccaf4729e4326782025dfcb08a93525350',
+            'reference' => '4117e5891bcc561a2d6ae62015e2e928746d990e',
             'dev_requirement' => false,
         ),
         'mockery/mockery' => array(

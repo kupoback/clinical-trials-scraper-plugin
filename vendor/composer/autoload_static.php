@@ -8,11 +8,11 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
 {
     public static $files = array (
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
+        '9c67151ae59aff4788964ce8eb2a0f43' => __DIR__ . '/..' . '/clue/stream-filter/src/functions_include.php',
+        '8cff32064859f4559445b89279f3199c' => __DIR__ . '/..' . '/php-http/message/src/filters.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
-        '9c67151ae59aff4788964ce8eb2a0f43' => __DIR__ . '/..' . '/clue/stream-filter/src/functions_include.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
-        '8cff32064859f4559445b89279f3199c' => __DIR__ . '/..' . '/php-http/message/src/filters.php',
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         'a1105708a18b76903365ca1c4aa61b02' => __DIR__ . '/..' . '/symfony/translation/Resources/functions.php',
@@ -64,6 +64,7 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
             'GuzzleHttp\\Psr7\\' => 16,
             'GuzzleHttp\\Promise\\' => 19,
             'GuzzleHttp\\' => 11,
+            'Geocoder\\Provider\\GoogleMaps\\' => 29,
             'Geocoder\\Provider\\FreeGeoIp\\' => 28,
             'Geocoder\\Http\\' => 14,
             'Geocoder\\' => 9,
@@ -174,6 +175,10 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
         'GuzzleHttp\\' => 
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
+        ),
+        'Geocoder\\Provider\\GoogleMaps\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/geocoder-php/google-maps-provider',
         ),
         'Geocoder\\Provider\\FreeGeoIp\\' => 
         array (
@@ -377,6 +382,8 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
         'Geocoder\\ProviderAggregator' => __DIR__ . '/..' . '/willdurand/geocoder/ProviderAggregator.php',
         'Geocoder\\Provider\\AbstractProvider' => __DIR__ . '/..' . '/willdurand/geocoder/Provider/AbstractProvider.php',
         'Geocoder\\Provider\\FreeGeoIp\\FreeGeoIp' => __DIR__ . '/..' . '/geocoder-php/free-geoip-provider/FreeGeoIp.php',
+        'Geocoder\\Provider\\GoogleMaps\\GoogleMaps' => __DIR__ . '/..' . '/geocoder-php/google-maps-provider/GoogleMaps.php',
+        'Geocoder\\Provider\\GoogleMaps\\Model\\GoogleAddress' => __DIR__ . '/..' . '/geocoder-php/google-maps-provider/Model/GoogleAddress.php',
         'Geocoder\\Provider\\Provider' => __DIR__ . '/..' . '/willdurand/geocoder/Provider/Provider.php',
         'Geocoder\\Query\\GeocodeQuery' => __DIR__ . '/..' . '/willdurand/geocoder/Query/GeocodeQuery.php',
         'Geocoder\\Query\\Query' => __DIR__ . '/..' . '/willdurand/geocoder/Query/Query.php',

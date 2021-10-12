@@ -163,6 +163,8 @@ return array(
     'Geocoder\\ProviderAggregator' => $vendorDir . '/willdurand/geocoder/ProviderAggregator.php',
     'Geocoder\\Provider\\AbstractProvider' => $vendorDir . '/willdurand/geocoder/Provider/AbstractProvider.php',
     'Geocoder\\Provider\\FreeGeoIp\\FreeGeoIp' => $vendorDir . '/geocoder-php/free-geoip-provider/FreeGeoIp.php',
+    'Geocoder\\Provider\\GoogleMaps\\GoogleMaps' => $vendorDir . '/geocoder-php/google-maps-provider/GoogleMaps.php',
+    'Geocoder\\Provider\\GoogleMaps\\Model\\GoogleAddress' => $vendorDir . '/geocoder-php/google-maps-provider/Model/GoogleAddress.php',
     'Geocoder\\Provider\\Provider' => $vendorDir . '/willdurand/geocoder/Provider/Provider.php',
     'Geocoder\\Query\\GeocodeQuery' => $vendorDir . '/willdurand/geocoder/Query/GeocodeQuery.php',
     'Geocoder\\Query\\Query' => $vendorDir . '/willdurand/geocoder/Query/Query.php',
