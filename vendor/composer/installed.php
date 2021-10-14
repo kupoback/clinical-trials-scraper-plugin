@@ -5,7 +5,7 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '4117e5891bcc561a2d6ae62015e2e928746d990e',
+        'reference' => '72690555bc0d3808ab784e564f0608d6d9edf6a8',
         'name' => 'mak/merck-scraper',
         'dev' => true,
     ),
@@ -166,7 +166,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '4117e5891bcc561a2d6ae62015e2e928746d990e',
+            'reference' => '72690555bc0d3808ab784e564f0608d6d9edf6a8',
             'dev_requirement' => false,
         ),
         'mockery/mockery' => array(

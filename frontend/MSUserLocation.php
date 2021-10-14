@@ -144,22 +144,29 @@ class MSUserLocation
             return [
                 'err'      => false,
                 'location' => [
-                    'adminLvlAbbv'     => $first_result->getAdminLevels()
-                                                       ->first()
-                                                       ->getName(),
-                    'adminLvlFullname' => $first_result->getAdminLevels()
-                                                       ->first()
-                                                       ->getCode(),
+                    'adminLvlAbbv'     => $first_result
+                        ->getAdminLevels()
+                        ->first()
+                        ->getCode(),
+                    'adminLvlFullname' => $first_result
+                        ->getAdminLevels()
+                        ->first()
+                        ->getName()
+                    ,
                     'coordinates'      => [
-                        'lat' => $first_result->getCoordinates()
-                                              ->getLatitude(),
-                        'lng' => $first_result->getCoordinates()
-                                              ->getLongitude(),
+                        'lat' => $first_result
+                            ->getCoordinates()
+                            ->getLatitude(),
+                        'lng' => $first_result
+                            ->getCoordinates()
+                            ->getLongitude(),
                     ],
-                    'countryName'      => $first_result->getCountry()
-                                                       ->getName(),
-                    'countryCode'      => $first_result->getCountry()
-                                                       ->getCode(),
+                    'countryName'      => $first_result
+                        ->getCountry()
+                        ->getName(),
+                    'countryCode'      => $first_result
+                        ->getCountry()
+                        ->getCode(),
                     'locality'         => $first_result->getLocality(),
                     'postalCode'       => $first_result->getPostalCode(),
                     'street'           => $first_result->getStreetName(),
@@ -181,8 +188,6 @@ class MSUserLocation
         if (!$this->userLocation) {
             return $this->noUserIp;
         }
-
-        error_log(print_r($this->userLocation, true));
 
         $err_return = $this->errReturn;
 
