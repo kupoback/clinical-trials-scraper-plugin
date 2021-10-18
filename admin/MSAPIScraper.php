@@ -699,16 +699,7 @@ class MSAPIScraper
                             $location['country'] ?? '',
                         ]
                     )
-                        ->map(function ($address) {
-                            if ($address) {
-                                return str_replace(' ', '+', $address);
-                            }
-                            return false;
-                        })
                         ->filter()
-                        ->map(function ($address) {
-                            return urlencode($address);
-                        })
                         ->toArray()
                 );
                 /**

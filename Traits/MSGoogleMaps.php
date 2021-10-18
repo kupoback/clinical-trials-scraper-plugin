@@ -55,6 +55,9 @@ trait MSGoogleMaps
     {
         $gm_api_callback = self::googleMapsApiCB(
             collect($location)
+                ->map(function ($location) {
+                    return urlencode($location);
+                })
                 ->implode('+')
         );
 
