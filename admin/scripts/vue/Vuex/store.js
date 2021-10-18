@@ -27,7 +27,7 @@ export const store = new Vuex.Store({
             axios.get(api, config)
                  .then(({data, status}) => {
                      if (status === 200 && data.status !== 404) {
-                         store.commit("BUILD_NAVIGATION", {
+                         store.commit("buildNavigation", {
                              data: data || [],
                          });
                      }

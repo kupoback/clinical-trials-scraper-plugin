@@ -5,7 +5,7 @@ Tags:
 Requires at least: 5.8.0
 Tested up to: 5.8.1
 Requires PHP: 7.4
-Stable tag: 1.1.2.3
+Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,16 @@ This plugin is used to scrape data from clinicaltrials.gov website.
 == Description ==
 
 == Changelog ==
+
+= 1.1.4 =
+
+Fixed by encoding the strings sent out for getting the lat/lng of a location
+
+= 1.1.3 =
+
+Fixed conditional in the MSAPIScraper file
+
+Updated Guzzle version
 
 = 1.1.2.3 =
 

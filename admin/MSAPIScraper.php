@@ -706,6 +706,9 @@ class MSAPIScraper
                             return false;
                         })
                         ->filter()
+                        ->map(function ($address) {
+                            return urlencode($address);
+                        })
                         ->toArray()
                 );
                 /**
