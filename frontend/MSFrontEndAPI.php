@@ -8,6 +8,7 @@ use Merck_Scraper\Traits\MSApiTrait;
 use Merck_Scraper\Traits\MSGoogleMaps;
 use WP_Error;
 use WP_HTTP_Response;
+use WP_Query;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -27,8 +28,11 @@ class MSFrontEndAPI
     use MSApiTrait;
     use MSGoogleMaps;
 
+    private string $taxName;
+
     public function __construct()
     {
+        $this->taxName = self::acfOptionField('category_type') ?: 'conditions';
     }
 
     public function registerEndpoint()
@@ -56,6 +60,15 @@ class MSFrontEndAPI
                 ],
 
             ]
+        );
+
+        /**
+         * Serves the data for Antidote to grab data from
+         */
+        self::registerRoute(
+            'trials',
+            WP_REST_Server::READABLE,
+            [$this, 'getTrials'],
         );
     }
 
@@ -91,5 +104,51 @@ class MSFrontEndAPI
             );
         }
         return rest_ensure_response(new WP_Error(300, __('Error with the API call')));
+    }
+
+    /**
+     * Frontend API for Antidote that queries all the trials and returns
+     * the nct_id and the "Conditions" category for each trial.
+     *
+     * @return WP_Error|WP_HTTP_Response|WP_REST_Response
+     */
+    public function getTrials()
+    {
+        $return = collect();
+
+        $trials = new WP_Query(
+            [
+                'post_type' => 'trials',
+                'posts_per_page' => -1,
+                'post_status' => self::acfOptionField('post_status'),
+                'fields' => 'ids',
+            ]
+        );
+
+        if (!is_wp_error($trials) && $trials->found_posts > 0) {
+            $return->put('message', 'Categories are from the ConditionList->Condition from the gov\'t site');
+            $return->put('count', $trials->found_posts);
+            $return->put(
+                'trials',
+                collect($trials->posts)
+                    ->map(function ($trial) {
+                        $categories = wp_get_post_terms($trial, $this->taxName);
+                        return [
+                            'nct_id' => get_field('api_data_nct_id', $trial),
+                            'categories' => (!is_wp_error($categories) && count($categories) > 0) ?
+                                collect($categories)
+                                    ->map(function ($category) {
+                                        return [
+                                            'name' => $category->name,
+                                            'slug' => $category->slug,
+                                        ];
+                                    }) : []
+                        ];
+                    })
+            );
+            return rest_ensure_response($return->toArray());
+        }
+
+        return rest_ensure_response(['count' => 0, 'trials' => []]);
     }
 }

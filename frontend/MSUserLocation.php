@@ -233,9 +233,17 @@ class MSUserLocation
                 ->geocodeQuery(GeocodeQuery::create($this->userLocation));
         } catch (Exception $exception) {
             $logger = self::initLogger('geolocate', 'iplookup', MERCK_SCRAPER_LOG_DIR . '/iplookup');
-            $logger->error("Provider or Providers Using Name is incorrectly set or missing. {$exception->getMessage()}");
+            $logger->error(
+                "Provider or Providers Using Name is incorrectly set or missing. {$exception->getMessage()}"
+            );
 
-            return new WP_Error(__("Provider or Providers Using Name is incorrectly set or missing. {$exception->getMessage()}", 'merck-scraper'), 401);
+            return new WP_Error(
+                401,
+                __(
+                    "Provider or Providers Using Name is incorrectly set or missing. {$exception->getMessage()}",
+                    'merck-scraper'
+                ),
+            );
         }
     }
 

@@ -31,16 +31,17 @@ class MSPublic
      *
      * @since    1.0.0
      * @access   private
-     * @var      string    $version    The current version of this plugin.
+     * @var      string $version The current version of this plugin.
      */
     private string $version;
 
     /**
      * Initialize the class and set its properties.
      *
+     * @param string $plugin_name The name of the plugin.
+     * @param string $version     The version of this plugin.
+     *
      * @since    1.0.0
-     * @param      string    $plugin_name       The name of the plugin.
-     * @param      string    $version    The version of this plugin.
      */
     public function __construct(string $plugin_name, string $version)
     {
@@ -55,7 +56,13 @@ class MSPublic
      */
     public function enqueueStyles()
     {
-        wp_enqueue_style($this->pluginName, plugin_dir_url(__FILE__) . 'dist/merck-scraper-frontend.css', [], $this->version, 'all');
+        wp_enqueue_style(
+            $this->pluginName,
+            plugin_dir_url(__FILE__) . 'dist/merck-scraper-frontend.css',
+            [],
+            $this->version,
+            'all'
+        );
     }
 
     /**
@@ -65,6 +72,12 @@ class MSPublic
      */
     public function enqueueScripts()
     {
-        wp_enqueue_script($this->pluginName, plugin_dir_url(__FILE__) . 'dist/merck-scraper-frontend.js', [], $this->version, false);
+        wp_enqueue_script(
+            $this->pluginName,
+            plugin_dir_url(__FILE__) . 'dist/merck-scraper-frontend.js',
+            [],
+            $this->version,
+            false
+        );
     }
 }

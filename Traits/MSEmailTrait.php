@@ -28,8 +28,8 @@ trait MSEmailTrait
         }
 
         return new Client(
-            $api_key,    // f353ad42fe63daac532f4caeacd96a9c
-            $api_secret, // b5d676dce0e6d7df18c01fcaeb5a3d11
+            $api_key,
+            $api_secret,
             true,
             [
                 'version' => 'v3.1',

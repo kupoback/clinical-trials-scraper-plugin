@@ -130,6 +130,7 @@ class MSApiLogger
      * @return WP_REST_Request
      */
     public function apiClearPosition()
+    :WP_REST_Request
     {
         return rest_ensure_request(self::clearPosition());
     }
@@ -201,7 +202,9 @@ class MSApiLogger
 
         if ($file_name && $file_type) {
             if ($dir_type === 'api') {
-                $file_dir = $file_type === 'success' ? $this->apiLogDir : ($file_type === 'err' ? $this->apiErrDir : null);
+                $file_dir = $file_type === 'success'
+                    ? $this->apiLogDir :
+                    ($file_type === 'err' ? $this->apiErrDir : null);
             } else {
                 $file_dir = MERCK_SCRAPER_LOG_DIR . "/{$dir_type}";
             }
@@ -209,7 +212,14 @@ class MSApiLogger
             if (!is_null($file_dir)) {
                 return rest_ensure_response(self::getFileContents($file_name, $file_dir));
             } else {
-                return rest_ensure_response(new WP_Error(403, ['message' => __('Err: Incorrect File Type', 'merck-scraper')]));
+                return rest_ensure_response(
+                    new WP_Error(
+                        403,
+                        [
+                            'message' => __('Err: Incorrect File Type', 'merck-scraper')
+                        ]
+                    )
+                );
             }
         }
 

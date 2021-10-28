@@ -11,7 +11,8 @@
         "php-http/guzzle7-adapter": "^1.0",
         "geocoder-php/free-geoip-provider": "^4.4",
         "php-http/message": "^1.12",
-        "geocoder-php/google-maps-provider": "^4.6"
+        "geocoder-php/google-maps-provider": "^4.6",
+	    "ext-json": "*"
     },
 	"require-dev": {
 		"squizlabs/php_codesniffer": "^3.5",

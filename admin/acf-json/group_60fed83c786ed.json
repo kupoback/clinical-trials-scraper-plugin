@@ -70,6 +70,63 @@
             "new_lines": ""
         },
         {
+            "key": "field_617acc76db86c",
+            "label": "Clinical Trials API Status Search",
+            "name": "clinical_trials_api_status_search",
+            "type": "text",
+            "instructions": "Update the items in parenthesis to scrape for the status type to search for.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( \"Recruiting\" OR \"Not yet recruiting\" )",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_617acc9fdb86d",
+            "label": "Clinical Trials API Location Search",
+            "name": "clinical_trials_api_location_search",
+            "type": "text",
+            "instructions": "Update the items in parenthesis to scrape for the location(s) to search for.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "AND SEARCH[Location] EXPAND[Term] COVER[FullMatch] ( AREA[LocationPath] \"US\" AND ( AREA[LocationCountry] \"United States\" OR CONST[0.95] ) )",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_617accc3db86e",
+            "label": "Clinical Trials API Sponsor Search",
+            "name": "clinical_trials_api_sponsor_search",
+            "type": "text",
+            "instructions": "Update the items in parenthesis to scrape for the sponsors(s) to search for.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "AND ( AREA[LeadSponsorName] \"Merck Sharp & Dohme Corp.\" )",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
             "key": "field_611e6d493a1bd",
             "label": "Import Rank",
             "name": "",
@@ -394,6 +451,84 @@
             "prepend": "",
             "append": "",
             "maxlength": ""
+        },
+        {
+            "key": "field_617ae637d659b",
+            "label": "Antidote API",
+            "name": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0
+        },
+        {
+            "key": "field_617ae651d659d",
+            "label": "Category Type",
+            "name": "category_type",
+            "type": "select",
+            "instructions": "Select which taxonomy should be used to return in the categories array.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "conditions": "Conditions",
+                "trial_ta": "Therapeutic Area"
+            },
+            "default_value": "conditions",
+            "allow_null": 0,
+            "multiple": 0,
+            "ui": 1,
+            "ajax": 1,
+            "return_format": "value",
+            "placeholder": ""
+        },
+        {
+            "key": "field_617ae7c312571",
+            "label": "Post Status To Return",
+            "name": "post_status",
+            "type": "select",
+            "instructions": "Select which post status should appear in the API.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "all": "All",
+                "auto-draft": "Auto-Draft",
+                "draft": "Draft",
+                "future": "Future",
+                "pending": "Pending",
+                "publish": "Published",
+                "private": "Private",
+                "trash": "Trash"
+            },
+            "default_value": [
+                "publish",
+                "pending",
+                "draft",
+                "auto-draft",
+                "private"
+            ],
+            "allow_null": 0,
+            "multiple": 1,
+            "ui": 1,
+            "ajax": 1,
+            "return_format": "value",
+            "placeholder": ""
         }
     ],
     "location": [
@@ -413,5 +548,5 @@
     "hide_on_screen": "",
     "active": true,
     "description": "Option Settings for the Merck Scraper Plugin",
-    "modified": 1634066754
+    "modified": 1635444846
 }

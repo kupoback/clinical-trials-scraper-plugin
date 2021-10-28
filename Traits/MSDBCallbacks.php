@@ -69,6 +69,7 @@ trait MSDBCallbacks
      * @throws Exception
      */
     protected function dbArchivedPosts()
+    :array
     {
         return QueryBuilder::create("getArchivedPosts")
                            ->select('p.ID')

@@ -125,7 +125,13 @@ trait MSApiTrait
             }
         }
 
-        return new WP_Error(200, ['message' => __("Error getting file and or it's contents", 'sage'), 'fileContents' => '']);
+        return new WP_Error(
+            200,
+            ['message' =>
+                 __("Error getting file and or it's contents", 'sage'),
+             'fileContents' => ''
+            ]
+        );
     }
     //endregion
 
@@ -138,7 +144,7 @@ trait MSApiTrait
     public function importPosition()
     {
         $response = get_option('merck_import_position');
-        $current_time = self::timeNowFormated();
+        $current_time = self::timeNowFormatted();
 
         $return = [
             'helper'     => null,
@@ -176,7 +182,7 @@ trait MSApiTrait
      *      @type DateTime  $time        The last time the import was updated
      * }
      */
-    private function updatePosition(string $import_name, $args = [])
+    private function updatePosition(string $import_name, array $args = [])
     {
         update_option(
             'merck_import_position',
@@ -186,7 +192,7 @@ trait MSApiTrait
                 'position'   => $args['position'] ?? 0,
                 'totalCount' => $args['total_count'] ?? 0,
                 'status'     => 200,
-                'time'       => self::timeNowFormated(),
+                'time'       => self::timeNowFormatted(),
                 // 'memoryUsage' => floor((memory_get_usage() / 1024) / 1024) . 'MB / ' . ini_get('memory_limit'),
             ]
         );
@@ -196,6 +202,7 @@ trait MSApiTrait
      * Resets the option of the current position
      */
     private function clearPosition()
+    :bool
     {
         update_option('merck_import_position', '');
         return true;
@@ -206,7 +213,8 @@ trait MSApiTrait
      *
      * @return DateTime
      */
-    private function timeNowFormated()
+    private function timeNowFormatted()
+    :DateTime
     {
         return new DateTime();
     }

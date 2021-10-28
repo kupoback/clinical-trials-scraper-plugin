@@ -78,7 +78,13 @@ class MSAdmin
     public function enqueueStyles()
     {
         if (is_admin() && (in_array(get_current_screen()->id, $this->screens) || in_array(get_current_screen()->id, $this->optsScreens))) {
-            wp_enqueue_style($this->pluginName, plugin_dir_url(__FILE__) . 'dist/merck-scraper-admin.css', [], $this->version, 'all');
+            wp_enqueue_style(
+                $this->pluginName,
+                plugin_dir_url(__FILE__) . 'dist/merck-scraper-admin.css',
+                [],
+                $this->version,
+                'all'
+            );
         }
     }
 
@@ -95,11 +101,23 @@ class MSAdmin
         $vue_script_name = "{$this->pluginName}-vue";
 
         if (is_admin() && in_array($current_screen, $this->screens)) {
-            wp_enqueue_script($js_script_name, plugin_dir_url(__FILE__) . "dist/merck-scraper-admin.js", [], $this->version, true);
+            wp_enqueue_script(
+                $js_script_name,
+                plugin_dir_url(__FILE__) . "dist/merck-scraper-admin.js",
+                [],
+                $this->version,
+                true
+            );
         }
 
         if (is_admin() && in_array($current_screen, $this->optsScreens)) {
-            wp_enqueue_script($vue_script_name, plugin_dir_url(__FILE__) . 'dist/merck-scraper-vue.js', [], $this->version, true);
+            wp_enqueue_script(
+                $vue_script_name,
+                plugin_dir_url(__FILE__) . 'dist/merck-scraper-vue.js',
+                [],
+                $this->version,
+                true
+            );
         }
 
         /**
@@ -110,9 +128,9 @@ class MSAdmin
                 $vue_script_name,
                 'MERCK_API',
                 [
-                    'apiUrl'      => rest_url("{$api_path}/api-scraper"),
-                    'apiSingle'   => rest_url("{$api_path}/api-scraper"),
-                    'apiPosition' => rest_url("{$api_path}/api-position"),
+                    'apiUrl'           => rest_url("{$api_path}/api-scraper"),
+                    'apiSingle'        => rest_url("{$api_path}/api-scraper"),
+                    'apiPosition'      => rest_url("{$api_path}/api-position"),
                     'apiClearPosition' => rest_url("{$api_path}/api-clear-position"),
                 ]
             );
@@ -181,7 +199,7 @@ class MSAdmin
     {
         $schedules['thursday_api'] = [
             'interval' => 604800,
-            'display'  => __("Thursday Once Weekly")
+            'display'  => __("Thursday Once Weekly"),
         ];
 
         return $schedules;
@@ -334,7 +352,7 @@ class MSAdmin
     protected function isTrialsAdmin()
     {
         if (is_admin()) {
-            $current_screen = get_current_screen();
+            $current_screen   = get_current_screen();
             $post_edit_screen = ['edit-trials', 'edit-events', 'edit-products', 'edit-leadership'];
             return is_object($current_screen) && in_array($current_screen->id, $post_edit_screen) && is_search();
         }

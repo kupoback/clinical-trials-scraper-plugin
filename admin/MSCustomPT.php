@@ -26,7 +26,11 @@ class MSCustomPT
         $post_args = [];
 
         // CPT Trials
-        $post_args["trials"] = self::postTypeArray('Trial', 'dashicons-analytics', "This post type is used to store trials scraped from the gov't api.");
+        $post_args["trials"] = self::postTypeArray(
+            'Trial',
+            'dashicons-analytics',
+            __("This post type is used to store trials scraped from the gov't api.", 'merck-scraper')
+        );
 
         foreach ($post_args as $post_type => $pt_args) {
             register_post_type($post_type, $pt_args);

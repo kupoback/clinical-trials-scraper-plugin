@@ -5,7 +5,7 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '2e6aa9959f30863a7b94edfe7a72b6f7f26c8b1f',
+        'reference' => '138a7ce094f8c0ddf4ba4cacef2c4e292aef7225',
         'name' => 'mak/merck-scraper',
         'dev' => true,
     ),
@@ -101,12 +101,12 @@
             'dev_requirement' => false,
         ),
         'guzzlehttp/promises' => array(
-            'pretty_version' => '1.5.0',
-            'version' => '1.5.0.0',
+            'pretty_version' => '1.5.1',
+            'version' => '1.5.1.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../guzzlehttp/promises',
             'aliases' => array(),
-            'reference' => '136a635e2b4a49b9d79e9c8fee267ffb257fdba0',
+            'reference' => 'fe752aedc9fd8fcca3fe7ad05d419d32998a06da',
             'dev_requirement' => false,
         ),
         'guzzlehttp/psr7' => array(
@@ -166,7 +166,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '2e6aa9959f30863a7b94edfe7a72b6f7f26c8b1f',
+            'reference' => '138a7ce094f8c0ddf4ba4cacef2c4e292aef7225',
             'dev_requirement' => false,
         ),
         'mockery/mockery' => array(

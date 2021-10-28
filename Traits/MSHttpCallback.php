@@ -74,12 +74,18 @@ trait MSHttpCallback
 
                 return new WP_Error($response->getStatusCode(), $response->getBody()->getContents());
             } catch (GuzzleException $exception) {
-                self::httpErrLogger()->error("Unable to connect to API for {$endpoint_path}. Error: {$exception->getMessage()}");
+                self::httpErrLogger()
+                    ->error(
+                        "Unable to connect to API for {$endpoint_path}. Error: {$exception->getMessage()}"
+                    );
                 return new WP_Error($exception->getCode(), $exception->getMessage());
             }
         }
 
-        return new WP_Error(400, __("Error, unable to complete HTTP request. No base_uri set in Merck Scraper Options.", "merck-scraper"));
+        return new WP_Error(
+            400,
+            __("Error, unable to complete HTTP request. No base_uri set in Merck Scraper Options.", "merck-scraper")
+        );
     }
 
     /**
@@ -124,7 +130,10 @@ trait MSHttpCallback
 
                 return new WP_Error($response->getStatusCode(), $response->getBody()->getContents());
             } catch (GuzzleException $exception) {
-                self::httpErrLogger()->error("Unable to connect to API for {$endpoint_path}. Error: {$exception->getMessage()}");
+                self::httpErrLogger()
+                    ->error(
+                        "Unable to connect to API for {$endpoint_path}. Error: {$exception->getMessage()}"
+                    );
                 return new WP_Error($exception->getCode(), $exception->getMessage());
             }
         }
@@ -136,6 +145,7 @@ trait MSHttpCallback
      * @return ClosureAlias
      */
     private function retryCall()
+    :ClosureAlias
     {
         return function (
             $retries,
@@ -157,7 +167,10 @@ trait MSHttpCallback
             if ($response) {
                 // Retry on server errors
                 if ($response->getStatusCode() >= 500) {
-                    self::httpErrLogger()->error("Error status code: {$response->getStatusCode()} on url {$request->getUri()}");
+                    self::httpErrLogger()
+                        ->error(
+                            "Error status code: {$response->getStatusCode()} on url {$request->getUri()}"
+                        );
                     return true;
                 }
             }
@@ -172,6 +185,7 @@ trait MSHttpCallback
      * @return ClosureAlias
      */
     private function retryDelay()
+    :ClosureAlias
     {
         return function ($numberOfRetries) {
             return 1000 * $numberOfRetries;

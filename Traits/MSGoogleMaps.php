@@ -101,6 +101,7 @@ trait MSGoogleMaps
      * @return Collection
      */
     protected function parseAddress(Collection $address)
+    :Collection
     {
         if ($address->isNotEmpty()) {
             $accepted_types = [
@@ -166,9 +167,11 @@ trait MSGoogleMaps
     /**
      * Makes an API call to Google Maps, and returns with the response or WP_Error
      *
-     * @param $param
+     * @param string $address
+     *
+     * @return mixed|WP_Error
      */
-    protected function googleMapsApiCB($address)
+    protected function googleMapsApiCB(string $address)
     {
         $geocode_api_key  = self::acfOptionField('google_maps_server_side_api_key');
         $response = self::httpCallback(

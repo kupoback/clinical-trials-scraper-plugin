@@ -5,7 +5,7 @@ Tags:
 Requires at least: 5.8.0
 Tested up to: 5.8.1
 Requires PHP: 7.4
-Stable tag: 1.1.4.1
+Stable tag: 1.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,22 @@ This plugin is used to scrape data from clinicaltrials.gov website.
 == Description ==
 
 == Changelog ==
+
+= 1.1.5 =
+
+Added Endpoint for Antidote to grab trials from
+
+Added ACF Fields for the endpoint. Can select which taxonomy for the categories array, and select the post status types to return
+
+Moved the Trial Scraper API call query params to ACF to better control the query.
+
+Ran into issue where the scraper wasn't running, and it was due to fields being depreciated in the Clinical Trials API.
+
+Refactoring code and some tidying up of methods.
+
+= 1.1.4.2 =
+
+Upped the progress timeout from 3 mins to 5 mins
 
 = 1.1.4.1 =
 

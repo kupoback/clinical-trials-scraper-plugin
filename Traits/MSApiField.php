@@ -25,6 +25,7 @@ trait MSApiField
      * @return Collection
      */
     protected function parseId(object $id_module)
+    :Collection
     {
         $other_ids = collect($id_module->SecondaryIdInfoList->SecondaryIdInfo ?? []);
         if ($other_ids->isNotEmpty()) {
@@ -50,14 +51,15 @@ trait MSApiField
     }
 
     /**
-     * Parses the StatusModule object field, returning the Trial Status taxonomy term, Start Date, Primary Completion Date,
-     * Completion Date, Study First Post Date, and Results First Post Date fields
+     * Parses the StatusModule object field, returning the Trial Status taxonomy term, Start Date,
+     * Primary Completion Date, Completion Date, Study First Post Date, and Results First Post Date fields
      *
      * @param object $status_module
      *
      * @return Collection
      */
     protected function parseStatus(object $status_module)
+    :Collection
     {
         return collect(
             [
@@ -85,6 +87,7 @@ trait MSApiField
      * @return Collection
      */
     protected function parseSponsors(object $sponsor_module)
+    :Collection
     {
         return collect(
             [
@@ -102,7 +105,8 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseOversight($oversight_module)
+    protected function parseOversight(object $oversight_module)
+    :Collection
     {
         return collect(
             [
@@ -119,6 +123,7 @@ trait MSApiField
      * @return Collection
      */
     protected function parseDescription(object $description_module)
+    :Collection
     {
         return collect(
             [
@@ -136,6 +141,7 @@ trait MSApiField
      * @return Collection
      */
     protected function parseCondition(object $condition_module)
+    :Collection
     {
         return collect(
             [
@@ -157,6 +163,7 @@ trait MSApiField
      * @return Collection
      */
     protected function parseDesign(object $design_module)
+    :Collection
     {
         /**
          * Unsure if needed
@@ -207,6 +214,7 @@ trait MSApiField
      * @return Collection
      */
     protected function parseArms(object $arms_module)
+    :Collection
     {
         $intervention_arr = collect([]);
         $interventions = $arms_module->InterventionList ?? [];
@@ -245,6 +253,7 @@ trait MSApiField
      * @return Collection
      */
     protected function parseOutcome(object $outcome_module)
+    :Collection
     {
         $outcomes        = collect([]);
         $primary_outcome = $outcome_module
@@ -287,6 +296,7 @@ trait MSApiField
      * @return Collection
      */
     protected function parseEligibility(object $eligibility_module)
+    :Collection
     {
         return collect(
             [
@@ -305,6 +315,7 @@ trait MSApiField
      * @return Collection
      */
     protected function parseLocation(object $location_module)
+    :Collection
     {
         /**
          * Map through all the locations, and set them up for import. During this time
@@ -357,6 +368,7 @@ trait MSApiField
      * @return Collection
      */
     protected function parseIDP(object $ipd_module)
+    :Collection
     {
         return collect(
             [
@@ -373,6 +385,7 @@ trait MSApiField
      * @return array
      */
     protected function parsePostArgs(array $post_args)
+    :array
     {
         return [
             'post_title'   => $post_args['title'],
@@ -392,6 +405,7 @@ trait MSApiField
      * @return bool
      */
     protected function updateACF(string $field_name, $field_data, int $post_id)
+    :bool
     {
         return update_field($field_name, $field_data, $post_id);
     }
