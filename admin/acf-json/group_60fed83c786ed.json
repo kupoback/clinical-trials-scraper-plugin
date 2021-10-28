@@ -1,552 +1,552 @@
 {
-    "key": "group_60fed83c786ed",
-    "title": "Merck Settings",
-    "fields": [
-        {
-            "key": "field_6104147622270",
-            "label": "API Settings",
-            "name": "",
-            "type": "tab",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "placement": "left",
-            "endpoint": 0
-        },
-        {
-            "key": "field_60fede954cebc",
-            "label": "Clinical Trials API Base",
-            "name": "clinical_trials_api_base",
-            "type": "url",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "https:\/\/clinicaltrials.gov",
-            "placeholder": ""
-        },
-        {
-            "key": "field_615c5dffc65d4",
-            "label": "Clinical Trials Show Page",
-            "name": "clinical_trials_show_page",
-            "type": "url",
-            "instructions": "Omit the NCT ID from the url",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "https:\/\/clinicaltrials.gov\/ct2\/show\/",
-            "placeholder": ""
-        },
-        {
-            "key": "field_61310869e2abf",
-            "label": "Disallowed Keywords",
-            "name": "disallowed_keywords",
-            "type": "textarea",
-            "instructions": "<p>Please enter in one field per line, or semi-colon separate the field names.<\/p>\r\n<p>These fields will be used to omit from searching the API.<\/p>",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "cancer\r\ncarcinoma\r\nmelanoma\r\nneoplasm\r\ntumor\r\nlymphoma\r\nmetastatic",
-            "placeholder": "",
-            "maxlength": "",
-            "rows": "",
-            "new_lines": ""
-        },
-        {
-            "key": "field_617acc76db86c",
-            "label": "Clinical Trials API Status Search",
-            "name": "clinical_trials_api_status_search",
-            "type": "text",
-            "instructions": "Update the items in parenthesis to scrape for the status type to search for.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( \"Recruiting\" OR \"Not yet recruiting\" )",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        },
-        {
-            "key": "field_617acc9fdb86d",
-            "label": "Clinical Trials API Location Search",
-            "name": "clinical_trials_api_location_search",
-            "type": "text",
-            "instructions": "Update the items in parenthesis to scrape for the location(s) to search for.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "AND SEARCH[Location] EXPAND[Term] COVER[FullMatch] ( AREA[LocationPath] \"US\" AND ( AREA[LocationCountry] \"United States\" OR CONST[0.95] ) )",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        },
-        {
-            "key": "field_617accc3db86e",
-            "label": "Clinical Trials API Sponsor Search",
-            "name": "clinical_trials_api_sponsor_search",
-            "type": "text",
-            "instructions": "Update the items in parenthesis to scrape for the sponsors(s) to search for.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "AND ( AREA[LeadSponsorName] \"Merck Sharp & Dohme Corp.\" )",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        },
-        {
-            "key": "field_611e6d493a1bd",
-            "label": "Import Rank",
-            "name": "",
-            "type": "message",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "message": "The Minimum Import Rank is the starting rank number to begin the import from.<br \/><br \/>\r\nThe Maximum Import Rank is the maximum number of items per API call to be made.<br \/><br \/>\r\n<b>Note<\/b>: The maximum number is 100, but to keep call times low, and preventing memory leaks, it's recommended to set a max to 30. The API has a loop in place to increase the minimum rank and maximum rank, depending on the number of results returned, and will adjust the API call to reflect this.",
-            "new_lines": "wpautop",
-            "esc_html": 0
-        },
-        {
-            "key": "field_611e6c8bed208",
-            "label": "Min Import Rank",
-            "name": "min_import_rank",
-            "type": "number",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "one-half",
-                "id": ""
-            },
-            "default_value": 1,
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "min": 1,
-            "max": "",
-            "step": 1
-        },
-        {
-            "key": "field_611e6caeed209",
-            "label": "Max Import Rank",
-            "name": "max_import_rank",
-            "type": "number",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "one-half",
-                "id": ""
-            },
-            "default_value": 30,
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "min": 2,
-            "max": 100,
-            "step": 1
-        },
-        {
-            "key": "field_6140c669e83e3",
-            "label": "API Emailer Settings",
-            "name": "",
-            "type": "message",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "message": "These settings are used to setup the mailer when the Scraper is ran.",
-            "new_lines": "wpautop",
-            "esc_html": 0
-        },
-        {
-            "key": "field_6140ba8a9993c",
-            "label": "API Logger Email To",
-            "name": "api_logger_email_to",
-            "type": "repeater",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "collapsed": "field_6140bac420802",
-            "min": 0,
-            "max": 0,
-            "layout": "table",
-            "button_label": "Add Emailer",
-            "sub_fields": [
-                {
-                    "key": "field_6140bab520801",
-                    "label": "Email",
-                    "name": "email",
-                    "type": "email",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "",
-                        "id": ""
-                    },
-                    "default_value": "",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": ""
-                },
-                {
-                    "key": "field_6140bac420802",
-                    "label": "Name",
-                    "name": "name",
-                    "type": "text",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "",
-                        "id": ""
-                    },
-                    "default_value": "",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "maxlength": ""
-                }
-            ]
-        },
-        {
-            "key": "field_6140c6ab34b93",
-            "label": "Use MailJet Template",
-            "name": "use_mailjet_template",
-            "type": "true_false",
-            "instructions": "Whether we're using a custom MailJet template or not.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "one-quarter",
-                "id": ""
-            },
-            "message": "",
-            "default_value": 0,
-            "ui": 1,
-            "ui_on_text": "",
-            "ui_off_text": ""
-        },
-        {
-            "key": "field_6140c39ae1577",
-            "label": "API Email Template ID",
-            "name": "api_email_template_id",
-            "type": "number",
-            "instructions": "This is the ID of the template that's setup in MailJet.",
-            "required": 0,
-            "conditional_logic": [
-                [
-                    {
-                        "field": "field_6140c6ab34b93",
-                        "operator": "==",
-                        "value": "1"
-                    }
-                ]
-            ],
-            "wrapper": {
-                "width": "",
-                "class": "three-quarters",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "min": "",
-            "max": "",
-            "step": ""
-        },
-        {
-            "key": "field_610414572226f",
-            "label": "Google Maps",
-            "name": "",
-            "type": "tab",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "placement": "top",
-            "endpoint": 0
-        },
-        {
-            "key": "field_6104147e22271",
-            "label": "Google Maps API Key",
-            "name": "google_maps_api_key",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        },
-        {
-            "key": "field_615f1fbcff639",
-            "label": "Google Maps Server Side API Key",
-            "name": "google_maps_server_side_api_key",
-            "type": "text",
-            "instructions": "This key is used for server side API requests, and cannot be domain locked. Only IP locked.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        },
-        {
-            "key": "field_6107fd597e53c",
-            "label": "Emailer",
-            "name": "",
-            "type": "tab",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "placement": "left",
-            "endpoint": 0
-        },
-        {
-            "key": "field_6107fd6d7e53d",
-            "label": "Mailjet API Key",
-            "name": "mailjet_api_key",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "one-half",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        },
-        {
-            "key": "field_6107fd747e53e",
-            "label": "Mailjet API Secret Key",
-            "name": "mailjet_api_secret_key",
-            "type": "password",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "one-half",
-                "id": ""
-            },
-            "placeholder": "",
-            "prepend": "",
-            "append": ""
-        },
-        {
-            "key": "field_6107fd817e53f",
-            "label": "Email From",
-            "name": "email_from",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "one-half",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        },
-        {
-            "key": "field_6107fd877e540",
-            "label": "Email From Name",
-            "name": "email_from_name",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "one-half",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        },
-        {
-            "key": "field_617ae637d659b",
-            "label": "Antidote API",
-            "name": "",
-            "type": "tab",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "placement": "left",
-            "endpoint": 0
-        },
-        {
-            "key": "field_617ae651d659d",
-            "label": "Category Type",
-            "name": "category_type",
-            "type": "select",
-            "instructions": "Select which taxonomy should be used to return in the categories array.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "choices": {
-                "conditions": "Conditions",
-                "trial_ta": "Therapeutic Area"
-            },
-            "default_value": "conditions",
-            "allow_null": 0,
-            "multiple": 0,
-            "ui": 1,
-            "ajax": 1,
-            "return_format": "value",
-            "placeholder": ""
-        },
-        {
-            "key": "field_617ae7c312571",
-            "label": "Post Status To Return",
-            "name": "post_status",
-            "type": "select",
-            "instructions": "Select which post status should appear in the API.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "choices": {
-                "all": "All",
-                "auto-draft": "Auto-Draft",
-                "draft": "Draft",
-                "future": "Future",
-                "pending": "Pending",
-                "publish": "Published",
-                "private": "Private",
-                "trash": "Trash"
-            },
-            "default_value": [
-                "publish",
-                "pending",
-                "draft",
-                "auto-draft",
-                "private"
-            ],
-            "allow_null": 0,
-            "multiple": 1,
-            "ui": 1,
-            "ajax": 1,
-            "return_format": "value",
-            "placeholder": ""
-        }
-    ],
-    "location": [
-        [
-            {
-                "param": "options_page",
-                "operator": "==",
-                "value": "merck-scraper"
-            }
-        ]
-    ],
-    "menu_order": 0,
-    "position": "normal",
-    "style": "default",
-    "label_placement": "top",
-    "instruction_placement": "label",
-    "hide_on_screen": "",
-    "active": true,
-    "description": "Option Settings for the Merck Scraper Plugin",
-    "modified": 1635444846
+	"key": "group_60fed83c786ed",
+	"title": "Merck Settings",
+	"fields": [
+		{
+			"key": "field_6104147622270",
+			"label": "API Settings",
+			"name": "",
+			"type": "tab",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"placement": "left",
+			"endpoint": 0
+		},
+		{
+			"key": "field_60fede954cebc",
+			"label": "Clinical Trials API Base",
+			"name": "clinical_trials_api_base",
+			"type": "url",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"default_value": "https:\/\/clinicaltrials.gov",
+			"placeholder": ""
+		},
+		{
+			"key": "field_615c5dffc65d4",
+			"label": "Clinical Trials Show Page",
+			"name": "clinical_trials_show_page",
+			"type": "url",
+			"instructions": "Omit the NCT ID from the url",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"default_value": "https:\/\/clinicaltrials.gov\/ct2\/show\/",
+			"placeholder": ""
+		},
+		{
+			"key": "field_61310869e2abf",
+			"label": "Disallowed Keywords",
+			"name": "disallowed_keywords",
+			"type": "textarea",
+			"instructions": "<p>Please enter in one field per line, or semi-colon separate the field names.<\/p>\r\n<p>These fields will be used to omit from searching the API.<\/p>",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"default_value": "cancer\r\ncarcinoma\r\nmelanoma\r\nneoplasm\r\ntumor\r\nlymphoma\r\nmetastatic",
+			"placeholder": "",
+			"maxlength": "",
+			"rows": "",
+			"new_lines": ""
+		},
+		{
+			"key": "field_617acc76db86c",
+			"label": "Clinical Trials API Status Search",
+			"name": "clinical_trials_api_status_search",
+			"type": "text",
+			"instructions": "Update the items in parenthesis to scrape for the status type to search for.",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"default_value": "AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( \"Recruiting\" OR \"Not yet recruiting\" )",
+			"placeholder": "",
+			"prepend": "",
+			"append": "",
+			"maxlength": ""
+		},
+		{
+			"key": "field_617acc9fdb86d",
+			"label": "Clinical Trials API Location Search",
+			"name": "clinical_trials_api_location_search",
+			"type": "text",
+			"instructions": "Update the items in parenthesis to scrape for the location(s) to search for.",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"default_value": "( AREA[LocationCountry] \"United States\" OR CONST[0.95] ) )",
+			"placeholder": "",
+			"prepend": "",
+			"append": "",
+			"maxlength": ""
+		},
+		{
+			"key": "field_617accc3db86e",
+			"label": "Clinical Trials API Sponsor Search",
+			"name": "clinical_trials_api_sponsor_search",
+			"type": "text",
+			"instructions": "Update the items in parenthesis to scrape for the sponsors(s) to search for.",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"default_value": "( AREA[LeadSponsorName] \"Merck Sharp & Dohme Corp.\" )",
+			"placeholder": "",
+			"prepend": "",
+			"append": "",
+			"maxlength": ""
+		},
+		{
+			"key": "field_611e6d493a1bd",
+			"label": "Import Rank",
+			"name": "",
+			"type": "message",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"message": "The Minimum Import Rank is the starting rank number to begin the import from.<br \/><br \/>\r\nThe Maximum Import Rank is the maximum number of items per API call to be made.<br \/><br \/>\r\n<b>Note<\/b>: The maximum number is 100, but to keep call times low, and preventing memory leaks, it's recommended to set a max to 30. The API has a loop in place to increase the minimum rank and maximum rank, depending on the number of results returned, and will adjust the API call to reflect this.",
+			"new_lines": "wpautop",
+			"esc_html": 0
+		},
+		{
+			"key": "field_611e6c8bed208",
+			"label": "Min Import Rank",
+			"name": "min_import_rank",
+			"type": "number",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "one-half",
+				"id": ""
+			},
+			"default_value": 1,
+			"placeholder": "",
+			"prepend": "",
+			"append": "",
+			"min": 1,
+			"max": "",
+			"step": 1
+		},
+		{
+			"key": "field_611e6caeed209",
+			"label": "Max Import Rank",
+			"name": "max_import_rank",
+			"type": "number",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "one-half",
+				"id": ""
+			},
+			"default_value": 30,
+			"placeholder": "",
+			"prepend": "",
+			"append": "",
+			"min": 2,
+			"max": 100,
+			"step": 1
+		},
+		{
+			"key": "field_6140c669e83e3",
+			"label": "API Emailer Settings",
+			"name": "",
+			"type": "message",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"message": "These settings are used to setup the mailer when the Scraper is ran.",
+			"new_lines": "wpautop",
+			"esc_html": 0
+		},
+		{
+			"key": "field_6140ba8a9993c",
+			"label": "API Logger Email To",
+			"name": "api_logger_email_to",
+			"type": "repeater",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"collapsed": "field_6140bac420802",
+			"min": 0,
+			"max": 0,
+			"layout": "table",
+			"button_label": "Add Emailer",
+			"sub_fields": [
+				{
+					"key": "field_6140bab520801",
+					"label": "Email",
+					"name": "email",
+					"type": "email",
+					"instructions": "",
+					"required": 0,
+					"conditional_logic": 0,
+					"wrapper": {
+						"width": "",
+						"class": "",
+						"id": ""
+					},
+					"default_value": "",
+					"placeholder": "",
+					"prepend": "",
+					"append": ""
+				},
+				{
+					"key": "field_6140bac420802",
+					"label": "Name",
+					"name": "name",
+					"type": "text",
+					"instructions": "",
+					"required": 0,
+					"conditional_logic": 0,
+					"wrapper": {
+						"width": "",
+						"class": "",
+						"id": ""
+					},
+					"default_value": "",
+					"placeholder": "",
+					"prepend": "",
+					"append": "",
+					"maxlength": ""
+				}
+			]
+		},
+		{
+			"key": "field_6140c6ab34b93",
+			"label": "Use MailJet Template",
+			"name": "use_mailjet_template",
+			"type": "true_false",
+			"instructions": "Whether we're using a custom MailJet template or not.",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "one-quarter",
+				"id": ""
+			},
+			"message": "",
+			"default_value": 0,
+			"ui": 1,
+			"ui_on_text": "",
+			"ui_off_text": ""
+		},
+		{
+			"key": "field_6140c39ae1577",
+			"label": "API Email Template ID",
+			"name": "api_email_template_id",
+			"type": "number",
+			"instructions": "This is the ID of the template that's setup in MailJet.",
+			"required": 0,
+			"conditional_logic": [
+				[
+					{
+						"field": "field_6140c6ab34b93",
+						"operator": "==",
+						"value": "1"
+					}
+				]
+			],
+			"wrapper": {
+				"width": "",
+				"class": "three-quarters",
+				"id": ""
+			},
+			"default_value": "",
+			"placeholder": "",
+			"prepend": "",
+			"append": "",
+			"min": "",
+			"max": "",
+			"step": ""
+		},
+		{
+			"key": "field_610414572226f",
+			"label": "Google Maps",
+			"name": "",
+			"type": "tab",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"placement": "top",
+			"endpoint": 0
+		},
+		{
+			"key": "field_6104147e22271",
+			"label": "Google Maps API Key",
+			"name": "google_maps_api_key",
+			"type": "text",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"default_value": "",
+			"placeholder": "",
+			"prepend": "",
+			"append": "",
+			"maxlength": ""
+		},
+		{
+			"key": "field_615f1fbcff639",
+			"label": "Google Maps Server Side API Key",
+			"name": "google_maps_server_side_api_key",
+			"type": "text",
+			"instructions": "This key is used for server side API requests, and cannot be domain locked. Only IP locked.",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"default_value": "",
+			"placeholder": "",
+			"prepend": "",
+			"append": "",
+			"maxlength": ""
+		},
+		{
+			"key": "field_6107fd597e53c",
+			"label": "Emailer",
+			"name": "",
+			"type": "tab",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"placement": "left",
+			"endpoint": 0
+		},
+		{
+			"key": "field_6107fd6d7e53d",
+			"label": "Mailjet API Key",
+			"name": "mailjet_api_key",
+			"type": "text",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "one-half",
+				"id": ""
+			},
+			"default_value": "",
+			"placeholder": "",
+			"prepend": "",
+			"append": "",
+			"maxlength": ""
+		},
+		{
+			"key": "field_6107fd747e53e",
+			"label": "Mailjet API Secret Key",
+			"name": "mailjet_api_secret_key",
+			"type": "password",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "one-half",
+				"id": ""
+			},
+			"placeholder": "",
+			"prepend": "",
+			"append": ""
+		},
+		{
+			"key": "field_6107fd817e53f",
+			"label": "Email From",
+			"name": "email_from",
+			"type": "text",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "one-half",
+				"id": ""
+			},
+			"default_value": "",
+			"placeholder": "",
+			"prepend": "",
+			"append": "",
+			"maxlength": ""
+		},
+		{
+			"key": "field_6107fd877e540",
+			"label": "Email From Name",
+			"name": "email_from_name",
+			"type": "text",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "one-half",
+				"id": ""
+			},
+			"default_value": "",
+			"placeholder": "",
+			"prepend": "",
+			"append": "",
+			"maxlength": ""
+		},
+		{
+			"key": "field_617ae637d659b",
+			"label": "Antidote API",
+			"name": "",
+			"type": "tab",
+			"instructions": "",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"placement": "left",
+			"endpoint": 0
+		},
+		{
+			"key": "field_617ae651d659d",
+			"label": "Category Type",
+			"name": "category_type",
+			"type": "select",
+			"instructions": "Select which taxonomy should be used to return in the categories array.",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"choices": {
+				"conditions": "Conditions",
+				"trial_ta": "Therapeutic Area"
+			},
+			"default_value": "conditions",
+			"allow_null": 0,
+			"multiple": 0,
+			"ui": 1,
+			"ajax": 1,
+			"return_format": "value",
+			"placeholder": ""
+		},
+		{
+			"key": "field_617ae7c312571",
+			"label": "Post Status To Return",
+			"name": "post_status",
+			"type": "select",
+			"instructions": "Select which post status should appear in the API.",
+			"required": 0,
+			"conditional_logic": 0,
+			"wrapper": {
+				"width": "",
+				"class": "",
+				"id": ""
+			},
+			"choices": {
+				"all": "All",
+				"auto-draft": "Auto-Draft",
+				"draft": "Draft",
+				"future": "Future",
+				"pending": "Pending",
+				"publish": "Published",
+				"private": "Private",
+				"trash": "Trash"
+			},
+			"default_value": [
+				"publish",
+				"pending",
+				"draft",
+				"auto-draft",
+				"private"
+			],
+			"allow_null": 0,
+			"multiple": 1,
+			"ui": 1,
+			"ajax": 1,
+			"return_format": "value",
+			"placeholder": ""
+		}
+	],
+	"location": [
+		[
+			{
+				"param": "options_page",
+				"operator": "==",
+				"value": "merck-scraper"
+			}
+		]
+	],
+	"menu_order": 0,
+	"position": "normal",
+	"style": "default",
+	"label_placement": "top",
+	"instruction_placement": "label",
+	"hide_on_screen": "",
+	"active": true,
+	"description": "Option Settings for the Merck Scraper Plugin",
+	"modified": 1635444846
 }
