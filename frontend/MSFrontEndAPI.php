@@ -126,7 +126,6 @@ class MSFrontEndAPI
         );
 
         if (!is_wp_error($trials) && $trials->found_posts > 0) {
-            $return->put('message', 'Categories are from the ConditionList->Condition from the gov\'t site');
             $return->put('count', $trials->found_posts);
             $return->put(
                 'trials',

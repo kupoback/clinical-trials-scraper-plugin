@@ -15,6 +15,10 @@ This plugin is used to scrape data from clinicaltrials.gov website.
 
 == Changelog ==
 
+= 1.1.5.2 =
+
+Removed message from Frontend Antidote API
+
 = 1.1.5.1 =
 
 Fix to default values on Merck Scraper Settings
