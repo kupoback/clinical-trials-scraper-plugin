@@ -508,7 +508,6 @@
 			},
 			"choices": {
 				"all": "All",
-				"auto-draft": "Auto-Draft",
 				"draft": "Draft",
 				"future": "Future",
 				"pending": "Pending",
@@ -520,7 +519,6 @@
 				"publish",
 				"pending",
 				"draft",
-				"auto-draft",
 				"private"
 			],
 			"allow_null": 0,
@@ -548,5 +546,5 @@
 	"hide_on_screen": "",
 	"active": true,
 	"description": "Option Settings for the Merck Scraper Plugin",
-	"modified": 1635444846
+	"modified": 1635544846
 }
