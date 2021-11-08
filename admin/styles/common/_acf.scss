@@ -63,6 +63,11 @@
 			}
 		}
 	}
+	
+	.closed {
+		display: none !important;
+	}
+	
 }
 
 .acf-field .char-count {
@@ -229,8 +234,4 @@ a.acf-icon.light {
 			}
 		}
 	}
-}
-
-.hidden, .js .closed .inside, .js .hide-if-js, .no-js .hide-if-no-js, .js.wp-core-ui .hide-if-js, .js .wp-core-ui .hide-if-js, .no-js.wp-core-ui .hide-if-no-js, .no-js .wp-core-ui .hide-if-no-js {
-	display: none !important;
 }
