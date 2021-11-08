@@ -63,11 +63,12 @@
 			}
 		}
 	}
-	
-	.closed {
+}
+
+.acf-postbox {
+	&.closed {
 		display: none !important;
 	}
-	
 }
 
 .acf-field .char-count {
