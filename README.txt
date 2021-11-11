@@ -15,6 +15,10 @@ This plugin is used to scrape data from clinicaltrials.gov website.
 
 == Changelog ==
 
+= 1.1.5.6 =
+
+Removed return type of update_acf_field as it was returning an int instead of a bool
+
 = 1.1.5.5 =
 
 Another minor tweak to CSS rule

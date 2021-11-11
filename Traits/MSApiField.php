@@ -402,10 +402,9 @@ trait MSApiField
      * @param mixed  $field_data The data to save
      * @param int    $post_id    The post ID to save to
      *
-     * @return bool
+     * @return bool|int
      */
     protected function updateACF(string $field_name, $field_data, int $post_id)
-    :bool
     {
         return update_field($field_name, $field_data, $post_id);
     }
