@@ -67,7 +67,9 @@
 
 .acf-postbox {
 	&.closed {
-		display: none !important;
+		.inside {
+			display: none !important;
+		}
 	}
 }
 
