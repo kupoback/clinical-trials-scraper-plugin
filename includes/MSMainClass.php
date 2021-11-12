@@ -38,7 +38,7 @@ class MSMainClass
      * @access   protected
      * @var      MSLoader $loader Maintains and registers all hooks for the plugin.
      */
-    protected $loader;
+    protected MSLoader $loader;
 
     /**
      * The unique identifier of this plugin.
@@ -47,7 +47,7 @@ class MSMainClass
      * @access   protected
      * @var      string $pluginName The string used to uniquely identify this plugin.
      */
-    protected $pluginName;
+    protected string $pluginName;
 
     /**
      * The current version of the plugin.
@@ -56,7 +56,7 @@ class MSMainClass
      * @access   protected
      * @var      string $version The current version of the plugin.
      */
-    protected $version;
+    protected string $version;
 
     /**
      * Define the core functionality of the plugin.
@@ -143,7 +143,8 @@ class MSMainClass
         $this->loader->addFilter('cron_schedules', $plugin_admin, 'customSchedule');
 
         /**
-         * Filters and Actions to expand the Admin Columns for the Trials Post type, including filters and searching for custom ACF field
+         * Filters and Actions to expand the Admin Columns for the Trials Post type,
+         * including filters and searching for custom ACF field
          */
         $this->loader->addAction('pre_get_posts', $plugin_admin, 'trialsAdminQuery');
         $this->loader->addFilter('manage_edit-trials_sortable_columns', $plugin_admin, 'filterCustomCol');
@@ -160,11 +161,6 @@ class MSMainClass
         $this->loader->addAction('acf/init', $admin_options, 'acfOptionsPage');
         $this->loader->addAction('admin_menu', $admin_options, 'customOptsPage', 105);
 
-        // Registers the Scraper API
-        $scraper_api = new MSAPIScraper();
-        $this->loader->addAction('rest_api_init', $scraper_api, 'registerEndpoint');
-        // $this->loader->addAction('init', $scraper_api, 'registerCronType');
-
         // Registers the Logger API
         $logger_api = new MSApiLogger();
         $this->loader->addAction('rest_api_init', $logger_api, 'registerEndpoint');
@@ -178,6 +174,11 @@ class MSMainClass
         $admin_taxonomy = new MSCustomTax();
 
         $this->loader->addAction('init', $admin_taxonomy, 'registerTaxonomy');
+
+        // Registers the Scraper API
+        $scraper_api = new MSAPIScraper();
+        $this->loader->addAction('rest_api_init', $scraper_api, 'registerEndpoint');
+        // $this->loader->addAction('init', $scraper_api, 'registerCronType');
     }
 
     /**
@@ -216,6 +217,7 @@ class MSMainClass
      * @since     1.0.0
      */
     public function getPluginName()
+    :string
     {
         return $this->pluginName;
     }
@@ -227,6 +229,7 @@ class MSMainClass
      * @since     1.0.0
      */
     public function getLoader()
+    :MSLoader
     {
         return $this->loader;
     }
@@ -238,6 +241,7 @@ class MSMainClass
      * @since     1.0.0
      */
     public function getversion()
+    :string
     {
         return $this->version;
     }

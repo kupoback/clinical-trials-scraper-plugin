@@ -396,6 +396,26 @@ trait MSApiField
     }
 
     /**
+     * Checks if a numerical value is between the min_value and max_value
+     * @param int $value        The value
+     * @param int $min_value    The minimum value
+     * @param int $max_value    The maximum value
+     *
+     * @return bool
+     */
+    protected function inBetween(int $value, int $min_value, int $max_value)
+    :bool
+    {
+        if ($value < $min_value) {
+            return false;
+        }
+        if ($value > $max_value) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Easier method to combine acf data updates
      *
      * @param string $field_name The ACF field name

@@ -96,6 +96,14 @@ class MSAPIScraper
     private Carbon $nowTime;
 
     private int $totalFound;
+
+    private $ageRanges;
+
+    private array $postDefault = [
+        'post_title' => '',
+        'post_name'  => '',
+        'post_type'  => 'trials',
+    ];
     //endregion
 
     /**
@@ -146,24 +154,6 @@ class MSAPIScraper
                 ],
             ]
         );
-
-        /**
-         * Importing a single NCTID
-         */
-        // self::registerRoute(
-        //     'api-scraper',
-        //     WP_REST_Server::CREATABLE,
-        //     'apiImport',
-        //     '(?P<nctid>[[:alnum:]]+)',
-        //     [
-        //         'nctid' => [
-        //             'required'          => false,
-        //             'validate_callback' => function ($param) {
-        //                 return is_string($param);
-        //             },
-        //         ],
-        //     ]
-        // );
     }
 
     /**
@@ -277,6 +267,32 @@ class MSAPIScraper
             // Commented out for now as it's not looping properly
             $loop_number = $loop_number === 0 ? 1 : $loop_number;
 
+            /**
+             * Grab all the ages set in the trial_age, and loop through them grabbing
+             * the minimum_age and maximum_age from ACF.
+             */
+            $this->ageRanges = collect(get_terms(['taxonomy' => 'trial_age', 'hide_empty' => false]));
+            if ($this->ageRanges->isNotEmpty()) {
+                $this->ageRanges = $this->ageRanges
+                    ->map(function ($term) {
+                        $age_ranges = get_field('age_range', $term);
+                        if (!empty($age_ranges)) {
+                            $min_age = $age_ranges['minimum_age'] ?: 0;
+                            $max_age = $age_ranges['maximum_age'] ?: 999;
+                        } else {
+                            // Log an error if there is no age range set for the term
+                            $this->errorLog->error(__("Please ensure you set an age range", 'merck-scraper'));
+                        }
+
+                        return [
+                            'name' => $term->name,
+                            'slug' => $term->slug,
+                            'min_age' => isset($min_age) ? intval($min_age) : 0,
+                            'max_age' => isset($max_age) ? intval($max_age) : 999,
+                        ];
+                    });
+            }
+
             if ((int) $api_data->NStudiesFound > 0) {
                 // Grab a list of trashed posts that are supposed to be archived
                 $trashed_posts = collect(self::dbArchivedPosts());
@@ -369,11 +385,11 @@ class MSAPIScraper
             $this->errorLog->error($client_http->get_error_message());
         }
 
-        $email = self::emailerSetup($studies_imported, $num_not_imported);
-
-        if (is_wp_error($email)) {
-            $this->errorLog->error("Error sending email, check Email log");
-        }
+        // $email = self::emailerSetup($studies_imported, $num_not_imported);
+        //
+        // if (is_wp_error($email)) {
+        //     $this->errorLog->error("Error sending email, check Email log");
+        // }
 
         // Restore the max_execution_time
         ini_restore('post_max_size');
@@ -470,7 +486,9 @@ class MSAPIScraper
         set_time_limit(300);
         ini_set('max_execution_time', '300');
 
-        $return           = collect([]);
+        $return = collect([]);
+
+        //region Modules
         $arms_module      = self::parseArms($field_data->get('ArmsInterventionsModule'));
         $condition_module = self::parseCondition($field_data->get('ConditionsModule'));
         $contact_module   = self::parseLocation($field_data->get('ContactsLocationsModule'));
@@ -480,6 +498,7 @@ class MSAPIScraper
         $id_module        = self::parseId($field_data->get('IdentificationModule'));
         $status_module    = self::parseStatus($field_data->get('StatusModule'));
         $sponsor_module   = self::parseSponsors($field_data->get('SponsorCollaboratorsModule'));
+        //endregion
 
         // Not currently used field mappings
         // $oversite_module = $field_data->get('OversightModule');
@@ -495,12 +514,6 @@ class MSAPIScraper
         $trial_status   = sanitize_title($status_module->get('trial_status'));
         $allowed_status = ['recruiting', 'active-not-recruiting'];
 
-        $post_default = [
-            'post_title' => '',
-            'post_name'  => '',
-            'post_type'  => 'trials',
-        ];
-
         // Setup the post data
         $parse_args = self::parsePostArgs(
             [
@@ -510,7 +523,7 @@ class MSAPIScraper
             ]
         );
 
-        $post_args = collect(wp_parse_args($parse_args, $post_default));
+        $post_args = collect(wp_parse_args($parse_args, $this->postDefault));
 
         // Update some parameters to not import the post OR set it's status to trash
         if (!in_array($trial_status, $allowed_status)) {
@@ -703,11 +716,44 @@ class MSAPIScraper
                         return wp_set_object_terms($post_id, $terms, $taxonomy);
                     });
             }
+
+            if ($eligibile_module->get('minimum_age') || $eligibile_module->get('maximum_age')) {
+                // Reset the Trial Age terms, in case the ages previously imported have changed.
+                wp_delete_object_term_relationships($post_id, 'trial_age');
+
+                $min_age = intval($eligibile_module->get('minimum_age'));
+                $max_age = intval($eligibile_module->get('maximum_age'));
+
+                /**
+                 * Loop through the Trial Age Ranges set, and match the trial with
+                 * the right term, based on the terms min and max age.
+                 *
+                 * @returns array
+                 */
+                $this->ageRanges
+                    ->each(function ($term) use ($min_age, $max_age, $post_id) {
+                        $term_min_age = intval($term['min_age']);
+                        $term_max_age = intval($term['max_age']);
+                        if (self::inBetween($term_min_age, $min_age, $max_age)
+                            || self::inBetween($term_max_age, $min_age, $max_age)
+                        ) {
+                            /**
+                             * For whatever reason, the comparison has to be if set equal
+                             * instead of the opposite. Might be due to type comparison
+                             * as well as value comparison.
+                             */
+                            return ($min_age === 0 && $max_age === 999)
+                                ? []
+                                : wp_set_object_terms($post_id, $term['slug'], 'trial_age', true);
+                        }
+                        return [];
+                    });
+            }
         }
 
         $return->put('ID', $post_id);
         $return->put('NAME', $post_args->get('post_title'));
-        $return->put('NCDID', $nct_id);
+        $return->put('NCT_ID', $nct_id);
         $return->put('MESSAGE', $message);
         $return->put('POST_STATUS', $status);
 

@@ -77,7 +77,11 @@ class MSAdmin
      */
     public function enqueueStyles()
     {
-        if (is_admin() && (in_array(get_current_screen()->id, $this->screens) || in_array(get_current_screen()->id, $this->optsScreens))) {
+        if (is_admin() && (
+                in_array(get_current_screen()->id, $this->screens)
+                || in_array(get_current_screen()->id, $this->optsScreens)
+            )
+        ) {
             wp_enqueue_style(
                 $this->pluginName,
                 plugin_dir_url(__FILE__) . 'dist/merck-scraper-admin.css',
@@ -164,8 +168,9 @@ class MSAdmin
         // list of field groups that should be saved to merck-scraper/admin/acf-json
         $groups = [
             'group_60fae8b82087d', // Trails Single Post
-            'group_610964a2e214b', // Trial Clone Fields
             'group_60fed83c786ed', // Merck Settings
+            'group_618e88f57b867', // Trial Ages
+            'group_615c5ca5928cd', // Trial Settings
         ];
 
         if (in_array($group['key'], $groups)) {
@@ -350,11 +355,13 @@ class MSAdmin
      * @return bool
      */
     protected function isTrialsAdmin()
+    :bool
     {
         if (is_admin()) {
             $current_screen   = get_current_screen();
             $post_edit_screen = ['edit-trials', 'edit-events', 'edit-products', 'edit-leadership'];
             return is_object($current_screen) && in_array($current_screen->id, $post_edit_screen) && is_search();
         }
+        return false;
     }
 }
