@@ -553,7 +553,7 @@ class MSAPIScraper
         } else {
             // Updating our post
             $post_args->put('ID', $post_id);
-            $post_args->forget(['post_content',]);
+            $post_args->forget(['post_title', 'post_content',]);
             wp_update_post(
                 $post_args
                     ->toArray(),
