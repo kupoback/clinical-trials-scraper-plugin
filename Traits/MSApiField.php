@@ -27,8 +27,17 @@ trait MSApiField
     protected function parseId(object $id_module)
     :Collection
     {
+        // $protocol_id  = collect();
         $other_ids = collect($id_module->SecondaryIdInfoList->SecondaryIdInfo ?? []);
         if ($other_ids->isNotEmpty()) {
+            // $protocol_id = $other_ids
+            //     ->filter(function ($second_id) use ($org_study_id) {
+            //         return str_contains(($second_id->SecondaryId ?? ''), $org_study_id);
+            //     })
+            //     ->map(function ($second_id) {
+            //         return $second_id->SecondaryId;
+            //     });
+
             $other_ids = $other_ids
                 ->map(function ($second_id) {
                     return $second_id->SecondaryId ?? '';
@@ -38,14 +47,22 @@ trait MSApiField
 
         $base_url = self::acfOptionField('clinical_trials_show_page');
 
+        $title = '';
+        if ($id_module->BriefTitle !== null) {
+            $title = preg_replace('#\([^)]+\)#i', '', strval($id_module->BriefTitle));
+        }
+
         return collect(
             [
-                'post_title'     => $id_module->BriefTitle ?? '',
+                'post_title'     => $title,
                 'brief_title'    => $id_module->BriefTitle ?? '',
                 'nct_id'         => $id_module->NCTId ?? '',
                 'url'            => $base_url . $id_module->NCTId,
                 'official_title' => $id_module->OfficialTitle ?? '',
                 'other_ids'      => $other_ids,
+                'study_keyword'  => $id_module
+                        ->OrgStudyIdInfo
+                        ->OrgStudyId ?? '',
             ]
         );
     }
@@ -127,7 +144,7 @@ trait MSApiField
     {
         return collect(
             [
-                'post_content' => $description_module->BriefSummary ?? '',
+                'post_content'  => $description_module->BriefSummary ?? '',
                 'trial_purpose' => $description_module->BriefSummary ?? '',
             ]
         );
@@ -217,7 +234,7 @@ trait MSApiField
     :Collection
     {
         $intervention_arr = collect([]);
-        $interventions = $arms_module->InterventionList ?? [];
+        $interventions    = $arms_module->InterventionList ?? [];
         if (is_object($interventions) && !empty($interventions->Intervention)) {
             $intervention_arr = collect($interventions->Intervention)
                 ->map(function ($arr_item) {
@@ -325,9 +342,9 @@ trait MSApiField
         if ($locations->isNotEmpty()) {
             $locations = $locations
                 ->map(function ($location) {
-                    $us_names = ["United States", "United States of America", "USA"];
+                    $us_names        = ["United States", "United States of America", "USA"];
                     $location_status = $location->LocationStatus ?? '';
-                    $status = ['Recruiting', 'Active, not recruiting'];
+                    $status          = ['Recruiting', 'Active, not recruiting'];
 
                     /**
                      * Grab the phone number for the contact
@@ -397,9 +414,10 @@ trait MSApiField
 
     /**
      * Checks if a numerical value is between the min_value and max_value
-     * @param int $value        The value
-     * @param int $min_value    The minimum value
-     * @param int $max_value    The maximum value
+     *
+     * @param int $value     The value
+     * @param int $min_value The minimum value
+     * @param int $max_value The maximum value
      *
      * @return bool
      */

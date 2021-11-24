@@ -113,9 +113,9 @@
             "maxlength": ""
         },
         {
-            "key": "field_611a90e68b070",
-            "label": "Study Results",
-            "name": "api_data_study_results",
+            "key": "field_619d42d6e6a2e",
+            "label": "Study Keyword",
+            "name": "api_data_study_keyword",
             "type": "text",
             "instructions": "",
             "required": 0,
@@ -684,5 +684,6 @@
     "hide_on_screen": "",
     "active": true,
     "description": "Default Fields that are mapped and imported from the Merck Scraper",
-    "modified": 1633449056
+    "show_in_rest": 0,
+    "modified": 1637697419
 }

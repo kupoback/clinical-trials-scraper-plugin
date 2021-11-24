@@ -553,7 +553,7 @@ class MSAPIScraper
         } else {
             // Updating our post
             $post_args->put('ID', $post_id);
-            $post_args->forget(['post_title', 'post_content',]);
+            $post_args->forget(['post_content',]);
             wp_update_post(
                 $post_args
                     ->toArray(),
@@ -609,6 +609,7 @@ class MSAPIScraper
                     ->put('brief_title', $id_module->get('brief_title'))
                     ->put('official_title', $id_module->get('official_title'))
                     ->put('trial_purpose', $desc_module->get('trial_purpose'))
+                    ->put('study_keyword', $id_module->get('study_keyword'))
                     ->put('start_date', $status_module->get('start_date'))
                     ->put('primary_completion_date', $status_module->get('primary_completion_date'))
                     ->put('completion_date', $status_module->get('completion_date'))

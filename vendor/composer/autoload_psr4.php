@@ -18,7 +18,7 @@ return array(
     'Psr\\Http\\Client\\' => array($vendorDir . '/psr/http-client/src'),
     'Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
-    'Merck_Scraper\\' => array($baseDir . '/'),
+    'Merck_Scraper\\' => array($baseDir . '/../merck-scraper'),
     'Illuminate\\Support\\' => array($vendorDir . '/illuminate/support'),
     'Illuminate\\Contracts\\' => array($vendorDir . '/illuminate/contracts'),
     'Http\\Promise\\' => array($vendorDir . '/php-http/promise/src'),
