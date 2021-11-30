@@ -888,7 +888,7 @@ class MSAPIScraper
             $new_posts        = sprintf('<li>New Trials: %s</li>', $new_posts->count());
             $trashed_posts    = sprintf('<li>Removed Trials: %s</li>', $trashed_posts->count());
             $num_not_imported = sprintf('<li>Trials Not Scraped: %s</li>', $num_not_imported ?? 0);
-            $updated_posts    = sprintf('<li>Updated Posts: %s</li>', $updated_posts->count());
+            $updated_posts    = sprintf('<li>Updated Trials: %s</li>', $updated_posts->count());
 
             $email_args['Variables']['trials'] = sprintf(
                 '<ul>%s</ul>',
