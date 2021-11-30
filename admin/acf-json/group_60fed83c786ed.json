@@ -52,8 +52,8 @@
         },
         {
             "key": "field_61310869e2abf",
-            "label": "Disallowed Keywords",
-            "name": "disallowed_keywords",
+            "label": "Disallowed Conditions",
+            "name": "disallowed_conditions",
             "type": "textarea",
             "instructions": "<p>Please enter in one field per line, or semi-colon separate the field names.<\/p>\r\n<p>These fields will be used to omit from searching the API.<\/p>",
             "required": 0,
@@ -548,5 +548,6 @@
     "hide_on_screen": "",
     "active": true,
     "description": "Option Settings for the Merck Scraper Plugin",
-    "modified": 1636731045
+    "show_in_rest": 0,
+    "modified": 1638205343
 }

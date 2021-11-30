@@ -101,7 +101,7 @@
                 
                 await axios
                     .post(`${this.api}`, config,)
-                    .catch(err => console.log(err));
+                    .catch(err => console.error(err));
     
                 this.timeout = 100;
             },
@@ -113,7 +113,7 @@
                         this.status = data.status === 200 && data;
                         this.importRunning = data.status === 200;
                     })
-                    .catch(err => console.log(err.toJSON()));
+                    .catch(err => console.error(err.toJSON()));
             },
             stopImport() {
                 axios
@@ -123,7 +123,7 @@
                         this.importRunning = data.status === 200;
                         this.timeout = 10000;
                     })
-                    .catch(err => console.log(err.toJSON()));
+                    .catch(err => console.error(err.toJSON()));
             },
             intervalFetchData(interval) {
                 setInterval(() => {

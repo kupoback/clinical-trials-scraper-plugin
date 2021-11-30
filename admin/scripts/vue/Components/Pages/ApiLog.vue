@@ -142,7 +142,7 @@
                         this.logFileContents = logsFiles !== undefined && logsFiles;
                         this.errFileContents = errFiles !== undefined && errFiles;
                     })
-                    .catch(err => console.log(err))
+                    .catch(err => console.error(err))
                     .finally(() => this.fetchComplete());
             },
             refreshContent() {

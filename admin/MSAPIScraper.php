@@ -65,7 +65,7 @@ class MSAPIScraper
      *
      * @var array|string[]
      */
-    private Collection $disallowKeywords;
+    private Collection $disallowedConditions;
 
     /**
      * Trial ACF Field Names
@@ -117,11 +117,11 @@ class MSAPIScraper
         $this->sendTo = collect($email_params);
 
         /**
-         * Collection of the disallowed keywords
+         * Collection of the disallowed conditions
          */
-        $this->disallowKeywords = collect(
+        $this->disallowedConditions = collect(
             MSHelper::textareaToArr(
-                self::acfStrOptionFld('disallowed_keywords')
+                self::acfStrOptionFld('disallowed_conditions')
             )
         );
 
@@ -199,9 +199,9 @@ class MSAPIScraper
              */
             $expression = collect();
             // Keywords that are not allowed
-            if ($this->disallowKeywords->isNotEmpty()) {
+            if ($this->disallowedConditions->isNotEmpty()) {
                 $expression->push(
-                    "NOT ({$this->disallowKeywords->implode(' OR ')})"
+                    "AREA[ConditionSearch] NOT ({$this->disallowedConditions->implode(' OR ')})"
                 );
             }
             // Trial Status Search type
