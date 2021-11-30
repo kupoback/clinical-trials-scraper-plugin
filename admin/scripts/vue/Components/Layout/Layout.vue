@@ -1,5 +1,5 @@
 <template>
-    <div :class="`container-fluid ${containerClasses}`">
+    <div :class="`container-fluid p-0 ${containerClasses}`">
         <div :class="`row ${rowClasses}`">
             <slot name="body"></slot>
         </div>

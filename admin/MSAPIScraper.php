@@ -385,11 +385,11 @@ class MSAPIScraper
             $this->errorLog->error($client_http->get_error_message());
         }
 
-        // $email = self::emailerSetup($studies_imported, $num_not_imported);
-        //
-        // if (is_wp_error($email)) {
-        //     $this->errorLog->error("Error sending email, check Email log");
-        // }
+        $email = self::emailerSetup($studies_imported, $num_not_imported);
+
+        if (is_wp_error($email)) {
+            $this->errorLog->error("Error sending email, check Email log");
+        }
 
         // Restore the max_execution_time
         ini_restore('post_max_size');
