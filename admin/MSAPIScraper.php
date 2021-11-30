@@ -229,7 +229,7 @@ class MSAPIScraper
          */
         $client_args = [
             'expr'    => $expression
-                ,
+            ,
             'min_rnk' => $starting_rank,
             'max_rnk' => $max_rank,
         ];
@@ -371,7 +371,7 @@ class MSAPIScraper
 
                     if ($studies->count() > 0) {
                         $studies = self::studyImportLoop($studies);
-                        $studies_imported->push($studies['studies']);
+                        $studies_imported = $studies['studies'];
                     }
                 endfor;
             } else {
@@ -385,7 +385,7 @@ class MSAPIScraper
             $this->errorLog->error($client_http->get_error_message());
         }
 
-        $email = self::emailerSetup($studies_imported, $num_not_imported);
+        $email = self::emailSetup($studies_imported, $num_not_imported);
 
         if (is_wp_error($email)) {
             $this->errorLog->error("Error sending email, check Email log");
@@ -822,7 +822,7 @@ class MSAPIScraper
      * @param Collection $studies_imported A Collection of studies that were imported
      * @param int        $num_not_imported The number of studies not imported as they're filtered out
      */
-    protected function emailerSetup(Collection $studies_imported, int $num_not_imported = 0)
+    protected function emailSetup(Collection $studies_imported, int $num_not_imported = 0)
     {
         /**
          * Merck Emailer
@@ -858,20 +858,13 @@ class MSAPIScraper
          * Adds the Trails data to Variables
          */
         if ($studies_imported->isNotEmpty()) {
-            //' There were updates to the trials listed in the system';
-            $total_studies = $studies_imported->count();
-            if ($total_studies > 1) {
-                $studies_imported = $studies_imported
-                    ->flatten(1);
-            }
-
             $new_posts     = collect();
             $trashed_posts = collect();
             $updated_posts = collect();
 
             $studies_imported
                 ->map(function ($study) use ($new_posts, $trashed_posts, $updated_posts) {
-                    $status = $study->get('POST_STATUS');
+                    $status = $study->get('POST_STATUS') ?? '';
                     if (is_string($status)) {
                         switch (strtolower($status)) {
                             case "draft":
@@ -891,6 +884,7 @@ class MSAPIScraper
                     return $study;
                 });
 
+            $total_found      = sprintf('<li>Total Found: %s</li>', $studies_imported->count());
             $new_posts        = sprintf('<li>New Trials: %s</li>', $new_posts->count());
             $trashed_posts    = sprintf('<li>Removed Trials: %s</li>', $trashed_posts->count());
             $num_not_imported = sprintf('<li>Trials Not Scraped: %s</li>', $num_not_imported ?? 0);
@@ -898,7 +892,7 @@ class MSAPIScraper
 
             $email_args['Variables']['trials'] = sprintf(
                 '<ul>%s</ul>',
-                $new_posts . $trashed_posts . $num_not_imported . $updated_posts
+                $total_found . $new_posts . $trashed_posts . $num_not_imported . $updated_posts
             );
         }
 
