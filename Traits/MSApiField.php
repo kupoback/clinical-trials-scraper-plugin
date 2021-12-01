@@ -358,7 +358,7 @@ trait MSApiField
                         return [
                             'city'              => $location->LocationCity ?? '',
                             'country'           => $location->LocationCountry ?? '',
-                            'facility'          => $location->LocationFacility ?? '',
+                            'facility'          => self::filterParenthesis($location->LocationFacility ?? ''),
                             'recruiting_status' => $location_status,
                             'state'             => $location->LocationState ?? '',
                             'zip'               => $location->LocationZip ?? '',

@@ -799,6 +799,26 @@ class MSAPIScraper
                         ->filter()
                         ->toArray()
                 );
+
+                /**
+                 * If a location isn't located by its facility name,
+                 * use the city, state, zip and country to get a lat/lng
+                 */
+                if (is_wp_error($gm_geocoder_data)) {
+                    $gm_geocoder_data = self::getFullLocation(
+                        collect(
+                            [
+                                $location['city'] ?? '',
+                                $location['state'] ?? '',
+                                $location['zip'] ?? ($location['zipcode'] ?? ''),
+                                $location['country'] ?? '',
+                            ]
+                        )
+                            ->filter()
+                            ->toArray()
+                    );
+                }
+
                 /**
                  * If the geolocation was successful, then retun the data as an array
                  */
