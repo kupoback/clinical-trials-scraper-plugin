@@ -78,6 +78,8 @@ trait MSGoogleMaps
      * Grabs the lat/lng for a place based on the address
      *
      * @param array $location
+     *
+     * @return false|mixed|WP_Error
      */
     protected function getLatLng(array $location = [])
     {
@@ -146,13 +148,13 @@ trait MSGoogleMaps
                 })
                 ->filter();
 
-            $subprem       = $address->pull('subpremise');
+            $subpremise       = $address->pull('subpremise');
             $street_number = $address->pull('street_number');
             $street_name   = $address->pull('route');
 
-            if ($subprem && $street_number && $street_name) {
-                $street_address = "{$subprem} {$street_number} {$street_name}";
-            } elseif (!$subprem && $street_number && $street_name) {
+            if ($subpremise && $street_number && $street_name) {
+                $street_address = "{$subpremise} {$street_number} {$street_name}";
+            } elseif (!$subpremise && $street_number && $street_name) {
                 $street_address = "{$street_number} {$street_name}";
             } else {
                 $street_address = $street_name ?: '';
@@ -199,7 +201,10 @@ trait MSGoogleMaps
             if ($body_res->status === 'OK' && !empty($body_res->results)) {
                 return $body_res->results[0];
             } else {
-                return new WP_Error($response->getStatusCode(), $body_res->error_message ?? '');
+                return new WP_Error(
+                    $response->getStatusCode(),
+                    "Unable to get location." . PHP_EOL . ($body_res->error_message ?? '')
+                );
             }
         }
 

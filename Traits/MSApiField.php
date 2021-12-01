@@ -49,7 +49,7 @@ trait MSApiField
 
         $title = '';
         if ($id_module->BriefTitle !== null) {
-            $title = preg_replace('#\([^)]+\)#i', '', strval($id_module->BriefTitle));
+            $title = self::filterParenthesis($id_module->BriefTitle);
         }
 
         return collect(
@@ -431,6 +431,18 @@ trait MSApiField
             return false;
         }
         return true;
+    }
+
+    /**
+     * Quick filter to remove items with parenthesis in them
+     *
+     * @param string $text The text to filter parenthesis out of
+     *
+     * @return null|array|string|string[]
+     */
+    protected function filterParenthesis(string $text)
+    {
+        return preg_replace('#\([^)]+\)#i', '', strval($text));
     }
 
     /**

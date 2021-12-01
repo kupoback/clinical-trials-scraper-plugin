@@ -40,11 +40,11 @@ class MSAPIScraper
 
     //region Class Vars
     /**
-     * Array for who the email needs to be sent to
+     * Array for whom the email needs to be sent to
      *
-     * @var string[][]
+     * @var array|Collection
      */
-    private Collection $sendTo;
+    private $sendTo;
 
     /**
      * The base url for the clinical trials gov't website
@@ -54,23 +54,16 @@ class MSAPIScraper
     private string $baseUrl = 'https://clinicaltrials.gov/api/query';
 
     /**
-     * Default array of allowed keywords for HTTP Request
-     *
-     * @var array|string[]
-     */
-    private Collection $allowedKeywords;
-
-    /**
      * Default array of keywords for HTTP request
      *
-     * @var array|string[]
+     * @var Collection
      */
     private Collection $disallowedConditions;
 
     /**
      * Trial ACF Field Names
      *
-     * @var array|string[]
+     * @var Collection
      */
     private Collection $acfFields;
 
@@ -95,9 +88,17 @@ class MSAPIScraper
      */
     private Carbon $nowTime;
 
+    /**
+     * The total number of trials found
+     * @var int
+     */
     private int $totalFound;
 
-    private $ageRanges;
+    /**
+     * Sets a collection of age ranges defined in the WP-Admin
+     * @var Collection
+     */
+    private Collection $ageRanges;
 
     private array $postDefault = [
         'post_title' => '',
@@ -128,8 +129,8 @@ class MSAPIScraper
         $this->nowTime = Carbon::now();
 
         $timestamp      = $this->nowTime->timestamp;
-        $this->errorLog = self::initLogger("api-error", "error-{$timestamp}", "{$apiLogDirectory}/error");
-        $this->apiLog   = self::initLogger("api-import", "api-{$timestamp}", "{$apiLogDirectory}/log", Logger::INFO);
+        $this->errorLog = self::initLogger("api-error", "error-$timestamp", "$apiLogDirectory/error");
+        $this->apiLog   = self::initLogger("api-import", "api-$timestamp", "$apiLogDirectory/log", Logger::INFO);
     }
 
     /**
@@ -159,7 +160,7 @@ class MSAPIScraper
     /**
      * This method executes the DB Scrapper making the API call to grab the new contents
      *
-     * @param WP_REST_Request $request
+     * @param null|WP_REST_Request $request
      *
      * @return WP_Error|WP_HTTP_Response|WP_REST_Response
      * @throws Exception
@@ -172,7 +173,7 @@ class MSAPIScraper
         ini_set('memory_limit', '2048M');
         ini_set('post_max_size', '1024M');
 
-        $nctid_field      = $request['nctidField'] ?? false;
+        $nct_id_field      = $request['nctidField'] ?? false;
         $arr_data         = true;
         $num_not_imported = 0;
 
@@ -182,11 +183,11 @@ class MSAPIScraper
         /**
          * If pulling in specific trial ID's, ignore the above
          */
-        if ($nctid_field) {
-            $expression = collect(MSHelper::textareaToArr($nctid_field))
+        if ($nct_id_field) {
+            $expression = collect(MSHelper::textareaToArr($nct_id_field))
                 ->filter()
                 ->map(function ($nct_id) {
-                    return "(AREA[NCTId]{$nct_id})";
+                    return "(AREA[NCTId]$nct_id)";
                 })
                 ->implode(' OR ');
         } else {
@@ -386,7 +387,6 @@ class MSAPIScraper
         }
 
         $email = self::emailSetup($studies_imported, $num_not_imported);
-
         if (is_wp_error($email)) {
             $this->errorLog->error("Error sending email, check Email log");
         }
@@ -431,11 +431,9 @@ class MSAPIScraper
     /**
      * A separated loop to handle pagination of posts
      *
-     * @param Collection $api_data         The return data from the API, filtered through a Collection
-     * @param int        $current_position The current position of the import
-     * @param int        $total_found      The number of items found
+     * @param Collection $studies
      *
-     * @throws Exception
+     * @return array|int
      */
     private function studyImportLoop(Collection $studies)
     {
@@ -514,7 +512,7 @@ class MSAPIScraper
         $trial_status   = sanitize_title($status_module->get('trial_status'));
         $allowed_status = ['recruiting', 'active-not-recruiting'];
 
-        // Setup the post data
+        // Set up the post data
         $parse_args = self::parsePostArgs(
             [
                 'title'   => $id_module->get('post_title'),
@@ -592,9 +590,9 @@ class MSAPIScraper
             ],
         );
 
-        $message = "Imported with post status set to {$status}";
+        $message = "Imported with post status set to $status";
 
-        // Update the post meta if the trial is marked as allowed by it's trial status
+        // Update the post meta if the trial is marked as allowed by its trial status
         if (!$do_not_import) {
             $acf_fields = $this->acfFields;
 
@@ -603,6 +601,7 @@ class MSAPIScraper
              */
             if ($acf_fields->isNotEmpty()) {
                 // Set up our collection to pull data from
+                //region Field Data Setup
                 $field_data = collect([])
                     ->put('nct_id', $nct_id)
                     ->put('url', $id_module->get('url'))
@@ -621,7 +620,9 @@ class MSAPIScraper
                     // ->put('interventions', $arms_module->get('interventions'))
                     ->put('phase', $design_module->get('phase'))
                     ->put('locations', $contact_module->get('locations'));
+                //endregion
 
+                //region Field Data Import
                 // Map through our fields and update their values
                 $acf_fields
                     ->map(function ($field) use ($field_data, $nct_id, $post_id, $return) {
@@ -632,12 +633,11 @@ class MSAPIScraper
                                 // Retrieve the data based on the parent data_name
                                 $arr_data = $field_data->get($data_name) ?? false;
 
+                                //region Locations
                                 /**
-                                 * Since we're dealing with locations, we'll need to get the geolocation for each location
-                                 * To help save on API calls made for each import, we only need to update if the latitude
-                                 * or longitude doesn't exist.
-                                 *
-                                 * @TODO Look into finding a better way to check if location change or what not
+                                 * Since we're dealing with locations, we'll need to get the geolocation for each
+                                 * location to help save on API calls made for each import, we only need to update
+                                 * if the latitude or longitude doesn't exist.
                                  */
                                 if ($data_name === 'locations') {
                                     /**
@@ -656,6 +656,7 @@ class MSAPIScraper
                                             ->error("Skipping geocode setup as there's no Google Maps Key set");
                                     }
                                 }
+                                //endregion
 
                                 if ($arr_data) {
                                     return self::updateACF($field['name'], $arr_data, $post_id);
@@ -686,8 +687,10 @@ class MSAPIScraper
 
                         return self::updateACF($field['name'], $field_data->get($data_name), $post_id);
                     });
+                //endregion
             }
 
+            //region Taxonomy Setup
             /**
              * Setup the taxonomy terms
              */
@@ -731,25 +734,28 @@ class MSAPIScraper
                  *
                  * @returns array
                  */
-                $this->ageRanges
-                    ->each(function ($term) use ($min_age, $max_age, $post_id) {
-                        $term_min_age = intval($term['min_age']);
-                        $term_max_age = intval($term['max_age']);
-                        if (self::inBetween($term_min_age, $min_age, $max_age)
-                            || self::inBetween($term_max_age, $min_age, $max_age)
-                        ) {
-                            /**
-                             * For whatever reason, the comparison has to be if set equal
-                             * instead of the opposite. Might be due to type comparison
-                             * as well as value comparison.
-                             */
-                            return ($min_age === 0 && $max_age === 999)
-                                ? []
-                                : wp_set_object_terms($post_id, $term['slug'], 'trial_age', true);
-                        }
-                        return [];
-                    });
+                if ($this->ageRanges->isNotEmpty()) {
+                    $this->ageRanges
+                        ->each(function ($term) use ($min_age, $max_age, $post_id) {
+                            $term_min_age = intval($term['min_age']);
+                            $term_max_age = intval($term['max_age']);
+                            if (self::inBetween($term_min_age, $min_age, $max_age)
+                                || self::inBetween($term_max_age, $min_age, $max_age)
+                            ) {
+                                /**
+                                 * For whatever reason, the comparison has to be if set equal
+                                 * instead of the opposite. Might be due to type comparison
+                                 * as well as value comparison.
+                                 */
+                                return ($min_age === 0 && $max_age === 999)
+                                    ? []
+                                    : wp_set_object_terms($post_id, $term['slug'], 'trial_age', true);
+                            }
+                            return [];
+                        });
+                }
             }
+            //endregion
         }
 
         $return->put('ID', $post_id);
@@ -777,14 +783,16 @@ class MSAPIScraper
     {
         return $arr_data
             ->map(function ($location) use ($nct_id) {
-                $facility         = $location['facility'] ?? '';
+                // Grab and filter the facility
+                $facility = self::filterParenthesis($location['facility'] ?? '');
+
                 $gm_geocoder_data = self::getFullLocation(
                     collect(
                         [
                             $facility,
                             $location['city'] ?? '',
                             $location['state'] ?? '',
-                            $location['zipcode'] ?? '',
+                            $location['zip'] ?? ($location['zipcode'] ?? ''),
                             $location['country'] ?? '',
                         ]
                     )
@@ -796,6 +804,11 @@ class MSAPIScraper
                  */
                 if (!is_wp_error($gm_geocoder_data)) {
                     $gm_geocoder_data
+                        // Use default grabbed City/State from API, otherwise default to what google grabbed
+                        ->put('city', $location['city'] ?? ($gm_geocoder_data->city ?? ''))
+                        ->put('state', $location['state'] ?? ($gm_geocoder_data->city ?? ''))
+                        ->put('country', $location['country'] ?? ($gm_geocoder_data->country ?? ''))
+                        // Add facility, recruiting status and phone number to the collection
                         ->put('facility', $facility)
                         ->put('recruiting_status', ($location['recruiting_status'] ?? ''))
                         ->put('phone', ($location['phone'] ?? ''));
@@ -806,7 +819,7 @@ class MSAPIScraper
 
                 $this->errorLog
                     ->error(
-                        "Unable to get geocode for {$nct_id}\r\n",
+                        "Unable to get geocode for $nct_id\r\n",
                         (array) $gm_geocoder_data->errors
                     );
                 return $location;
@@ -838,7 +851,7 @@ class MSAPIScraper
         global $aio_wp_security;
         if ($aio_wp_security && $aio_wp_security->configs->get_value('aiowps_enable_rename_login_page') === '1') {
             $home_url  = trailingslashit(home_url()) . (!get_option('permalink_structure') ? '?' : '');
-            $login_url = "{$home_url}{$aio_wp_security->configs->get_value('aiowps_login_page_slug')}";
+            $login_url = "$home_url{$aio_wp_security->configs->get_value('aiowps_login_page_slug')}";
         }
 
         /**
@@ -910,8 +923,12 @@ class MSAPIScraper
      *
      * @return false|Logger
      */
-    public function setLogger(string $name, string $file_name, string $file_path = MERCK_SCRAPER_LOG_DIR, int $logger_type = Logger::ERROR)
-    {
+    public function setLogger(
+        string $name,
+        string $file_name,
+        string $file_path = MERCK_SCRAPER_LOG_DIR,
+        int $logger_type = Logger::ERROR
+    ) {
         return self::initLogger($name, $file_name, $file_path, $logger_type);
     }
 }
