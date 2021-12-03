@@ -31,9 +31,7 @@ trait MSEmailTrait
             $api_key,
             $api_secret,
             true,
-            [
-                'version' => 'v3.1',
-            ]
+            ['version' => 'v3.1',]
         );
     }
 }

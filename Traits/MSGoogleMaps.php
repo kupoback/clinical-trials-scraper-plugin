@@ -126,10 +126,11 @@ trait MSGoogleMaps
                     return $types->isNotEmpty();
                 })
                 ->mapWithKeys(function ($array) {
-                    $types    = collect($array->types)
+                    $types = collect($array->types)
                         ->filter(function ($type) {
                             return $type !== 'political';
                         });
+
                     $the_type = $types->first();
                     switch ($the_type) {
                         case "locality":
@@ -148,7 +149,7 @@ trait MSGoogleMaps
                 })
                 ->filter();
 
-            $subpremise       = $address->pull('subpremise');
+            $subpremise    = $address->pull('subpremise');
             $street_number = $address->pull('street_number');
             $street_name   = $address->pull('route');
 
@@ -175,39 +176,44 @@ trait MSGoogleMaps
      */
     protected function googleMapsApiCB(string $address)
     {
-        $geocode_api_key  = self::acfOptionField('google_maps_server_side_api_key');
-        $response = self::httpCallback(
-            $this->googleApiUrl,
-            $this->geoCodeEP,
-            "GET",
-            [
-                'address' => $address,
-                'key'     => $geocode_api_key,
-            ],
-            [
-                'http_args' => [
-                    'delay' => 200,
-                ],
-                'guzzle'    => [
-                    'verify' => true,
-                ],
-            ]
-        );
+        $geocode_api_key = self::acfOptionField('google_maps_server_side_api_key');
 
-        if ($response->getStatusCode() == '200') {
-            $body_res = (string) $response->getBody();
-            $body_res = json_decode($body_res);
+        if ($geocode_api_key) {
+            $response = self::httpCallback(
+                $this->googleApiUrl,
+                $this->geoCodeEP,
+                "GET",
+                [
+                    'address' => $address,
+                    'key'     => $geocode_api_key,
+                ],
+                [
+                    'http_args' => [
+                        'delay' => 200,
+                    ],
+                    'guzzle'    => [
+                        'verify' => true,
+                    ],
+                ]
+            );
 
-            if ($body_res->status === 'OK' && !empty($body_res->results)) {
-                return $body_res->results[0];
-            } else {
-                return new WP_Error(
-                    $response->getStatusCode(),
-                    "Unable to get location." . PHP_EOL . ($body_res->error_message ?? '')
-                );
+            if ($response->getStatusCode() == '200') {
+                $body_res = (string) $response->getBody();
+                $body_res = json_decode($body_res);
+
+                if ($body_res->status === 'OK' && !empty($body_res->results)) {
+                    return $body_res->results[0];
+                } else {
+                    return new WP_Error(
+                        $response->getStatusCode(),
+                        "Unable to get location." . PHP_EOL . ($body_res->error_message ?? '')
+                    );
+                }
             }
+
+            return new WP_Error(400, __("There was an error with the Google Maps Call"));
         }
 
-        return new WP_Error(300, __("There was an error with the Google Maps Call"));
+        return new WP_Error(412, __("No Google Maps API key provided", 'merck-scraper'));
     }
 }

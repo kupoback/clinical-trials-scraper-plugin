@@ -51,6 +51,25 @@
             "placeholder": ""
         },
         {
+            "key": "field_61a9475f8167f",
+            "label": "Allowed Conditions",
+            "name": "allowed_conditions",
+            "type": "textarea",
+            "instructions": "<p>Please enter in one field per line, or semi-colon separate the field names.<\/p>\r\n<p>These fields will be used to search the API.<\/p>",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": "",
+            "new_lines": ""
+        },
+        {
             "key": "field_61310869e2abf",
             "label": "Disallowed Conditions",
             "name": "disallowed_conditions",
@@ -63,7 +82,7 @@
                 "class": "",
                 "id": ""
             },
-            "default_value": "cancer\r\ncarcinoma\r\nmelanoma\r\nneoplasm\r\ntumor\r\nlymphoma\r\nmetastatic",
+            "default_value": "",
             "placeholder": "",
             "maxlength": "",
             "rows": "",
@@ -485,7 +504,7 @@
                 "conditions": "Conditions",
                 "trial_ta": "Therapeutic Area"
             },
-            "default_value": "conditions",
+            "default_value": "trial_ta",
             "allow_null": 0,
             "multiple": 0,
             "ui": 1,
@@ -549,5 +568,5 @@
     "active": true,
     "description": "Option Settings for the Merck Scraper Plugin",
     "show_in_rest": 0,
-    "modified": 1638205343
+    "modified": 1638484551
 }

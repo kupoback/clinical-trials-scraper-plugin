@@ -31,8 +31,12 @@ trait MSLoggerTrait
      *
      * @link Monolog https://github.com/Seldaek/monolog
      */
-    protected function initLogger(string $name, $file_name, string $file_path = MERCK_SCRAPER_LOG_DIR, int $logger_type = Logger::ERROR)
-    {
+    protected function initLogger(
+        string $name,
+        $file_name,
+        string $file_path = MERCK_SCRAPER_LOG_DIR,
+        int $logger_type = Logger::ERROR
+    ) {
         if (!$name || !$file_name) {
             return false;
         }

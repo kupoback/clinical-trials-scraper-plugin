@@ -17,13 +17,14 @@ class MSHelper
 {
 
     /**
-     * A basic method to check if an array is single level or multi-dimensional
+     * A basic method to check if an array is single level or multidimensional
      *
      * @param array $array The array to iterate through
      *
      * @return bool
      */
     public static function isMultiArray(array $array)
+    :bool
     {
         rsort($array);
         return isset($array[0]) && is_array($array[0]);
@@ -71,16 +72,20 @@ class MSHelper
      * @return string
      */
     public static function formatTextarea(string $sanitized_field)
+    :string
     {
-        $sanitized_field = sanitize_textarea_field($sanitized_field);
-        $sanitized_field = preg_replace('/\W/', ' ', $sanitized_field);
-        $sanitized_field = preg_replace('/\s+/', ' ', $sanitized_field);
-        $sanitized_field = trim($sanitized_field);
-        $sanitized_field = explode(' ', $sanitized_field);
-        $sanitized_field = collect($sanitized_field);
-        return $sanitized_field
-            ->unique()
-            ->implode(';' . PHP_EOL);
+        if ($sanitized_field) {
+            $sanitized_field = sanitize_textarea_field($sanitized_field);
+            $sanitized_field = preg_replace('/\W/', ' ', $sanitized_field);
+            $sanitized_field = preg_replace('/\s+/', ' ', $sanitized_field);
+            $sanitized_field = trim($sanitized_field);
+            $sanitized_field = explode(' ', $sanitized_field);
+            $sanitized_field = collect($sanitized_field);
+            return $sanitized_field
+                ->unique()
+                ->implode(';' . PHP_EOL);
+        }
+        return '';
     }
 
     /**
@@ -92,10 +97,14 @@ class MSHelper
      * @return array
      */
     public static function textareaToArr(string $field)
+    :array
     {
-        $field = str_replace(';', '\n', $field);
-        $field = preg_replace('!\s+!', '\n', $field);
-        $field = explode('\n', $field);
-        return array_map('trim', $field);
+        if ($field) {
+            $field = str_replace(';', '\n', $field);
+            $field = preg_replace('!\s+!', '\n', $field);
+            $field = explode('\n', $field);
+            return array_map('trim', $field);
+        }
+        return [];
     }
 }

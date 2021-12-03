@@ -40,12 +40,17 @@ trait MSApiTrait
      *
      * @param string $route      The route name
      * @param string $rest_type
-     * @param string $callback   The method callback
+     * @param array $callback   The method callback
      * @param string $query_args Any query args for the route name
      * @param array  $args       Any args for the route
      */
-    protected function registerRoute(string $route = '', $rest_type = WP_REST_Server::READABLE, array $callback = [], string $query_args = '', array $args = [])
-    {
+    protected function registerRoute(
+        string $route = '',
+        string $rest_type = WP_REST_Server::READABLE,
+        array  $callback = [],
+        string $query_args = '',
+        array  $args = []
+    ) {
         $rest_prefix = "{$this->apiNamespace}/{$this->apiVersion}";
 
         if ($query_args) {
@@ -95,7 +100,8 @@ trait MSApiTrait
                             'fileDate' => Carbon::createFromTimestamp(
                                 filemtime($file_with_path),
                                 'America/New_York'
-                            )->format('F j, Y g:i A'),
+                            )
+                                                ->format('F j, Y g:i A'),
                             'fileName' => $file,
                         ];
                     });

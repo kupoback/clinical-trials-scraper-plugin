@@ -141,17 +141,4 @@ class MSOptionsPage
             $helper,
         );
     }
-
-    protected function formatTextarea($sanitized_field)
-    {
-        $sanitized_field = sanitize_textarea_field($sanitized_field);
-        $sanitized_field = preg_replace('/\W/', ' ', $sanitized_field);
-        $sanitized_field = preg_replace('/\s+/', ' ', $sanitized_field);
-        $sanitized_field = trim($sanitized_field);
-        $sanitized_field = explode(' ', $sanitized_field);
-        $sanitized_field = collect($sanitized_field);
-        return $sanitized_field
-            ->unique()
-            ->implode(';' . PHP_EOL);
-    }
 }

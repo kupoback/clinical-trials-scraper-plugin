@@ -54,7 +54,14 @@ class MSAPIScraper
     private string $baseUrl = 'https://clinicaltrials.gov/api/query';
 
     /**
-     * Default array of keywords for HTTP request
+     * Default array of keywords to search for via HTTP request
+     *
+     * @var Collection
+     */
+    private Collection $allowedConditions;
+
+    /**
+     * Default array of keywords to omit from searching for via HTTP request
      *
      * @var Collection
      */
@@ -126,6 +133,15 @@ class MSAPIScraper
             )
         );
 
+        /**
+         * Collection of the allowed conditions
+         */
+        $this->allowedConditions = collect(
+            MSHelper::textareaToArr(
+                self::acfStrOptionFld('allowed_conditions')
+            )
+        );
+
         $this->nowTime = Carbon::now();
 
         $timestamp      = $this->nowTime->timestamp;
@@ -174,7 +190,6 @@ class MSAPIScraper
         ini_set('post_max_size', '1024M');
 
         $nct_id_field      = $request['nctidField'] ?? false;
-        $arr_data         = true;
         $num_not_imported = 0;
 
         $starting_rank = self::acfOptionField('min_import_rank') ?: 1;
@@ -205,21 +220,33 @@ class MSAPIScraper
                     "AREA[ConditionSearch] NOT ({$this->disallowedConditions->implode(' OR ')})"
                 );
             }
+
+            // Keywords that are allowed
+            if ($this->allowedConditions->isNotEmpty()) {
+                $expression->push(
+                    "AREA[ConditionSearch] ({$this->allowedConditions->implode(' OR ')})"
+                );
+            }
+
             // Trial Status Search type
             $expression->push(
                 self::acfOptionField('clinical_trials_api_status_search')
                     ?: 'AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( "Recruiting" OR "Not yet recruiting" )'
             );
+
             // Trial Location search
             $expression->push(
                 self::acfOptionField('clinical_trials_api_location_search')
                     ?: '( AREA[LocationCountry] "United States" OR CONST[0.95] )'
             );
+
             // Trial sponsor search name
             $expression->push(
                 self::acfOptionField('clinical_trials_api_sponsor_search')
                     ?: '( AREA[LeadSponsorName] "Merck Sharp & Dohme Corp." )'
             );
+
+            // Expression builder
             $expression = $expression
                 ->filter()
                 ->implode(' AND ');
@@ -229,8 +256,7 @@ class MSAPIScraper
          * Grab the data from the gov't site
          */
         $client_args = [
-            'expr'    => $expression
-            ,
+            'expr'    => $expression,
             'min_rnk' => $starting_rank,
             'max_rnk' => $max_rank,
         ];
@@ -245,9 +271,7 @@ class MSAPIScraper
             '/api/query/full_studies',
             "GET",
             $client_args,
-            [
-                'delay' => 120,
-            ]
+            ['delay' => 120,]
         );
 
         // Check that our HTTP request was successful
@@ -282,7 +306,9 @@ class MSAPIScraper
                             $max_age = $age_ranges['maximum_age'] ?: 999;
                         } else {
                             // Log an error if there is no age range set for the term
-                            $this->errorLog->error(__("Please ensure you set an age range", 'merck-scraper'));
+                            $this
+                                ->errorLog
+                                ->error(__("Please ensure you set an age range", 'merck-scraper'));
                         }
 
                         return [
@@ -318,9 +344,7 @@ class MSAPIScraper
                             '/api/query/full_studies',
                             "GET",
                             $client_args,
-                            [
-                                'delay' => 120,
-                            ]
+                            ['delay' => 120,]
                         );
 
                         if (!is_wp_error($client_http)) {
@@ -330,7 +354,8 @@ class MSAPIScraper
                             // Set data root to first object key
                             $api_data = $api_data->FullStudiesResponse ?? null;
                         } else {
-                            $this->errorLog
+                            $this
+                                ->errorLog
                                 ->error(
                                     sprintf(
                                         '%s %s - %s',
@@ -339,6 +364,7 @@ class MSAPIScraper
                                         $client_args['max_rnk']
                                     )
                                 );
+
                             $this
                                 ->errorLog
                                 ->error(json_decode($client_http->getBody()->getContents()));
@@ -378,17 +404,20 @@ class MSAPIScraper
             } else {
                 $this
                     ->errorLog
-                    ->error(
-                        __("No studies were found", 'merck-scraper')
-                    );
+                    ->error(__("No studies were found", 'merck-scraper'));
             }
         } else {
-            $this->errorLog->error($client_http->get_error_message());
+            $this
+                ->errorLog
+                ->error($client_http
+                            ->get_error_message());
         }
 
         $email = self::emailSetup($studies_imported, $num_not_imported);
         if (is_wp_error($email)) {
-            $this->errorLog->error("Error sending email, check Email log");
+            $this
+                ->errorLog
+                ->error("Error sending email, check Email log");
         }
 
         // Restore the max_execution_time
@@ -400,7 +429,7 @@ class MSAPIScraper
         // Clear position
         self::clearPosition();
 
-        return rest_ensure_response($arr_data);
+        return rest_ensure_response(true);
     }
 
     /**
@@ -456,12 +485,17 @@ class MSAPIScraper
                                 ->get('Study')
                                 ->ProtocolSection
                         ),
-                        $study->Study->ProtocolSection->Rank
+                        $study
+                            ->Study
+                            ->ProtocolSection
+                            ->Rank
                     );
                 })
                 ->filter();
 
-            $this->apiLog->info("Imported {$studies->count()} Studies", $studies->toArray());
+            $this
+                ->apiLog
+                ->info("Imported {$studies->count()} Studies", $studies->toArray());
 
             return [
                 'numOfStudies' => $studies->count(),
@@ -492,14 +526,14 @@ class MSAPIScraper
         $contact_module   = self::parseLocation($field_data->get('ContactsLocationsModule'));
         $desc_module      = self::parseDescription($field_data->get('DescriptionModule'));
         $design_module    = self::parseDesign($field_data->get('DesignModule'));
-        $eligibile_module = self::parseEligibility($field_data->get('EligibilityModule'));
+        $eligible_module = self::parseEligibility($field_data->get('EligibilityModule'));
         $id_module        = self::parseId($field_data->get('IdentificationModule'));
         $status_module    = self::parseStatus($field_data->get('StatusModule'));
         $sponsor_module   = self::parseSponsors($field_data->get('SponsorCollaboratorsModule'));
         //endregion
 
         // Not currently used field mappings
-        // $oversite_module = $field_data->get('OversightModule');
+        // $oversight_module = $field_data->get('OversightModule');
         // $outcome_module   = self::parseOutcome($field_data->get('OutcomesModule'));
         // $ipd_module = self::parseIDP($field_data->get('IPDSharingStatementModule'));
 
@@ -515,15 +549,17 @@ class MSAPIScraper
         // Set up the post data
         $parse_args = self::parsePostArgs(
             [
-                'title'   => $id_module->get('post_title'),
+                'title'   => $id_module
+                    ->get('post_title'),
                 'slug'    => $nct_id,
-                'content' => $desc_module->get('post_content'),
+                'content' => $desc_module
+                    ->get('post_content'),
             ]
         );
 
         $post_args = collect(wp_parse_args($parse_args, $this->postDefault));
 
-        // Update some parameters to not import the post OR set it's status to trash
+        // Update some parameters to not import the post OR set its status to trash
         if (!in_array($trial_status, $allowed_status)) {
             $do_not_import = true;
             $post_args->put('post_status', 'trash');
@@ -541,7 +577,8 @@ class MSAPIScraper
             }
 
             // All new trials are set to draft status
-            $post_args->put('post_status', 'draft');
+            $post_args
+                ->put('post_status', 'draft');
             // Set up the post for creation
             $post_id = wp_insert_post(
                 $post_args
@@ -550,8 +587,10 @@ class MSAPIScraper
             );
         } else {
             // Updating our post
-            $post_args->put('ID', $post_id);
-            $post_args->forget(['post_title', 'post_content',]);
+            $post_args
+                ->put('ID', $post_id);
+            $post_args
+                ->forget(['post_title', 'post_content',]);
             wp_update_post(
                 $post_args
                     ->toArray(),
@@ -572,9 +611,11 @@ class MSAPIScraper
                     "Error importing post",
                     [
                         'ID'    => $post_id ?? 0,
-                        'NAME'  => $post_args->get('post_title'),
+                        'NAME'  => $post_args
+                            ->get('post_title'),
                         'NCDID' => $nct_id,
-                        'error' => $post_id->get_error_message(),
+                        'error' => $post_id
+                            ->get_error_message(),
                     ]
                 );
 
@@ -613,9 +654,9 @@ class MSAPIScraper
                     ->put('primary_completion_date', $status_module->get('primary_completion_date'))
                     ->put('completion_date', $status_module->get('completion_date'))
                     ->put('lead_sponsor_name', $sponsor_module->get('lead_sponsor_name'))
-                    ->put('gender', $eligibile_module->get('gender'))
-                    ->put('minimum_age', $eligibile_module->get('minimum_age'))
-                    ->put('maximum_age', $eligibile_module->get('maximum_age'))
+                    ->put('gender', $eligible_module->get('gender'))
+                    ->put('minimum_age', $eligible_module->get('minimum_age'))
+                    ->put('maximum_age', $eligible_module->get('maximum_age'))
                     ->put('other_ids', $id_module->get('other_ids'))
                     // ->put('interventions', $arms_module->get('interventions'))
                     ->put('phase', $design_module->get('phase'))
@@ -674,7 +715,8 @@ class MSAPIScraper
                                         ->get($data_name)
                                         ->implode(PHP_EOL);
                                 } else {
-                                    $field_data = $field_data->get($data_name);
+                                    $field_data = $field_data
+                                        ->get($data_name);
                                 }
                                 return self::updateACF(
                                     $field['name'],
@@ -721,12 +763,12 @@ class MSAPIScraper
                     });
             }
 
-            if ($eligibile_module->get('minimum_age') || $eligibile_module->get('maximum_age')) {
+            if ($eligible_module->get('minimum_age') || $eligible_module->get('maximum_age')) {
                 // Reset the Trial Age terms, in case the ages previously imported have changed.
                 wp_delete_object_term_relationships($post_id, 'trial_age');
 
-                $min_age = intval($eligibile_module->get('minimum_age'));
-                $max_age = intval($eligibile_module->get('maximum_age'));
+                $min_age = intval($eligible_module->get('minimum_age'));
+                $max_age = intval($eligible_module->get('maximum_age'));
 
                 /**
                  * Loop through the Trial Age Ranges set, and match the trial with
@@ -837,7 +879,8 @@ class MSAPIScraper
                         ->toArray();
                 }
 
-                $this->errorLog
+                $this
+                    ->errorLog
                     ->error(
                         "Unable to get geocode for $nct_id\r\n",
                         (array) $gm_geocoder_data->errors
@@ -881,7 +924,8 @@ class MSAPIScraper
             'TemplateLanguage' => true,
             'TemplateID'       => (int) (self::acfOptionField('api_email_template_id') ?? 0),
             'Variables'        => [
-                'timestamp' => $this->nowTime->format("l F j, Y h:i A"),
+                'timestamp' => $this->nowTime
+                    ->format("l F j, Y h:i A"),
                 'trials'    => '',
                 'wplogin'   => $login_url,
             ],
@@ -897,18 +941,22 @@ class MSAPIScraper
 
             $studies_imported
                 ->map(function ($study) use ($new_posts, $trashed_posts, $updated_posts) {
-                    $status = $study->get('POST_STATUS') ?? '';
+                    $status = $study
+                            ->get('POST_STATUS') ?? '';
                     if (is_string($status)) {
                         switch (strtolower($status)) {
                             case "draft":
                             case "pending":
-                                $new_posts->push($study);
+                                $new_posts
+                                    ->push($study);
                                 break;
                             case "trash":
-                                $trashed_posts->push($study);
+                                $trashed_posts
+                                    ->push($study);
                                 break;
                             case "publish":
-                                $updated_posts->push($study);
+                                $updated_posts
+                                    ->push($study);
                                 break;
                             default:
                                 break;
@@ -930,7 +978,8 @@ class MSAPIScraper
         }
 
         // Email notification on completion
-        return (new MSMailer())->mailer($this->sendTo, $email_args);
+        return (new MSMailer())
+            ->mailer($this->sendTo, $email_args);
     }
 
     /**

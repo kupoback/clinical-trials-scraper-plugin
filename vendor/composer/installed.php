@@ -1,11 +1,11 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'eb01b19cb7efb0f716c135760cbde505f3fe0e35',
+        'reference' => 'a321186179d8d83398a0188c7ded60091ba2e8df',
         'name' => 'mak/merck-scraper',
         'dev' => true,
     ),
@@ -161,12 +161,12 @@
             'dev_requirement' => false,
         ),
         'mak/merck-scraper' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'eb01b19cb7efb0f716c135760cbde505f3fe0e35',
+            'reference' => 'a321186179d8d83398a0188c7ded60091ba2e8df',
             'dev_requirement' => false,
         ),
         'mockery/mockery' => array(
@@ -188,12 +188,12 @@
             'dev_requirement' => false,
         ),
         'nesbot/carbon' => array(
-            'pretty_version' => '2.54.0',
-            'version' => '2.54.0.0',
+            'pretty_version' => '2.55.1',
+            'version' => '2.55.1.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../nesbot/carbon',
             'aliases' => array(),
-            'reference' => 'eed83939f1aed3eee517d03a33f5ec587ac529b5',
+            'reference' => '67f34dc7a8a97fcb9b26e60ec3819b856764d60f',
             'dev_requirement' => false,
         ),
         'php-http/async-client-implementation' => array(
@@ -361,7 +361,7 @@
             'type' => 'metapackage',
             'install_path' => NULL,
             'aliases' => array(),
-            'reference' => '77e3164498038272fa04997a9a8bab22f1d665ab',
+            'reference' => '344cf93f6b42a7bcd6169654b64fb953a5a85bea',
             'dev_requirement' => true,
         ),
         'squizlabs/php_codesniffer' => array(
@@ -401,12 +401,12 @@
             'dev_requirement' => false,
         ),
         'symfony/translation' => array(
-            'pretty_version' => 'v5.3.11',
-            'version' => '5.3.11.0',
+            'pretty_version' => 'v5.4.0',
+            'version' => '5.4.0.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/translation',
             'aliases' => array(),
-            'reference' => '17a965c8f3b1b348cf15d903ac53942984561f8a',
+            'reference' => '6fe32b10e912a518805bc9eafc2a87145773cf13',
             'dev_requirement' => false,
         ),
         'symfony/translation-contracts' => array(

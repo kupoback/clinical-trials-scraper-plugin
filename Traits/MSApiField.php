@@ -496,7 +496,7 @@ trait MSApiField
                                         'default_value' => $sub_field['default_value'] ?? false,
                                         'key'           => $sub_field['key'] ?? false,
                                         'name'          => $sub_field['name'] ?? false,
-                                        'type'          => $sub_field['type'] ?? false,
+                                        'type'          => $sub_field['type'],
                                     ];
                                 }
                                 return false;

@@ -200,12 +200,15 @@ class MSUserLocation
             $first_result = $results->first();
             return [
                 'err'         => false,
-                'zipcode'     => $first_result->getPostalCode(),
+                'zipcode'     => $first_result
+                    ->getPostalCode(),
                 'coordinates' => [
-                    'lat' => $first_result->getCoordinates()
-                                          ->getLatitude(),
-                    'lng' => $first_result->getCoordinates()
-                                          ->getLongitude(),
+                    'lat' => $first_result
+                        ->getCoordinates()
+                        ->getLatitude(),
+                    'lng' => $first_result
+                        ->getCoordinates()
+                        ->getLongitude(),
                 ],
             ];
         }

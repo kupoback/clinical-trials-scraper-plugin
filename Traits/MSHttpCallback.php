@@ -92,15 +92,20 @@ trait MSHttpCallback
      * Basic HTTP callback for anything else needed on the site
      *
      * @param string $api_base      The base URL we're calling to
-     * @param string $endpoint_path The endpoing relative to the $api_base
+     * @param string $endpoint_path The endpoint relative to the $api_base
      * @param string $request_type  The request type
      * @param array  $query_args    Any query args passed to the endpoint
      * @param array  $guzzle_args   Any additional args needed for the HTTP, either http_args or guzzle_args
      *
      * @return ResponseInterface|void|WP_Error
      */
-    protected function httpCallback(string $api_base, string $endpoint_path, string $request_type = "GET", array $query_args = [], array $guzzle_args = [])
-    {
+    protected function httpCallback(
+        string $api_base,
+        string $endpoint_path,
+        string $request_type = "GET",
+        array $query_args = [],
+        array $guzzle_args = []
+    ) {
         if ($api_base) {
             $handler_stack = HandlerStack::create(new CurlHandler());
             $handler_stack->push(Middleware::retry(self::retryCall(), self::retryDelay()));
