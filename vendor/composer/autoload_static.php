@@ -16,6 +16,7 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         'a1105708a18b76903365ca1c4aa61b02' => __DIR__ . '/..' . '/symfony/translation/Resources/functions.php',
+        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '11298418fac2d36d6d38c7c3efc5b206' => __DIR__ . '/..' . '/10quality/wp-query-builder/src/Lib/functions.php',
         '72579e7bd17821bb1321b87411366eae' => __DIR__ . '/..' . '/illuminate/support/helpers.php',
     );
@@ -30,6 +31,7 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
         array (
             'Symfony\\Polyfill\\Php80\\' => 23,
             'Symfony\\Polyfill\\Mbstring\\' => 26,
+            'Symfony\\Polyfill\\Ctype\\' => 23,
             'Symfony\\Contracts\\Translation\\' => 30,
             'Symfony\\Component\\Translation\\' => 30,
         ),
@@ -40,6 +42,7 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Http\\Client\\' => 16,
             'Psr\\Container\\' => 14,
+            'PhpOption\\' => 10,
         ),
         'M' => 
         array (
@@ -71,6 +74,7 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
         ),
         'D' => 
         array (
+            'Dotenv\\' => 7,
             'Doctrine\\Inflector\\' => 19,
             'Doctrine\\Common\\Inflector\\' => 26,
         ),
@@ -97,6 +101,10 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
         'Symfony\\Polyfill\\Mbstring\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
+        ),
+        'Symfony\\Polyfill\\Ctype\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
         ),
         'Symfony\\Contracts\\Translation\\' => 
         array (
@@ -127,13 +135,17 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
         ),
+        'PhpOption\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption',
+        ),
         'Monolog\\' => 
         array (
             0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
         ),
         'Merck_Scraper\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/',
+            0 => __DIR__ . '/../..' . '/../merck-scraper',
         ),
         'Illuminate\\Support\\' => 
         array (
@@ -191,6 +203,10 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
         'Geocoder\\' => 
         array (
             0 => __DIR__ . '/..' . '/willdurand/geocoder',
+        ),
+        'Dotenv\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/vlucas/phpdotenv/src',
         ),
         'Doctrine\\Inflector\\' => 
         array (
@@ -300,6 +316,7 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
         'Carbon\\Traits\\Timestamp' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/Traits/Timestamp.php',
         'Carbon\\Traits\\Units' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/Traits/Units.php',
         'Carbon\\Traits\\Week' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/Traits/Week.php',
+        'Carbon\\Translator' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/Translator.php',
         'Carbon\\TranslatorStrongTypeInterface' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/TranslatorStrongTypeInterface.php',
         'Clue\\StreamFilter\\CallbackFilter' => __DIR__ . '/..' . '/clue/stream-filter/src/CallbackFilter.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
@@ -345,6 +362,30 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
         'Doctrine\\Inflector\\Rules\\Word' => __DIR__ . '/..' . '/doctrine/inflector/lib/Doctrine/Inflector/Rules/Word.php',
         'Doctrine\\Inflector\\RulesetInflector' => __DIR__ . '/..' . '/doctrine/inflector/lib/Doctrine/Inflector/RulesetInflector.php',
         'Doctrine\\Inflector\\WordInflector' => __DIR__ . '/..' . '/doctrine/inflector/lib/Doctrine/Inflector/WordInflector.php',
+        'Dotenv\\Dotenv' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Dotenv.php',
+        'Dotenv\\Environment\\AbstractVariables' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Environment/AbstractVariables.php',
+        'Dotenv\\Environment\\Adapter\\AdapterInterface' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Environment/Adapter/AdapterInterface.php',
+        'Dotenv\\Environment\\Adapter\\ApacheAdapter' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Environment/Adapter/ApacheAdapter.php',
+        'Dotenv\\Environment\\Adapter\\ArrayAdapter' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Environment/Adapter/ArrayAdapter.php',
+        'Dotenv\\Environment\\Adapter\\EnvConstAdapter' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Environment/Adapter/EnvConstAdapter.php',
+        'Dotenv\\Environment\\Adapter\\PutenvAdapter' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Environment/Adapter/PutenvAdapter.php',
+        'Dotenv\\Environment\\Adapter\\ServerConstAdapter' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Environment/Adapter/ServerConstAdapter.php',
+        'Dotenv\\Environment\\DotenvFactory' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Environment/DotenvFactory.php',
+        'Dotenv\\Environment\\DotenvVariables' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Environment/DotenvVariables.php',
+        'Dotenv\\Environment\\FactoryInterface' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Environment/FactoryInterface.php',
+        'Dotenv\\Environment\\VariablesInterface' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Environment/VariablesInterface.php',
+        'Dotenv\\Exception\\ExceptionInterface' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Exception/ExceptionInterface.php',
+        'Dotenv\\Exception\\InvalidFileException' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Exception/InvalidFileException.php',
+        'Dotenv\\Exception\\InvalidPathException' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Exception/InvalidPathException.php',
+        'Dotenv\\Exception\\ValidationException' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Exception/ValidationException.php',
+        'Dotenv\\Lines' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Lines.php',
+        'Dotenv\\Loader' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Loader.php',
+        'Dotenv\\Parser' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Parser.php',
+        'Dotenv\\Regex\\Error' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Regex/Error.php',
+        'Dotenv\\Regex\\Regex' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Regex/Regex.php',
+        'Dotenv\\Regex\\Result' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Regex/Result.php',
+        'Dotenv\\Regex\\Success' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Regex/Success.php',
+        'Dotenv\\Validator' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Validator.php',
         'Geocoder\\Assert' => __DIR__ . '/..' . '/willdurand/geocoder/Assert.php',
         'Geocoder\\Collection' => __DIR__ . '/..' . '/willdurand/geocoder/Collection.php',
         'Geocoder\\Dumper\\AbstractArrayDumper' => __DIR__ . '/..' . '/willdurand/geocoder/Dumper/AbstractArrayDumper.php',
@@ -801,33 +842,33 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
         'Mailjet\\Request' => __DIR__ . '/..' . '/mailjet/mailjet-apiv3-php/src/Mailjet/Request.php',
         'Mailjet\\Resources' => __DIR__ . '/..' . '/mailjet/mailjet-apiv3-php/src/Mailjet/Resources.php',
         'Mailjet\\Response' => __DIR__ . '/..' . '/mailjet/mailjet-apiv3-php/src/Mailjet/Response.php',
-        'Merck_Scraper\\Helper\\MSHelper' => __DIR__ . '/../..' . '/Helper/MSHelper.php',
-        'Merck_Scraper\\Helper\\MSMailer' => __DIR__ . '/../..' . '/Helper/MSMailer.php',
-        'Merck_Scraper\\Traits\\MSAcfTrait' => __DIR__ . '/../..' . '/Traits/MSAcfTrait.php',
-        'Merck_Scraper\\Traits\\MSAdminTrait' => __DIR__ . '/../..' . '/Traits/MSAdminTrait.php',
-        'Merck_Scraper\\Traits\\MSApiField' => __DIR__ . '/../..' . '/Traits/MSApiField.php',
-        'Merck_Scraper\\Traits\\MSApiTrait' => __DIR__ . '/../..' . '/Traits/MSApiTrait.php',
-        'Merck_Scraper\\Traits\\MSDBCallbacks' => __DIR__ . '/../..' . '/Traits/MSDBCallbacks.php',
-        'Merck_Scraper\\Traits\\MSEmailTrait' => __DIR__ . '/../..' . '/Traits/MSEmailTrait.php',
-        'Merck_Scraper\\Traits\\MSGoogleMaps' => __DIR__ . '/../..' . '/Traits/MSGoogleMaps.php',
-        'Merck_Scraper\\Traits\\MSHttpCallback' => __DIR__ . '/../..' . '/Traits/MSHttpCallback.php',
-        'Merck_Scraper\\Traits\\MSLoggerTrait' => __DIR__ . '/../..' . '/Traits/MSLoggerTrait.php',
-        'Merck_Scraper\\Traits\\MSPublicTrait' => __DIR__ . '/../..' . '/Traits/MSPublicTrait.php',
-        'Merck_Scraper\\admin\\MSAPIScraper' => __DIR__ . '/../..' . '/admin/MSAPIScraper.php',
-        'Merck_Scraper\\admin\\MSAdmin' => __DIR__ . '/../..' . '/admin/MSAdmin.php',
-        'Merck_Scraper\\admin\\MSApiLogger' => __DIR__ . '/../..' . '/admin/MSApiLogger.php',
-        'Merck_Scraper\\admin\\MSCustomPT' => __DIR__ . '/../..' . '/admin/MSCustomPT.php',
-        'Merck_Scraper\\admin\\MSCustomTax' => __DIR__ . '/../..' . '/admin/MSCustomTax.php',
-        'Merck_Scraper\\admin\\MSMetaBox' => __DIR__ . '/../..' . '/admin/MSMetaBox.php',
-        'Merck_Scraper\\admin\\MSOptionsPage' => __DIR__ . '/../..' . '/admin/MSOptionsPage.php',
-        'Merck_Scraper\\frontend\\MSFrontEndAPI' => __DIR__ . '/../..' . '/frontend/MSFrontEndAPI.php',
-        'Merck_Scraper\\frontend\\MSPublic' => __DIR__ . '/../..' . '/frontend/MSPublic.php',
-        'Merck_Scraper\\frontend\\MSUserLocation' => __DIR__ . '/../..' . '/frontend/MSUserLocation.php',
-        'Merck_Scraper\\includes\\MSActivator' => __DIR__ . '/../..' . '/includes/MSActivator.php',
-        'Merck_Scraper\\includes\\MSDeactivator' => __DIR__ . '/../..' . '/includes/MSDeactivator.php',
-        'Merck_Scraper\\includes\\MSI18n' => __DIR__ . '/../..' . '/includes/MSI18n.php',
-        'Merck_Scraper\\includes\\MSLoader' => __DIR__ . '/../..' . '/includes/MSLoader.php',
-        'Merck_Scraper\\includes\\MSMainClass' => __DIR__ . '/../..' . '/includes/MSMainClass.php',
+        'Merck_Scraper\\Helper\\MSHelper' => __DIR__ . '/../..' . '/../merck-scraper/Helper/MSHelper.php',
+        'Merck_Scraper\\Helper\\MSMailer' => __DIR__ . '/../..' . '/../merck-scraper/Helper/MSMailer.php',
+        'Merck_Scraper\\Traits\\MSAcfTrait' => __DIR__ . '/../..' . '/../merck-scraper/Traits/MSAcfTrait.php',
+        'Merck_Scraper\\Traits\\MSAdminTrait' => __DIR__ . '/../..' . '/../merck-scraper/Traits/MSAdminTrait.php',
+        'Merck_Scraper\\Traits\\MSApiField' => __DIR__ . '/../..' . '/../merck-scraper/Traits/MSApiField.php',
+        'Merck_Scraper\\Traits\\MSApiTrait' => __DIR__ . '/../..' . '/../merck-scraper/Traits/MSApiTrait.php',
+        'Merck_Scraper\\Traits\\MSDBCallbacks' => __DIR__ . '/../..' . '/../merck-scraper/Traits/MSDBCallbacks.php',
+        'Merck_Scraper\\Traits\\MSEmailTrait' => __DIR__ . '/../..' . '/../merck-scraper/Traits/MSEmailTrait.php',
+        'Merck_Scraper\\Traits\\MSGoogleMaps' => __DIR__ . '/../..' . '/../merck-scraper/Traits/MSGoogleMaps.php',
+        'Merck_Scraper\\Traits\\MSHttpCallback' => __DIR__ . '/../..' . '/../merck-scraper/Traits/MSHttpCallback.php',
+        'Merck_Scraper\\Traits\\MSLoggerTrait' => __DIR__ . '/../..' . '/../merck-scraper/Traits/MSLoggerTrait.php',
+        'Merck_Scraper\\Traits\\MSPublicTrait' => __DIR__ . '/../..' . '/../merck-scraper/Traits/MSPublicTrait.php',
+        'Merck_Scraper\\admin\\MSAPIScraper' => __DIR__ . '/../..' . '/../merck-scraper/admin/MSAPIScraper.php',
+        'Merck_Scraper\\admin\\MSAdmin' => __DIR__ . '/../..' . '/../merck-scraper/admin/MSAdmin.php',
+        'Merck_Scraper\\admin\\MSApiLogger' => __DIR__ . '/../..' . '/../merck-scraper/admin/MSApiLogger.php',
+        'Merck_Scraper\\admin\\MSCustomPT' => __DIR__ . '/../..' . '/../merck-scraper/admin/MSCustomPT.php',
+        'Merck_Scraper\\admin\\MSCustomTax' => __DIR__ . '/../..' . '/../merck-scraper/admin/MSCustomTax.php',
+        'Merck_Scraper\\admin\\MSMetaBox' => __DIR__ . '/../..' . '/../merck-scraper/admin/MSMetaBox.php',
+        'Merck_Scraper\\admin\\MSOptionsPage' => __DIR__ . '/../..' . '/../merck-scraper/admin/MSOptionsPage.php',
+        'Merck_Scraper\\frontend\\MSFrontEndAPI' => __DIR__ . '/../..' . '/../merck-scraper/frontend/MSFrontEndAPI.php',
+        'Merck_Scraper\\frontend\\MSPublic' => __DIR__ . '/../..' . '/../merck-scraper/frontend/MSPublic.php',
+        'Merck_Scraper\\frontend\\MSUserLocation' => __DIR__ . '/../..' . '/../merck-scraper/frontend/MSUserLocation.php',
+        'Merck_Scraper\\includes\\MSActivator' => __DIR__ . '/../..' . '/../merck-scraper/includes/MSActivator.php',
+        'Merck_Scraper\\includes\\MSDeactivator' => __DIR__ . '/../..' . '/../merck-scraper/includes/MSDeactivator.php',
+        'Merck_Scraper\\includes\\MSI18n' => __DIR__ . '/../..' . '/../merck-scraper/includes/MSI18n.php',
+        'Merck_Scraper\\includes\\MSLoader' => __DIR__ . '/../..' . '/../merck-scraper/includes/MSLoader.php',
+        'Merck_Scraper\\includes\\MSMainClass' => __DIR__ . '/../..' . '/../merck-scraper/includes/MSMainClass.php',
         'Mockery' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery.php',
         'Mockery\\Adapter\\Phpunit\\MockeryPHPUnitIntegration' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryPHPUnitIntegration.php',
         'Mockery\\Adapter\\Phpunit\\MockeryPHPUnitIntegrationAssertPostConditions' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryPHPUnitIntegrationAssertPostConditions.php',
@@ -1027,6 +1068,10 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
         'Monolog\\SignalHandler' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/SignalHandler.php',
         'Monolog\\Test\\TestCase' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Test/TestCase.php',
         'Monolog\\Utils' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Utils.php',
+        'PhpOption\\LazyOption' => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption/LazyOption.php',
+        'PhpOption\\None' => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption/None.php',
+        'PhpOption\\Option' => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption/Option.php',
+        'PhpOption\\Some' => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption/Some.php',
         'Psr\\Container\\ContainerExceptionInterface' => __DIR__ . '/..' . '/psr/container/src/ContainerExceptionInterface.php',
         'Psr\\Container\\ContainerInterface' => __DIR__ . '/..' . '/psr/container/src/ContainerInterface.php',
         'Psr\\Container\\NotFoundExceptionInterface' => __DIR__ . '/..' . '/psr/container/src/NotFoundExceptionInterface.php',
@@ -1154,6 +1199,7 @@ class ComposerStaticInit3791af8b7afe8d1bb4db2dfdb04002b5
         'Symfony\\Contracts\\Translation\\TranslatableInterface' => __DIR__ . '/..' . '/symfony/translation-contracts/TranslatableInterface.php',
         'Symfony\\Contracts\\Translation\\TranslatorInterface' => __DIR__ . '/..' . '/symfony/translation-contracts/TranslatorInterface.php',
         'Symfony\\Contracts\\Translation\\TranslatorTrait' => __DIR__ . '/..' . '/symfony/translation-contracts/TranslatorTrait.php',
+        'Symfony\\Polyfill\\Ctype\\Ctype' => __DIR__ . '/..' . '/symfony/polyfill-ctype/Ctype.php',
         'Symfony\\Polyfill\\Mbstring\\Mbstring' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/Mbstring.php',
         'Symfony\\Polyfill\\Php80\\Php80' => __DIR__ . '/..' . '/symfony/polyfill-php80/Php80.php',
         'TenQuality\\Data\\Collection' => __DIR__ . '/..' . '/10quality/php-data-model/src/Collection.php',
