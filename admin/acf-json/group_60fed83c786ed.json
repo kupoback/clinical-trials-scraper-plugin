@@ -15,6 +15,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "placement": "left",
             "endpoint": 0
         },
@@ -31,6 +32,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "https:\/\/clinicaltrials.gov",
             "placeholder": ""
         },
@@ -47,6 +49,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "https:\/\/clinicaltrials.gov\/ct2\/show\/",
             "placeholder": ""
         },
@@ -63,6 +66,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "",
             "placeholder": "",
             "maxlength": "",
@@ -82,6 +86,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "",
             "placeholder": "",
             "maxlength": "",
@@ -101,6 +106,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( \"Recruiting\" OR \"Not yet recruiting\" )",
             "placeholder": "",
             "prepend": "",
@@ -120,6 +126,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "AND SEARCH[Location] EXPAND[Term] COVER[FullMatch] ( AREA[LocationPath] \"US\" AND ( AREA[LocationCountry] \"United States\" OR CONST[0.95] ) )",
             "placeholder": "",
             "prepend": "",
@@ -139,6 +146,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "AND ( AREA[LeadSponsorName] \"Merck Sharp & Dohme Corp.\" )",
             "placeholder": "",
             "prepend": "",
@@ -158,6 +166,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "message": "The Minimum Import Rank is the starting rank number to begin the import from.<br \/><br \/>\r\nThe Maximum Import Rank is the maximum number of items per API call to be made.<br \/><br \/>\r\n<b>Note<\/b>: The maximum number is 100, but to keep call times low, and preventing memory leaks, it's recommended to set a max to 30. The API has a loop in place to increase the minimum rank and maximum rank, depending on the number of results returned, and will adjust the API call to reflect this.",
             "new_lines": "wpautop",
             "esc_html": 0
@@ -175,6 +184,7 @@
                 "class": "one-half",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": 1,
             "placeholder": "",
             "prepend": "",
@@ -196,6 +206,7 @@
                 "class": "one-half",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": 30,
             "placeholder": "",
             "prepend": "",
@@ -217,6 +228,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "message": "These settings are used to setup the mailer when the Scraper is ran.",
             "new_lines": "wpautop",
             "esc_html": 0
@@ -234,6 +246,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "collapsed": "field_6140bac420802",
             "min": 0,
             "max": 0,
@@ -292,6 +305,7 @@
                 "class": "one-quarter",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "message": "",
             "default_value": 0,
             "ui": 1,
@@ -319,6 +333,7 @@
                 "class": "three-quarters",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -340,6 +355,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "placement": "top",
             "endpoint": 0
         },
@@ -356,6 +372,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -375,6 +392,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -394,6 +412,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "placement": "left",
             "endpoint": 0
         },
@@ -410,6 +429,7 @@
                 "class": "one-half",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -429,6 +449,7 @@
                 "class": "one-half",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "placeholder": "",
             "prepend": "",
             "append": ""
@@ -446,6 +467,7 @@
                 "class": "one-half",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -465,6 +487,7 @@
                 "class": "one-half",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -484,6 +507,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "placement": "left",
             "endpoint": 0
         },
@@ -500,6 +524,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "choices": {
                 "conditions": "Conditions",
                 "trial_ta": "Therapeutic Area"
@@ -525,6 +550,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "choices": {
                 "all": "All",
                 "auto-draft": "Auto-Draft",
@@ -566,7 +592,7 @@
     "instruction_placement": "label",
     "hide_on_screen": "",
     "active": true,
-    "description": "Option Settings for the Merck Scraper Plugin",
+    "description": "Option Settings for the Merck Scraper Plugin. Do not translate anything in here, as these are used for the API import only.",
     "show_in_rest": 0,
-    "modified": 1638484551
+    "modified": 1639669469
 }

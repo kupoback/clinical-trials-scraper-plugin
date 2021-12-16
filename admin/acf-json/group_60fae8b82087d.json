@@ -15,6 +15,7 @@
                 "class": "full message-title header-title",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "message": "",
             "new_lines": "wpautop",
             "esc_html": 0
@@ -32,6 +33,7 @@
                 "class": "full no-label",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "message": "The Post Title and Post Content are automatically pulled from the API, and pre-populated. However, once the trial is imported, the title and content can be overwritten without fear of the API deleting that content.",
             "new_lines": "wpautop",
             "esc_html": 0
@@ -49,6 +51,7 @@
                 "class": "full",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -68,6 +71,7 @@
                 "class": "full",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -87,6 +91,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -106,6 +111,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -125,6 +131,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -144,6 +151,7 @@
                 "class": "full",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "maxlength": "",
@@ -163,6 +171,7 @@
                 "class": "one-half",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "return_format": "array"
         },
         {
@@ -178,6 +187,7 @@
                 "class": "one-half",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": ""
         },
@@ -194,6 +204,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -213,6 +224,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -234,6 +246,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -255,6 +268,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "maxlength": "",
@@ -274,6 +288,7 @@
                 "class": "full message-title header-title",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "message": "",
             "new_lines": "wpautop",
             "esc_html": 0
@@ -291,6 +306,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -310,6 +326,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -329,6 +346,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -348,6 +366,7 @@
                 "class": "full message-title header-title",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "message": "",
             "new_lines": "wpautop",
             "esc_html": 0
@@ -365,6 +384,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "collapsed": "",
             "min": 0,
             "max": 0,
@@ -384,6 +404,7 @@
                         "class": "one-half",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -403,6 +424,7 @@
                         "class": "one-half",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -424,6 +446,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "collapsed": "",
             "min": 0,
             "max": 0,
@@ -443,6 +466,7 @@
                         "class": "",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -464,6 +488,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "collapsed": "field_611a91c18b083",
             "min": 0,
             "max": 0,
@@ -483,6 +508,7 @@
                         "class": "one-third",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -502,6 +528,7 @@
                         "class": "one-third",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -521,6 +548,7 @@
                         "class": "one-third",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -540,6 +568,7 @@
                         "class": "",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -559,6 +588,7 @@
                         "class": "one-third",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -578,6 +608,7 @@
                         "class": "one-third",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -597,6 +628,7 @@
                         "class": "one-third",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -616,6 +648,7 @@
                         "class": "one-third",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -635,6 +668,7 @@
                         "class": "one-third",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -656,6 +690,7 @@
                         "class": "one-third",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -685,5 +720,5 @@
     "active": true,
     "description": "Default Fields that are mapped and imported from the Merck Scraper",
     "show_in_rest": 0,
-    "modified": 1637697419
+    "modified": 1639669919
 }

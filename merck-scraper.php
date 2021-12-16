@@ -25,10 +25,10 @@ use Merck_Scraper\Traits\MSAcfTrait;
  * @package           Merck_Scraper
  *
  * @wordpress-plugin
- * Plugin Name:       Merck Scrapper
+ * Plugin Name:       Merck Scrapper - WPML
  * Plugin URI:        #
- * Description:       This plugin is used to scrape data from clinicaltrials.gov website
- * Version:           1.2.0
+ * Description:       This plugin is used to scrape data from clinicaltrials.gov website. This is a fork for WPML
+ * Version:           1.0.0
  * Author:            Clique Studios
  * Author URI:        https://cliquestudios.com
  * Requires at least: 5.8.1
@@ -53,7 +53,7 @@ require plugin_dir_path(__FILE__) . 'vendor/autoload.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('MERCK_SCRAPER_VERSION', '1.2.0');
+define('MERCK_SCRAPER_VERSION', '1.0.0');
 
 /**
  * This constant is used to save the logs to a specific directory
@@ -79,28 +79,43 @@ register_deactivation_hook(__FILE__, function () {
 });
 
 /**
- * This checks if ACF is activated, and warns the user that it's required to function properly
+ * This checks if ACF and SitePress are activated, and warns the user that it's required to function properly
  */
-if (!class_exists('ACF')) {
+if (!class_exists('ACF') || !class_exists('SitePress')) {
     add_action('admin_notices', function () {
-        if (!class_exists('ACF')) {
-            printf(
-                '<div class="error"><h3>%s</h3><p>%s</p><p>%s</p></div>',
-                __('Warning', 'merck-scraper'),
+        function printError($plugin_name)
+        :string
+        {
+            return sprintf(
+                '<div class="error"><h3>%s</h3>%s%s%s</div>',
+                __('Error', 'merck-scraper'),
                 sprintf(
-                    __('The plugin %s requires Advanced Custom Fields to be installed.', 'merck-scraper'),
-                    '<strong>Merck Scraper</strong>'
+                    __("The plugin %s requires $plugin_name to be installed.", 'merck-scraper'),
+                    '<strong>Merck Scraper - WPML</strong>'
                 ),
                 sprintf(
+                    '<p>%s</p>',
                     __(
-                        'Please install or activate Advanced Custom Fields and try again.',
+                        "Please install or activate $plugin_name and try again.",
                         'merck-scraper'
                     )
-                )
+                ),
+                $plugin_name === 'WordPress Multi-language' ?
+                    sprintf(
+                        '<p>%s</p>',
+                        __("Consider using the other version of Merck Scraper plugin, which doesn't rely on WPML", 'merck-scraper'),
+                    )
+                    : '',
             );
         }
-    },
-               20);
+
+        if (!class_exists('ACF')) {
+            printf('%s', printError('Advanced Custom Fields'));
+        }
+        if (!class_exists('SitePress')) {
+            printf('%s', printError('WordPress Multi-language'));
+        }
+    }, 20);
     MSDeactivator::deactivate();
 }
 
@@ -115,6 +130,7 @@ if (!class_exists('ACF')) {
  */
 function run_ms()
 {
+    !is_dir(MERCK_SCRAPER_LOG_DIR) ? mkdir(MERCK_SCRAPER_LOG_DIR) : null;
     $plugin = new MSMainClass();
     $plugin->executePlugin();
 }
@@ -125,14 +141,14 @@ run_ms();
  * This is the cron job setup function
  */
 add_action('ms_govt_scrape_cron', function () {
-    $scaper_class = new MSAPIScraper();
+    $scraper_class = new MSAPIScraper();
 
-    $logger = $scaper_class->setLogger('cron-job', 'cron', MERCK_SCRAPER_LOG_DIR . '/cron');
+    $logger = $scraper_class->setLogger('cron-job', 'cron', MERCK_SCRAPER_LOG_DIR . '/cron');
 
     try {
-        $scaper_class->apiImport();
+        $scraper_class->apiImport();
     } catch (Exception $exception) {
-        $logger->error(__("Erorr executing the cron job", 'merck-scraper'), $exception->getTrace());
+        $logger->error(__("Error executing the cron job", 'merck-scraper'), $exception->getTrace());
     }
 });
 

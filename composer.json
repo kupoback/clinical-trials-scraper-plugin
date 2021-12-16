@@ -12,7 +12,8 @@
         "geocoder-php/free-geoip-provider": "^4.4",
         "php-http/message": "^1.12",
         "geocoder-php/google-maps-provider": "^4.6",
-	    "ext-json": "*"
+	    "ext-json": "*",
+	    "vlucas/phpdotenv": "^3.0"
     },
 	"require-dev": {
 		"squizlabs/php_codesniffer": "^3.5",
@@ -33,11 +34,14 @@
 		],
 		"test": [
 			"phpcs"
+		],
+		"compress": [
+			"zip -r merck-scraper-wpml.zip ./ -x './node_modules/*' './.git/*' './yarn.lock' && mv merck-scraper-wpml.zip ../"
 		]
 	},
 	"autoload": {
 		"psr-4": {
-			"Merck_Scraper\\": "../merck-scraper"
+			"Merck_Scraper\\": "../merck-scraper-wpml"
 		}
 	}
 }
