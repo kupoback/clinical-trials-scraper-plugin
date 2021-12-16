@@ -39,6 +39,31 @@ class MSOptionsPage
         );
     }
 
+
+    /**
+     * Registers the Trials Options Page
+     *
+     * @return void
+     */
+    public function setTrialOptsPage()
+    {
+        if (function_exists('acf_add_options_page')) {
+            // Trials Settings
+            acf_add_options_sub_page(
+                [
+                    'page_title'  => 'Trials Settings',
+                    'menu_title'  => 'Trials Settings',
+                    'parent_slug' => 'edit.php?post_type=trials',
+                    'menu_slug'   => 'trials-settings',
+                    'capability'  => 'edit_posts',
+                    'redirect'    => false,
+                    'post_id'     => 'trials_opts',
+                ]
+            );
+        }
+    }
+
+
     /** Fields to import
      * NCTId;
     BriefTitle;
@@ -83,6 +108,7 @@ class MSOptionsPage
             'merck-logs-scraper',
             [$this, 'logsScraperPage']
         );
+
     }
 
     /**
@@ -93,10 +119,10 @@ class MSOptionsPage
         // Set class property
         $this->options = get_option('merck_import');
         ?>
-        <div class="wrap merck-scraper-settings merck-scraper-import" id="merck-scraper-settings">
-            <h1><?= __('API Scrapper Import', 'merck-scraper'); ?></h1>
-            <div id="merck-scraper-api"></div>
-        </div>
+		<div class="wrap merck-scraper-settings merck-scraper-import" id="merck-scraper-settings">
+			<h1><?= __('API Scrapper Import', 'merck-scraper'); ?></h1>
+			<div id="merck-scraper-api"></div>
+		</div>
         <?php
     }
 
@@ -108,10 +134,10 @@ class MSOptionsPage
         // Set class property
         $this->options = get_option('merck_import');
         ?>
-        <div class="wrap merck-scraper-settings merck-scraper-log" id="merck-scraper-settings">
-            <h1><?= __('API Logs', 'merck-scraper'); ?></h1>
-            <div id="merck-scraper-log"></div>
-        </div>
+		<div class="wrap merck-scraper-settings merck-scraper-log" id="merck-scraper-settings">
+			<h1><?= __('API Logs', 'merck-scraper'); ?></h1>
+			<div id="merck-scraper-log"></div>
+		</div>
         <?php
     }
 
