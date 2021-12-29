@@ -158,7 +158,6 @@ class MSMainClass
 
         $admin_options = new MSOptionsPage();
         // Options Page
-        $this->loader->addAction('acf/init', $admin_options, 'setTrialOptsPage');
         $this->loader->addAction('acf/init', $admin_options, 'acfOptionsPage');
         $this->loader->addAction('admin_menu', $admin_options, 'customOptsPage', 105);
 

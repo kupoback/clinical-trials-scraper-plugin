@@ -134,7 +134,7 @@ trait MSApiTrait
         return new WP_Error(
             200,
             ['message' =>
-                 __("Error getting file and or it's contents", 'sage'),
+                 __("Error getting file and or it's contents", 'merck-scraper'),
              'fileContents' => ''
             ]
         );

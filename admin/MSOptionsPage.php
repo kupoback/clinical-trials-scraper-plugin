@@ -40,30 +40,6 @@ class MSOptionsPage
     }
 
 
-    /**
-     * Registers the Trials Options Page
-     *
-     * @return void
-     */
-    public function setTrialOptsPage()
-    {
-        if (function_exists('acf_add_options_page')) {
-            // Trials Settings
-            acf_add_options_sub_page(
-                [
-                    'page_title'  => 'Trials Settings',
-                    'menu_title'  => 'Trials Settings',
-                    'parent_slug' => 'edit.php?post_type=trials',
-                    'menu_slug'   => 'trials-settings',
-                    'capability'  => 'edit_posts',
-                    'redirect'    => false,
-                    'post_id'     => 'trials_opts',
-                ]
-            );
-        }
-    }
-
-
     /** Fields to import
      * NCTId;
     BriefTitle;
