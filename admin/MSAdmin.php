@@ -357,7 +357,7 @@ class MSAdmin
     protected function isTrialsAdmin()
     :bool
     {
-        if (is_admin()) {
+        if (is_admin() && function_exists('get_current_screen')) {
             $current_screen   = get_current_screen();
             $post_edit_screen = ['edit-trials', 'edit-events', 'edit-products', 'edit-leadership'];
             return is_object($current_screen) && in_array($current_screen->id, $post_edit_screen) && is_search();
