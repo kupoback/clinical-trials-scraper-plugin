@@ -32,7 +32,7 @@
                                       class="form-control"
                                       id="nctid-field"
                                       rows="3" />
-                            <p class="helper-text">Enter in one NCT ID per line, or separate them with a semi-colon.</p>
+                            <p class="helper-text">Enter in one NCT ID per line, and separate them with a semi-colon.</p>
                         </div>
                     </div>
                 </div>

@@ -5,7 +5,7 @@ Tags:
 Requires at least: 5.8.0
 Tested up to: 5.8.1
 Requires PHP: 7.4
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,22 @@ This plugin is used to scrape data from clinicaltrials.gov website.
 == Description ==
 
 == Changelog ==
+
+= 1.3.3 =
+
+Removed error logs
+
+Uncommented the ACF locations and the emailer scripts in MSAPIScraper
+
+= 1.3.2 =
+
+Fixed some logic in the import to handle the conditions and locations better
+
+Adjusted the ACF for the Trial Status, and locations to be text areas instead of having the query defined
+
+Edited the default conditions in ACF
+
+Adjusted the MSHelper Textarea to Array to omit some lines of code that was breaking the return formatting for space cased words
 
 = 1.3.1 =
 

@@ -92,8 +92,8 @@
             "key": "field_617acc76db86c",
             "label": "Clinical Trials API Status Search",
             "name": "clinical_trials_api_status_search",
-            "type": "text",
-            "instructions": "Update the items in parenthesis to scrape for the status type to search for.",
+            "type": "textarea",
+            "instructions": "Add status here on each line and separate with semi-colons.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -101,18 +101,18 @@
                 "class": "",
                 "id": ""
             },
-            "default_value": "AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( \"Recruiting\" OR \"Not yet recruiting\" )",
+            "default_value": "Recruiting\r\nNot yet recruiting\r\nActive, not recruiting",
             "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
+            "maxlength": "",
+            "rows": 4,
+            "new_lines": ""
         },
         {
             "key": "field_617acc9fdb86d",
             "label": "Clinical Trials API Location Search",
             "name": "clinical_trials_api_location_search",
-            "type": "text",
-            "instructions": "Update the items in parenthesis to scrape for the location(s) to search for.",
+            "type": "textarea",
+            "instructions": "Add country name here on each line and separate with semi-colons.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -120,18 +120,18 @@
                 "class": "",
                 "id": ""
             },
-            "default_value": "AND SEARCH[Location] EXPAND[Term] COVER[FullMatch] ( AREA[LocationPath] \"US\" AND ( AREA[LocationCountry] \"United States\" OR CONST[0.95] ) )",
+            "default_value": "United States;",
             "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
+            "maxlength": "",
+            "rows": "",
+            "new_lines": ""
         },
         {
             "key": "field_617accc3db86e",
             "label": "Clinical Trials API Sponsor Search",
             "name": "clinical_trials_api_sponsor_search",
             "type": "text",
-            "instructions": "Update the items in parenthesis to scrape for the sponsors(s) to search for.",
+            "instructions": "Update the item for the sponsor to search for.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -139,7 +139,7 @@
                 "class": "",
                 "id": ""
             },
-            "default_value": "AND ( AREA[LeadSponsorName] \"Merck Sharp & Dohme Corp.\" )",
+            "default_value": "Merck Sharp & Dohme Corp.",
             "placeholder": "",
             "prepend": "",
             "append": "",
@@ -568,5 +568,5 @@
     "active": true,
     "description": "Option Settings for the Merck Scraper Plugin",
     "show_in_rest": 0,
-    "modified": 1638484551
+    "modified": 1642182405
 }

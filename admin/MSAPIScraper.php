@@ -40,73 +40,63 @@ class MSAPIScraper
 
     //region Class Vars
     /**
-     * Array for whom the email needs to be sent to
-     *
-     * @var array|Collection
+     * @var array|Collection Array for whom the email needs to be sent to
      */
     private $sendTo;
 
     /**
-     * The base url for the clinical trials gov't website
-     *
-     * @var string
+     * @var string The base url for the clinical trial government website
      */
     private string $baseUrl = 'https://clinicaltrials.gov/api/query';
 
     /**
-     * Default array of keywords to search for via HTTP request
-     *
-     * @var Collection
+     * @var Collection Default array of keywords to search for via HTTP request
      */
     private Collection $allowedConditions;
 
     /**
-     * Default array of keywords to omit from searching for via HTTP request
-     *
-     * @var Collection
+     * @var Collection  Default array of keywords to omit from searching for via HTTP request
      */
     private Collection $disallowedConditions;
 
     /**
-     * Trial ACF Field Names
-     *
-     * @var Collection
+     * @var Collection Default array of status that are allowed for importing
+     */
+    private Collection $trialStatus;
+
+    /**
+     * @var Collection Trial ACF Field Names
      */
     private Collection $acfFields;
 
     /**
-     * Instantiates the success logger for the API
-     *
-     * @var Logger|false
+     * @var Logger|false Instantiates the success logger for the API
      */
     private Logger $apiLog;
 
     /**
-     * Instantiates the error logger for the API
-     *
-     * @var Logger|false
+     * @var Logger|false Instantiates the error logger for the API
      */
     private Logger $errorLog;
 
     /**
-     * Sets a global Carbon DateTime for the instantiated class.
-     *
-     * @var Carbon $nowTime
+     * @var Carbon $nowTime Sets a global Carbon DateTime for the instantiated class.
      */
     private Carbon $nowTime;
 
     /**
-     * The total number of trials found
-     * @var int
+     * @var int  The total number of trials found
      */
     private int $totalFound;
 
     /**
-     * Sets a collection of age ranges defined in the WP-Admin
-     * @var Collection
+     * @var Collection Sets a collection of age ranges defined in the WP-Admin
      */
     private Collection $ageRanges;
 
+    /**
+     * @var array|string[] Default settings for \WP_Query
+     */
     private array $postDefault = [
         'post_title' => '',
         'post_name'  => '',
@@ -131,7 +121,8 @@ class MSAPIScraper
             MSHelper::textareaToArr(
                 self::acfStrOptionFld('disallowed_conditions')
             )
-        );
+        )
+            ->filter();
 
         /**
          * Collection of the allowed conditions
@@ -140,7 +131,18 @@ class MSAPIScraper
             MSHelper::textareaToArr(
                 self::acfStrOptionFld('allowed_conditions')
             )
-        );
+        )
+            ->filter();
+
+        /**
+         * Iterates through the status and sanitizes them for comparison as well as query
+         */
+        $this->trialStatus = collect(
+            MSHelper::textareaToArr(
+                self::acfStrOptionFld('clinical_trials_api_status_search')
+            )
+        )
+            ->filter();
 
         $this->nowTime = Carbon::now();
 
@@ -229,21 +231,34 @@ class MSAPIScraper
             }
 
             // Trial Status Search type
+            $recruiting_status = $this->trialStatus
+                ->map(function ($status) {
+                    return "\"$status\"";
+                })
+                ->implode(" OR ");
             $expression->push(
-                self::acfOptionField('clinical_trials_api_status_search')
-                    ?: 'AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( "Recruiting" OR "Not yet recruiting" )'
+                "AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( $recruiting_status )"
             );
 
             // Trial Location search
+            $location = collect(
+                MSHelper::textareaToArr(
+                    self::acfStrOptionFld('clinical_trials_api_location_search')
+                )
+            )
+                ->filter()
+                ->map(function ($location) {
+                    return "\"$location\"";
+                })
+                ->implode(" OR ");
             $expression->push(
-                self::acfOptionField('clinical_trials_api_location_search')
-                    ?: '( AREA[LocationCountry] "United States" OR CONST[0.95] )'
+                "( AREA[LocationCountry] $location )"
             );
 
             // Trial sponsor search name
+            $sponsor_name = self::acfOptionField('clinical_trials_api_sponsor_search') ?: "Merck Sharp & Dohme Corp.";
             $expression->push(
-                self::acfOptionField('clinical_trials_api_sponsor_search')
-                    ?: '( AREA[LeadSponsorName] "Merck Sharp & Dohme Corp." )'
+                "( AREA[LeadSponsorName] \"$sponsor_name\" )"
             );
 
             // Expression builder
@@ -449,7 +464,7 @@ class MSAPIScraper
             [
                 'ID'      => $post_id,
                 'NAME'    => $title,
-                'NCDID'   => $nct_id,
+                'NCTID'   => $nct_id,
                 'MESSAGE' => $msg,
             ]
         );
@@ -544,7 +559,11 @@ class MSAPIScraper
         // Default post status
         $do_not_import  = false;
         $trial_status   = sanitize_title($status_module->get('trial_status'));
-        $allowed_status = ['recruiting', 'active-not-recruiting'];
+        $allowed_status = $this->trialStatus
+            ->map(function ($status) {
+                return sanitize_title($status);
+            })
+            ->toArray();
 
         // Set up the post data
         $parse_args = self::parsePostArgs(
@@ -613,7 +632,7 @@ class MSAPIScraper
                         'ID'    => $post_id ?? 0,
                         'NAME'  => $post_args
                             ->get('post_title'),
-                        'NCDID' => $nct_id,
+                        'NCTID' => $nct_id,
                         'error' => $post_id
                             ->get_error_message(),
                     ]
