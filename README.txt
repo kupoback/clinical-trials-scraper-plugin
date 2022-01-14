@@ -15,6 +15,16 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 
 == Changelog ==
 
+= 1.0.6 =
+
+Fixed some logic in the import to handle the conditions and locations better
+
+Adjusted the ACF for the Trial Status, and locations to be text areas instead of having the query defined
+
+Edited the default conditions in ACF
+
+Adjusted the MSHelper Textarea to Array to omit some lines of code that was breaking the return formatting for space cased words
+
 = 1.0.5 =
 
 Fix to customizer screen being inaccessible

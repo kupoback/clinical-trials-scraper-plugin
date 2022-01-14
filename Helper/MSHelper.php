@@ -101,7 +101,6 @@ class MSHelper
     {
         if ($field) {
             $field = str_replace(';', '\n', $field);
-            $field = preg_replace('!\s+!', '\n', $field);
             $field = explode('\n', $field);
             return array_map('trim', $field);
         }
