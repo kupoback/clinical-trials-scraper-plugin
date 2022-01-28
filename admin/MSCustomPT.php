@@ -29,7 +29,16 @@ class MSCustomPT
         $post_args["trials"] = self::postTypeArray(
             'Trial',
             'dashicons-analytics',
-            __("This post type is used to store trials scraped from the gov't api.", 'merck-scraper')
+            __("This post type is used to store trials scraped from the gov't api.", 'merck-scraper'),
+            'post',
+            [
+                'rewrite' => [
+                    'slug'       => 'trial',
+                    'with_front' => true,
+                    'pages'      => true,
+                    'feeds'      => true,
+                ],
+            ]
         );
 
         foreach ($post_args as $post_type => $pt_args) {

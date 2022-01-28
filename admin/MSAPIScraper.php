@@ -24,6 +24,14 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 
+/**
+ * This class file is used to execute the ClinicalTrials.gov scraper to retrieve Trials based on
+ * the allowed and disallowed list of words, countries, status' and main sponsor and import them as posts.
+ *
+ * @package    Merck_Scraper
+ * @subpackage Merck_Scraper/admin
+ * @author     Clique Studios <buildsomething@cliquestudios.com>
+ */
 class MSAPIScraper
 {
 
@@ -107,7 +115,7 @@ class MSAPIScraper
     /**
      * MSAPIScraper constructor.
      *
-     * @param array  $email_params    An array with the email and the name of who to send the email to
+     * @param array  $email_params    An array with the email and the name of whom to send the email to
      * @param string $apiLogDirectory The path string of the dir for the API Log
      */
     public function __construct(array $email_params = [], string $apiLogDirectory = MERCK_SCRAPER_API_LOG_DIR)
@@ -209,6 +217,25 @@ class MSAPIScraper
                 ->implode(' OR ');
         } else {
             /**
+             * Creates an array of languages, codes and the countries they should be associated to. This is
+             * used to split up the API calls and better map the data import.
+             */
+            $country_languages = collect(self::acfOptionField('clinical_trials_api_language_locations'))
+                ->map(function ($country_language) {
+                    return [
+                        'country' => collect(
+                            MSHelper::textareaToArr($country_language["countries"] ?? '')
+                        )
+                            ->filter()
+                            ->map(function ($location) {
+                                return "\"$location\"";
+                            })
+                            ->implode(" OR "),
+                        'language' => $country_language['language'],
+                    ];
+                });
+
+            /**
              * The default search query.
              *
              * @uses Status OverallStatus of the Trial, Recruiting and Not yet recruiting
@@ -269,7 +296,7 @@ class MSAPIScraper
         }
 
         /**
-         * Grab the data from the gov't site
+         * Grab the data from the govt site
          */
         $client_args = [
             'expr'    => $expression,
@@ -278,163 +305,163 @@ class MSAPIScraper
         ];
 
         /**
-         * Parse and organize each field and single-level sub field
+         * Parse and organize each field and single-level subfield
          */
-        $this->acfFields  = self::trialsFieldGroup();
-        $studies_imported = collect();
-
-        $client_http = self::scraperHttpCB(
-            '/api/query/full_studies',
-            "GET",
-            $client_args,
-            ['delay' => 120,]
-        );
+        // $this->acfFields  = self::trialsFieldGroup();
+        // $studies_imported = collect();
+        //
+        // $client_http = self::scraperHttpCB(
+        //     '/api/query/full_studies',
+        //     "GET",
+        //     $client_args,
+        //     ['delay' => 120,]
+        // );
 
         // Check that our HTTP request was successful
-        if (!is_wp_error($client_http)) {
-            $api_data = json_decode($client_http->getBody()->getContents());
-
-            // Set data root to first object key
-            $api_data = $api_data->FullStudiesResponse ?? null;
-
-            // Number of trials found
-            $this->totalFound = $api_data->NStudiesFound ?: 0;
-
-            /**
-             * Determine how many times we need to loop through the items based on the amount found
-             * versus the max number of item's we're getting
-             */
-            $loop_number = intval(round($this->totalFound / $max_rank));
-            // Commented out for now as it's not looping properly
-            $loop_number = $loop_number === 0 ? 1 : $loop_number;
-
-            /**
-             * Grab all the ages set in the trial_age, and loop through them grabbing
-             * the minimum_age and maximum_age from ACF.
-             */
-            $this->ageRanges = collect(get_terms(['taxonomy' => 'trial_age', 'hide_empty' => false]));
-            if ($this->ageRanges->isNotEmpty()) {
-                $this->ageRanges = $this->ageRanges
-                    ->map(function ($term) {
-                        $age_ranges = get_field('age_range', $term);
-                        if (!empty($age_ranges)) {
-                            $min_age = $age_ranges['minimum_age'] ?: 0;
-                            $max_age = $age_ranges['maximum_age'] ?: 999;
-                        } else {
-                            // Log an error if there is no age range set for the term
-                            $this
-                                ->errorLog
-                                ->error(__("Please ensure you set an age range", 'merck-scraper'));
-                        }
-
-                        return [
-                            'name' => $term->name,
-                            'slug' => $term->slug,
-                            'min_age' => isset($min_age) ? intval($min_age) : 0,
-                            'max_age' => isset($max_age) ? intval($max_age) : 999,
-                        ];
-                    });
-            }
-
-            if ((int) $api_data->NStudiesFound > 0) {
-                // Grab a list of trashed posts that are supposed to be archived
-                $trashed_posts = collect(self::dbArchivedPosts());
-                if ($trashed_posts->isNotEmpty()) {
-                    $trashed_posts = $trashed_posts
-                        ->map(function ($post) {
-                            return self::dbFetchNctId(intval($post->ID));
-                        });
-                }
-
-                /**
-                 * Iterate through the import if the import max count is
-                 * higher than the max_rnk set.
-                 */
-                for ($iteration = 0; $iteration < $loop_number; $iteration++) :
-                    // Increase the min_rnk and max_rnk for each loop above the first
-                    if ($iteration > 0) {
-                        $client_args['min_rnk'] = $client_args['min_rnk'] + $max_rank;
-                        $client_args['max_rnk'] = $client_args['max_rnk'] + $max_rank;
-
-                        $client_http = self::scraperHttpCB(
-                            '/api/query/full_studies',
-                            "GET",
-                            $client_args,
-                            ['delay' => 120,]
-                        );
-
-                        if (!is_wp_error($client_http)) {
-                            // Grab the results
-                            $api_data = json_decode($client_http->getBody()->getContents());
-
-                            // Set data root to first object key
-                            $api_data = $api_data->FullStudiesResponse ?? null;
-                        } else {
-                            $this
-                                ->errorLog
-                                ->error(
-                                    sprintf(
-                                        '%s %s - %s',
-                                        __("Error grabbing items during ranks", 'merck-scraper'),
-                                        $client_args['min_rnk'],
-                                        $client_args['max_rnk']
-                                    )
-                                );
-
-                            $this
-                                ->errorLog
-                                ->error(json_decode($client_http->getBody()->getContents()));
-                            // We don't want to stop the import, in case the issues were just at one instance
-                            continue;
-                        }
-                    }
-
-                    $studies       = collect($api_data->FullStudies);
-                    $initial_count = $studies->count();
-                    $studies       = $studies
-                        ->map(function ($study) {
-                            $study->Study->ProtocolSection->Rank = $study->Rank;
-                            return $study;
-                        })
-                        ->filter(function ($study) use ($trashed_posts) {
-                            // Filter the data removing ones that are marked as "trash"
-                            $collect_study   = collect($study)
-                                ->get('Study')
-                                ->ProtocolSection;
-                            $study_id_module = collect($collect_study)
-                                ->get('IdentificationModule');
-
-                            $study = self::parseId($study_id_module);
-                            $found = $trashed_posts->search($study->get('nct_id'));
-                            return is_bool($found);
-                        })
-                        ->values();
-
-                    $num_not_imported = $num_not_imported + ($initial_count - $studies->count());
-
-                    if ($studies->count() > 0) {
-                        $studies = self::studyImportLoop($studies);
-                        $studies_imported = $studies['studies'];
-                    }
-                endfor;
-            } else {
-                $this
-                    ->errorLog
-                    ->error(__("No studies were found", 'merck-scraper'));
-            }
-        } else {
-            $this
-                ->errorLog
-                ->error($client_http
-                            ->get_error_message());
-        }
-
-        $email = self::emailSetup($studies_imported, $num_not_imported);
-        if (is_wp_error($email)) {
-            $this
-                ->errorLog
-                ->error("Error sending email, check Email log");
-        }
+        // if (!is_wp_error($client_http)) {
+        //     $api_data = json_decode($client_http->getBody()->getContents());
+        //
+        //     // Set data root to first object key
+        //     $api_data = $api_data->FullStudiesResponse ?? null;
+        //
+        //     // Number of trials found
+        //     $this->totalFound = $api_data->NStudiesFound ?: 0;
+        //
+        //     /**
+        //      * Determine how many times we need to loop through the items based on the amount found
+        //      * versus the max number of item's we're getting
+        //      */
+        //     $loop_number = intval(round($this->totalFound / $max_rank));
+        //     // Commented out for now as it's not looping properly
+        //     $loop_number = $loop_number === 0 ? 1 : $loop_number;
+        //
+        //     /**
+        //      * Grab all the ages set in the trial_age, and loop through them grabbing
+        //      * the minimum_age and maximum_age from ACF.
+        //      */
+        //     $this->ageRanges = collect(get_terms(['taxonomy' => 'trial_age', 'hide_empty' => false]));
+        //     if ($this->ageRanges->isNotEmpty()) {
+        //         $this->ageRanges = $this->ageRanges
+        //             ->map(function ($term) {
+        //                 $age_ranges = get_field('age_range', $term);
+        //                 if (!empty($age_ranges)) {
+        //                     $min_age = $age_ranges['minimum_age'] ?: 0;
+        //                     $max_age = $age_ranges['maximum_age'] ?: 999;
+        //                 } else {
+        //                     // Log an error if there is no age range set for the term
+        //                     $this
+        //                         ->errorLog
+        //                         ->error(__("Please ensure you set an age range", 'merck-scraper'));
+        //                 }
+        //
+        //                 return [
+        //                     'name' => $term->name,
+        //                     'slug' => $term->slug,
+        //                     'min_age' => isset($min_age) ? intval($min_age) : 0,
+        //                     'max_age' => isset($max_age) ? intval($max_age) : 999,
+        //                 ];
+        //             });
+        //     }
+        //
+        //     if ((int) $api_data->NStudiesFound > 0) {
+        //         // Grab a list of trashed posts that are supposed to be archived
+        //         $trashed_posts = collect(self::dbArchivedPosts());
+        //         if ($trashed_posts->isNotEmpty()) {
+        //             $trashed_posts = $trashed_posts
+        //                 ->map(function ($post) {
+        //                     return self::dbFetchNctId(intval($post->ID));
+        //                 });
+        //         }
+        //
+        //         /**
+        //          * Iterate through the import if the import max count is
+        //          * higher than the max_rnk set.
+        //          */
+        //         for ($iteration = 0; $iteration < $loop_number; $iteration++) :
+        //             // Increase the min_rnk and max_rnk for each loop above the first
+        //             if ($iteration > 0) {
+        //                 $client_args['min_rnk'] = $client_args['min_rnk'] + $max_rank;
+        //                 $client_args['max_rnk'] = $client_args['max_rnk'] + $max_rank;
+        //
+        //                 $client_http = self::scraperHttpCB(
+        //                     '/api/query/full_studies',
+        //                     "GET",
+        //                     $client_args,
+        //                     ['delay' => 120,]
+        //                 );
+        //
+        //                 if (!is_wp_error($client_http)) {
+        //                     // Grab the results
+        //                     $api_data = json_decode($client_http->getBody()->getContents());
+        //
+        //                     // Set data root to first object key
+        //                     $api_data = $api_data->FullStudiesResponse ?? null;
+        //                 } else {
+        //                     $this
+        //                         ->errorLog
+        //                         ->error(
+        //                             sprintf(
+        //                                 '%s %s - %s',
+        //                                 __("Error grabbing items during ranks", 'merck-scraper'),
+        //                                 $client_args['min_rnk'],
+        //                                 $client_args['max_rnk']
+        //                             )
+        //                         );
+        //
+        //                     $this
+        //                         ->errorLog
+        //                         ->error(json_decode($client_http->getBody()->getContents()));
+        //                     // We don't want to stop the import, in case the issues were just at one instance
+        //                     continue;
+        //                 }
+        //             }
+        //
+        //             $studies       = collect($api_data->FullStudies);
+        //             $initial_count = $studies->count();
+        //             $studies       = $studies
+        //                 ->map(function ($study) {
+        //                     $study->Study->ProtocolSection->Rank = $study->Rank;
+        //                     return $study;
+        //                 })
+        //                 ->filter(function ($study) use ($trashed_posts) {
+        //                     // Filter the data removing ones that are marked as "trash"
+        //                     $collect_study   = collect($study)
+        //                         ->get('Study')
+        //                         ->ProtocolSection;
+        //                     $study_id_module = collect($collect_study)
+        //                         ->get('IdentificationModule');
+        //
+        //                     $study = self::parseId($study_id_module);
+        //                     $found = $trashed_posts->search($study->get('nct_id'));
+        //                     return is_bool($found);
+        //                 })
+        //                 ->values();
+        //
+        //             $num_not_imported = $num_not_imported + ($initial_count - $studies->count());
+        //
+        //             if ($studies->count() > 0) {
+        //                 $studies = self::studyImportLoop($studies);
+        //                 $studies_imported = $studies['studies'];
+        //             }
+        //         endfor;
+        //     } else {
+        //         $this
+        //             ->errorLog
+        //             ->error(__("No studies were found", 'merck-scraper'));
+        //     }
+        // } else {
+        //     $this
+        //         ->errorLog
+        //         ->error($client_http
+        //                     ->get_error_message());
+        // }
+        //
+        // $email = self::emailSetup($studies_imported, $num_not_imported);
+        // if (is_wp_error($email)) {
+        //     $this
+        //         ->errorLog
+        //         ->error("Error sending email, check Email log");
+        // }
 
         // Restore the max_execution_time
         ini_restore('post_max_size');
@@ -754,7 +781,7 @@ class MSAPIScraper
 
             //region Taxonomy Setup
             /**
-             * Setup the taxonomy terms
+             * Set up the taxonomy terms
              */
             collect()
                 // Set the key as the taxonomy name
@@ -767,7 +794,7 @@ class MSAPIScraper
                 });
 
             /**
-             * Setup the taxonomy terms for Trial Drugs
+             * Set up the taxonomy terms for Trial Drugs
              */
             if ($arms_module->get('drugs') && $arms_module->get('drugs')->isNotEmpty()) {
                 collect()
@@ -882,7 +909,7 @@ class MSAPIScraper
                 }
 
                 /**
-                 * If the geolocation was successful, then retun the data as an array
+                 * If the geolocation was successful, then return the data as an array
                  */
                 if (!is_wp_error($gm_geocoder_data)) {
                     $gm_geocoder_data
@@ -913,7 +940,7 @@ class MSAPIScraper
     //endregion
 
     /**
-     * Method that setups and sends out the email after the import has been ran
+     * Method that setups and sends out the email after the import has been run
      *
      * @param Collection $studies_imported A Collection of studies that were imported
      * @param int        $num_not_imported The number of studies not imported as they're filtered out
@@ -921,7 +948,7 @@ class MSAPIScraper
     protected function emailSetup(Collection $studies_imported, int $num_not_imported = 0)
     {
         /**
-         * Merck Emailer
+         * Merck Email Client
          */
         if ($this->sendTo->isEmpty()) {
             $this->sendTo = collect(self::acfOptionField('api_logger_email_to'));
@@ -938,7 +965,7 @@ class MSAPIScraper
         }
 
         /**
-         * A list of array fields for the MailJet emailer
+         * A list of array fields for the MailJet Email Client
          */
         $email_args = [
             'TemplateLanguage' => true,
@@ -952,7 +979,7 @@ class MSAPIScraper
         ];
 
         /**
-         * Adds the Trails data to Variables
+         * Adds the Trails' data to Variables
          */
         if ($studies_imported->isNotEmpty()) {
             $new_posts     = collect();

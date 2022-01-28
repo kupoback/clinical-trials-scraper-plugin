@@ -35,6 +35,7 @@ trait MSAdminTrait
 
         $plural = Str::plural($singular);
         $single_lower = strtolower($singular);
+
         return [
             "label"               => __($plural, "merck-scraper"),
             "description"         => __($description, "merck-scraper"),
@@ -81,6 +82,7 @@ trait MSAdminTrait
             "exclude_from_search" => false,
             "publicly_queryable"  => true,
             "capability_type"     => $type,
+            'rewrite'             => $editor_args['rewrite'] ?? true,
             "show_in_rest"        => false,
         ];
     }

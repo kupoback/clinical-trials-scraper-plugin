@@ -15,6 +15,12 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 
 == Changelog ==
 
+= 1.0.6.1 =
+
+Adjustment to the Post Type method to allow for rewrites array
+
+Working on the scraper to allow for languages.
+
 = 1.0.6 =
 
 Fixed some logic in the import to handle the conditions and locations better
