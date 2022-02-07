@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Merck_Scraper\Traits;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Merck_Scraper\Helper\MSHelper as Helper;
 
 /**
@@ -327,13 +328,17 @@ trait MSApiField
     /**
      * Parses the Contacts Locations Module, returning a collection for the Location field
      *
-     * @param object $location_module
+     * @param object $location_module   The location array data grabbed
      *
      * @return Collection
      */
     protected function parseLocation(object $location_module)
     :Collection
     {
+        $status = $this->trialStatus
+            ->toArray();
+        $country_names = $this->trialLocations
+            ->toArray();
         /**
          * Map through all the locations, and set them up for import. During this time
          * we will be getting the latitude and longitude from Google Maps
@@ -341,10 +346,8 @@ trait MSApiField
         $locations = collect($location_module->LocationList->Location ?? []);
         if ($locations->isNotEmpty()) {
             $locations = $locations
-                ->map(function ($location) {
-                    $us_names        = ["United States", "United States of America", "USA"];
+                ->map(function ($location) use ($country_names, $status) {
                     $location_status = $location->LocationStatus ?? '';
-                    $status          = ['Recruiting', 'Active, not recruiting'];
 
                     /**
                      * Grab the phone number for the contact
@@ -354,7 +357,8 @@ trait MSApiField
                         $phone = $contact_list->LocationContact[0]->LocationContactPhone ?? '';
                     }
 
-                    if (in_array($location->LocationCountry, $us_names) && in_array($location_status, $status)) {
+                    if (in_array(Str::lower($location->LocationCountry), $country_names)
+                        && in_array(Str::lower($location_status), $status)) {
                         return [
                             'city'              => $location->LocationCity ?? '',
                             'country'           => $location->LocationCountry ?? '',

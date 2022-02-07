@@ -15,6 +15,18 @@ This plugin is used to scrape data from clinicaltrials.gov website.
 
 == Changelog ==
 
+= 1.4 =
+
+Fixed issues with the MSAPIScraper not fully incorporating the countries on import, failing due to string comparisons. Fixed this to lowercase adjust these.
+
+Fixed issues with the MSAPIScraper not fully incorporating the status' on import, failing due to string comparisons. Fixed this to lowercase adjust these.
+
+Addressed how http and email logs are captured, separating them in their own directories for success and errors.
+
+Address the FE Vue scripts to reflect the log changes.
+
+Addressed issue where the file log wouldn't get deleted upon request due to glob error. Passed path as param instead.
+
 = 1.3.3 =
 
 Removed error logs

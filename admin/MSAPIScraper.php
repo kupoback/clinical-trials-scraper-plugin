@@ -64,6 +64,8 @@ class MSAPIScraper
      */
     private Collection $trialStatus;
 
+    private Collection $trialLocations;
+
     /**
      * @var Collection Trial ACF Field Names
      */
@@ -140,6 +142,13 @@ class MSAPIScraper
         $this->trialStatus = collect(
             MSHelper::textareaToArr(
                 self::acfStrOptionFld('clinical_trials_api_status_search')
+            )
+        )
+            ->filter();
+
+        $this->trialLocations = collect(
+            MSHelper::textareaToArr(
+                self::acfStrOptionFld('clinical_trials_api_location_search')
             )
         )
             ->filter();
@@ -241,12 +250,7 @@ class MSAPIScraper
             );
 
             // Trial Location search
-            $location = collect(
-                MSHelper::textareaToArr(
-                    self::acfStrOptionFld('clinical_trials_api_location_search')
-                )
-            )
-                ->filter()
+            $location = $this->trialLocations
                 ->map(function ($location) {
                     return "\"$location\"";
                 })
@@ -429,11 +433,15 @@ class MSAPIScraper
         }
 
         $email = self::emailSetup($studies_imported, $num_not_imported);
-        if (is_wp_error($email)) {
-            $this
-                ->errorLog
-                ->error("Error sending email, check Email log");
-        }
+
+        /**
+         * @deprecated Moved logic into the MSMailer Class
+         */
+        // if (is_wp_error($email)) {
+        //     $this
+        //         ->errorLog
+        //         ->error("Error sending email, check Email log", $email);
+        // }
 
         // Restore the max_execution_time
         ini_restore('post_max_size');

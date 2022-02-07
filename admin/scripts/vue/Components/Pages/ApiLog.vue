@@ -39,7 +39,7 @@
                                    :loading="gatheringFile"
                                    :file-path="filePath"
                                    :fileDir="dirSelect"
-                                   @deleteFile="deleteFile" />
+                                   @deleteFile="deleteFile(id, filePath)" />
                 </div>
             </div>
             <div v-if="errFileContents.length"
@@ -55,7 +55,7 @@
                                    :loading="gatheringFile"
                                    :file-path="filePath"
                                    :fileDir="dirSelect"
-                                   @deleteFile="deleteFile" />
+                                   @deleteFile="deleteFile(id, filePath)" />
                 </div>
             </div>
         </div>
@@ -116,14 +116,9 @@
             },
             async selectLogDir(dirType) {
                 this.fetchSetup();
-                
-                if (dirType === 'http') {
-                    this.logFileHeader = "HTTP Log Files";
-                    this.errFileHeader = "HTTP Error Files";
-                } else if (dirType === 'api') {
-                    this.errFileHeader = "Import Error Files";
-                    this.logFileHeader = "Import Log Files";
-                }
+    
+                this.logFileHeader = "HTTP Log Files";
+                this.errFileHeader = "HTTP Error Files";
                 
                 await this.getLogContents(false, dirType)
                           .finally(() => this.fetchComplete());
@@ -148,11 +143,10 @@
             refreshContent() {
                 this.getLogContents(true);
             },
-            deleteFile(file) {
-                const fileName = file.accordionId;
+            deleteFile(fileId, filePath) {
                 this.$confirm(
                     "Are you sure you wish to delete this log file?",
-                    `Delete ${fileName}?`,
+                    `Delete ${fileId}?`,
                     "warning",
                     {
                         allowEnterKey: true,
@@ -167,7 +161,10 @@
                     )
                     .then(() => {
                         axios
-                            .get(`${this.apiDeleteFile}/${fileName}`)
+                            .post(
+                                `${this.apiDeleteFile}/${fileId}`,
+                                {filePath,}
+                            )
                             .then(({data}) => {
                                 const message = data.message;
                                 let status = false;
@@ -199,7 +196,7 @@
                             .then((status) => status && this.refreshContent())
                             .catch(err => console.error(err.message));
                     })
-                    .catch(err => {});
+                    .catch(err => console.error(err.message));
             },
             fetchSetup() {
                 this.gatheringContents = true;
