@@ -122,7 +122,7 @@ trait MSApiTrait
     {
         // @TODO Could possibly refactor to pass in the full path instead of building it
         if ($file && $folder) {
-            $log_file = "{$folder}/{$file}.log";
+            $log_file = "$folder/$file.log";
             if (file_exists($log_file)) {
                 return [
                     'message'      => null,

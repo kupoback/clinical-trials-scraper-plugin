@@ -117,8 +117,8 @@
             async selectLogDir(dirType) {
                 this.fetchSetup();
     
-                this.logFileHeader = "HTTP Log Files";
-                this.errFileHeader = "HTTP Error Files";
+                this.logFileHeader = `${dirType} Log Files`;
+                this.errFileHeader = `${dirType} Error Files`;
                 
                 await this.getLogContents(false, dirType)
                           .finally(() => this.fetchComplete());

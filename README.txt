@@ -15,6 +15,11 @@ This plugin is used to scrape data from clinicaltrials.gov website.
 
 == Changelog ==
 
+= 1.4.1 =
+
+Fixed issue with Log file contents outside of API not getting called
+
+
 = 1.4 =
 
 Fixed issues with the MSAPIScraper not fully incorporating the countries on import, failing due to string comparisons. Fixed this to lowercase adjust these.
