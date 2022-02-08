@@ -6,7 +6,7 @@ namespace Merck_Scraper\includes;
 
 use Merck_Scraper\admin\MSAdmin;
 use Merck_Scraper\admin\MSApiLogger;
-use Merck_Scraper\admin\MSAPIScraper;
+use Merck_Scraper\admin\MSApiScraper;
 use Merck_Scraper\admin\MSCustomPT;
 use Merck_Scraper\admin\MSCustomTax;
 use Merck_Scraper\admin\MSOptionsPage;
@@ -176,7 +176,7 @@ class MSMainClass
         $this->loader->addAction('init', $admin_taxonomy, 'registerTaxonomy');
 
         // Registers the Scraper API
-        $scraper_api = new MSAPIScraper();
+        $scraper_api = new MSApiScraper();
         $this->loader->addAction('rest_api_init', $scraper_api, 'registerEndpoint');
         // $this->loader->addAction('init', $scraper_api, 'registerCronType');
     }

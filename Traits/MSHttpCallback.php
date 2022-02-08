@@ -204,6 +204,6 @@ trait MSHttpCallback
      */
     protected function httpErrLogger()
     {
-        return self::initLogger("http-error", "http-error", MERCK_SCRAPER_LOG_DIR . "/http");
+        return self::initLogger("http-error", "http-error", MERCK_SCRAPER_LOG_DIR . "/http/error");
     }
 }

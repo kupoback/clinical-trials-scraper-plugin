@@ -13,8 +13,8 @@
                     :data-bs-target="`#${type}-${accordionId}`"
                     aria-expanded="false"
                     :aria-controls="`${type}-${accordionId}`"
-                    @click.prevent="getFile(accordionId, type, fileDir)"
-                    @keypress.enter.prevent="getFile(accordionId, type, fileDir)"
+                    @click.prevent="getFile(accordionId, type, fileDir, filePath)"
+                    @keypress.enter.prevent="getFile(accordionId, type, fileDir, filePath)"
                     v-text="title" />
         </h2>
         <div :id="`${type}-${accordionId}`"
@@ -63,7 +63,7 @@
             }
         },
         methods: {
-            async getFile(fileName = '', fileType = '', fileDir = '') {
+            async getFile(fileName = '', fileType = '', fileDir = '', filePath = '') {
                 if (!fileName || this.fileContents) return;
                 
                 this.loadingFile = true;
@@ -71,6 +71,7 @@
                 const data = {
                     fileType,
                     fileDir,
+                    filePath,
                 };
                 
                 await axios

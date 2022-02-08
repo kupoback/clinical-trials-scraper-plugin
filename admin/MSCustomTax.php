@@ -48,6 +48,8 @@ class MSCustomTax
         // Trial Age
         $tax_array["trial_age"] = self::taxonomyArray("Trial Age", "Trial Ages", 'trial-age');
 
+        $tax_array["trial_language"] = self::taxonomyArray("Trial Language", "Trial Languages", 'trial-language');
+
         // Loops through each tax array item and registers them.
         foreach ($tax_array as $taxonomy => $tax_args) {
             register_taxonomy($taxonomy, ["trials"], $tax_args);

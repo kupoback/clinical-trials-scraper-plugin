@@ -6,7 +6,7 @@ namespace Merck_Scraper;
 
 use Exception;
 use Illuminate\Support\Carbon;
-use Merck_Scraper\admin\MSAPIScraper;
+use Merck_Scraper\admin\MSApiScraper;
 use Merck_Scraper\includes\MSMainClass;
 use Merck_Scraper\includes\MSActivator;
 use Merck_Scraper\includes\MSDeactivator;
@@ -141,7 +141,7 @@ run_ms();
  * This is the cron job setup function
  */
 add_action('ms_govt_scrape_cron', function () {
-    $scraper_class = new MSAPIScraper();
+    $scraper_class = new MSApiScraper();
 
     $logger = $scraper_class->setLogger('cron-job', 'cron', MERCK_SCRAPER_LOG_DIR . '/cron');
 

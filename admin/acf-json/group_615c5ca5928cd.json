@@ -83,7 +83,7 @@
         },
         {
             "key": "field_615c5d03be970",
-            "label": "Global Trial Text",
+            "label": "Global Trial Titles",
             "name": "",
             "type": "tab",
             "instructions": "",
@@ -605,64 +605,6 @@
             "delay": 1
         },
         {
-            "key": "field_6165a97fbeebb",
-            "label": "Zipcode",
-            "name": "zipcode_group",
-            "type": "group",
-            "instructions": "The placeholder text is for if the method to grab the zipcode by IP fails.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "wpml_cf_preferences": 3,
-            "layout": "block",
-            "sub_fields": [
-                {
-                    "key": "field_6165a98cbeebc",
-                    "label": "Label",
-                    "name": "label",
-                    "type": "text",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "one-half",
-                        "id": ""
-                    },
-                    "wpml_cf_preferences": 2,
-                    "default_value": "Enter ZIP code or city",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "maxlength": ""
-                },
-                {
-                    "key": "field_6165a99fbeebd",
-                    "label": "Placeholder",
-                    "name": "placeholder",
-                    "type": "text",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "one-half",
-                        "id": ""
-                    },
-                    "wpml_cf_preferences": 2,
-                    "default_value": "Enter ZIP code or city",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "maxlength": ""
-                }
-            ]
-        },
-        {
             "key": "field_6165b2d7be641",
             "label": "Distance Units Text",
             "name": "distance_units_text",
@@ -754,7 +696,7 @@
                     "conditional_logic": 0,
                     "wrapper": {
                         "width": "",
-                        "class": "one-half",
+                        "class": "",
                         "id": ""
                     },
                     "wpml_cf_preferences": 1,
@@ -765,86 +707,6 @@
                     "min": "",
                     "max": "",
                     "step": 1
-                },
-                {
-                    "key": "field_616850563ace2",
-                    "label": "Default Location",
-                    "name": "default_location",
-                    "type": "text",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "one-half",
-                        "id": ""
-                    },
-                    "wpml_cf_preferences": 2,
-                    "default_value": "Kenilworth, New Jersey",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "maxlength": ""
-                },
-                {
-                    "key": "field_6168755b3ace3",
-                    "label": "Default Coords",
-                    "name": "default_coords",
-                    "type": "group",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "",
-                        "id": ""
-                    },
-                    "wpml_cf_preferences": 1,
-                    "layout": "block",
-                    "sub_fields": [
-                        {
-                            "key": "field_616875633ace4",
-                            "label": "Latitude",
-                            "name": "latitude",
-                            "type": "number",
-                            "instructions": "",
-                            "required": 0,
-                            "conditional_logic": 0,
-                            "wrapper": {
-                                "width": "",
-                                "class": "one-half",
-                                "id": ""
-                            },
-                            "default_value": "40.6764911",
-                            "placeholder": "",
-                            "prepend": "",
-                            "append": "",
-                            "min": "",
-                            "max": "",
-                            "step": ""
-                        },
-                        {
-                            "key": "field_6168756d3ace5",
-                            "label": "Longitude",
-                            "name": "longitude",
-                            "type": "number",
-                            "instructions": "",
-                            "required": 0,
-                            "conditional_logic": 0,
-                            "wrapper": {
-                                "width": "",
-                                "class": "one-half",
-                                "id": ""
-                            },
-                            "default_value": "-74.2907032",
-                            "placeholder": "",
-                            "prepend": "",
-                            "append": "",
-                            "min": "",
-                            "max": "",
-                            "step": ""
-                        }
-                    ]
                 }
             ]
         },
@@ -956,7 +818,7 @@
                 "id": ""
             },
             "wpml_cf_preferences": 3,
-            "collapsed": "",
+            "collapsed": "field_618167ec20b0f",
             "min": 0,
             "max": 5,
             "layout": "block",
@@ -1082,5 +944,5 @@
     "active": true,
     "description": "Settings for the Single Trial titles and content which won't change per trial.",
     "show_in_rest": 0,
-    "modified": 1639669957
+    "modified": 1643404106
 }

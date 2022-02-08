@@ -100,11 +100,17 @@ class MSApiLogger
         // Deletes a specific file
         self::registerRoute(
             'api-delete-file',
-            WP_REST_Server::READABLE,
+            WP_REST_Server::CREATABLE,
             [$this, 'apiDeleteFile'],
             '(?P<file>[a-zA-Z0-9-]+)',
             [
                 'file' => [
+                    'required'          => true,
+                    'validate_callback' => function ($param) {
+                        return is_string($param);
+                    },
+                ],
+                'filePath' => [
                     'required'          => true,
                     'validate_callback' => function ($param) {
                         return is_string($param);
@@ -165,7 +171,6 @@ class MSApiLogger
     public function apiLogger(WP_REST_Request $request)
     {
         $message = [];
-        $log_files = false;
 
         $dir_type = $request->get_param('dirType');
 
@@ -173,7 +178,8 @@ class MSApiLogger
             $log_files = self::getFileNames($this->apiLogDir);
             $err_files = self::getFileNames($this->apiErrDir);
         } else {
-            $err_files = self::getFileNames(MERCK_SCRAPER_LOG_DIR . "/{$dir_type}");
+            $log_files = self::getFileNames(MERCK_SCRAPER_LOG_DIR . "/$dir_type/log");
+            $err_files = self::getFileNames(MERCK_SCRAPER_LOG_DIR . "/$dir_type/error");
         }
 
         if ($log_files) {
@@ -206,7 +212,9 @@ class MSApiLogger
                     ? $this->apiLogDir :
                     ($file_type === 'err' ? $this->apiErrDir : null);
             } else {
-                $file_dir = MERCK_SCRAPER_LOG_DIR . "/{$dir_type}";
+                $file_type === 'err' ? $file_type = 'error' : null;
+                $file_type === 'success' ? $file_type = 'log' : null;
+                $file_dir = MERCK_SCRAPER_LOG_DIR . "/$dir_type/$file_type";
             }
 
             if (!is_null($file_dir)) {
@@ -235,10 +243,11 @@ class MSApiLogger
      */
     public function apiDeleteFile(WP_REST_Request $request)
     {
+        $file_path = $request['filePath'] ?? '';
         $return = ['message' => __('File not deleted', 'merck-scraper'), 'status' => 404];
         if ($request['file']) {
             $file_name = "{$request['file']}.log";
-            $find_file = collect(glob(MERCK_SCRAPER_API_LOG_DIR . "/**/*{$file_name}"));
+            $find_file = collect(glob($file_path));
 
             $return['message'] = __('No files matching.', 'merck-scraper');
             if ($find_file->isNotEmpty()) {
@@ -247,7 +256,7 @@ class MSApiLogger
                 $the_file = $find_file->first();
                 if (file_exists($the_file)) {
                     unlink($the_file);
-                    $return['message'] = __("Found and deleted {$file_name}", 'merck-scraper');
+                    $return['message'] = __("Found and deleted $file_name", 'merck-scraper');
                     $return['status']  = 200;
                 }
             }

@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Merck_Scraper\Traits;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Merck_Scraper\Helper\MSHelper as Helper;
 
 /**
@@ -162,12 +163,8 @@ trait MSApiField
     {
         return collect(
             [
-                'conditions' => $condition_module
-                        ->ConditionList
-                        ->Condition ?? [],
-                'keywords'   => $condition_module
-                        ->KeywordList
-                        ->Keyword ?? [],
+                'conditions' => self::standardizeArrayWords($condition_module->ConditionList->Condition),
+                'keywords'   => self::standardizeArrayWords($condition_module->KeywordList->Keyword),
             ]
         );
     }
@@ -327,13 +324,17 @@ trait MSApiField
     /**
      * Parses the Contacts Locations Module, returning a collection for the Location field
      *
-     * @param object $location_module
+     * @param object $location_module   The location array data grabbed
      *
      * @return Collection
      */
     protected function parseLocation(object $location_module)
     :Collection
     {
+        $status = $this->trialStatus
+            ->toArray();
+        $allowed_countries = $this->allowedTrialLocations;
+        $disallowed_countries = $this->disallowedTrialLocations;
         /**
          * Map through all the locations, and set them up for import. During this time
          * we will be getting the latitude and longitude from Google Maps
@@ -341,10 +342,8 @@ trait MSApiField
         $locations = collect($location_module->LocationList->Location ?? []);
         if ($locations->isNotEmpty()) {
             $locations = $locations
-                ->map(function ($location) {
-                    $us_names        = ["United States", "United States of America", "USA"];
+                ->map(function ($location) use ($allowed_countries, $disallowed_countries, $status) {
                     $location_status = $location->LocationStatus ?? '';
-                    $status          = ['Recruiting', 'Active, not recruiting'];
 
                     /**
                      * Grab the phone number for the contact
@@ -354,7 +353,15 @@ trait MSApiField
                         $phone = $contact_list->LocationContact[0]->LocationContactPhone ?? '';
                     }
 
-                    if (in_array($location->LocationCountry, $us_names) && in_array($location_status, $status)) {
+                    if ($allowed_countries->isNotEmpty()) {
+                        $in_array = in_array(Str::lower($location->LocationCountry), $allowed_countries->toArray());
+                    } elseif ($allowed_countries->isNotEmpty()) {
+                        $in_array = !in_array(Str::lower($location->LocationCountry), $disallowed_countries->toArray());
+                    } else {
+                        $in_array = true;
+                    }
+
+                    if ($in_array && in_array(Str::lower($location_status), $status)) {
                         return [
                             'city'              => $location->LocationCity ?? '',
                             'country'           => $location->LocationCountry ?? '',
@@ -464,7 +471,7 @@ trait MSApiField
      *
      * @return Collection|mixed
      */
-    protected function trialsFieldGroup()
+    protected function getTrialsFieldGroups()
     {
         $fields = collect(
             acf_get_fields('group_60fae8b82087d')
@@ -509,6 +516,30 @@ trait MSApiField
                 ->values();
         }
 
-        return collect([]);
+        return collect();
+    }
+
+    /**
+     * This function will take a single item array and loop through it, removing any parenthesis
+     * and return the capitalization of each first word
+     *
+     * @param array $collection
+     *
+     * @return array
+     */
+    protected function standardizeArrayWords(array $collection)
+    :array
+    {
+        return collect($collection)
+            ->filter()
+            ->map(function ($keyword) {
+                return ucwords(self::filterParenthesis($keyword));
+            })->toArray();
+    }
+
+    protected function getTrialLocations(int $post_id = 0)
+    :Collection
+    {
+        return collect(get_field('api_data_locations', $post_id));
     }
 }

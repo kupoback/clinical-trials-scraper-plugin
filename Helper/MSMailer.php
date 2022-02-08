@@ -11,6 +11,7 @@ use Merck_Scraper\Traits\MSAcfTrait;
 use Merck_Scraper\Traits\MSEmailTrait;
 use Merck_Scraper\Traits\MSLoggerTrait;
 use Monolog\Logger;
+use WP_Error;
 
 class MSMailer
 {
@@ -22,25 +23,32 @@ class MSMailer
     /**
      * This is an email compiler
      *
-     * @param Collection|null $email_defaults
-     * @param array<array>    $addt_args
+     * @param null|Collection $send_to
+     * @param array<array>    $extra_args
      *
-     * @return array|Error
+     * @return array|WP_Error
      * @link https://dev.mailjet.com/email/guides/send-api-v31/
      */
-    public function mailer(Collection $send_to = null, array $addt_args = [])
+    public function mailer(Collection $send_to = null, array $extra_args = [])
     {
         // $send_to is required and must be a Collection
         if (is_null($send_to) || $send_to->isEmpty()) {
-            return new Error("An email address and Name are required for email submission", 400);
+            return new WP_Error("An email address and Name are required for email submission", 400);
         }
 
-        // Setup the Email logger
+        // Set up the Email logger
         $email_logger = self::initLogger(
             'email-log',
             'email',
-            MERCK_SCRAPER_LOG_DIR . '/email',
+            MERCK_SCRAPER_LOG_DIR . '/email/log',
             Logger::API
+        );
+
+        $error_logger = self::initLogger(
+            'email-error',
+            'email-error',
+            MERCK_SCRAPER_LOG_DIR . '/email/error',
+            Logger::API,
         );
 
         $email_from      = self::acfOptionField('email_from');
@@ -48,10 +56,10 @@ class MSMailer
 
         $mailjet = self::mailerClient();
 
-        // Quit if the mailerClient fails to setup
+        // Quit if the mailerClient fails to set up
         if (is_wp_error($mailjet)) {
-            $email_logger->error("Failed to setup Email Client", ['message' => $mailjet->get_error_message()]);
-            return new Error("Failed to setup Email Client. {$mailjet->get_error_message()}");
+            $error_logger->error("Failed to setup Email Client", ['message' => $mailjet->get_error_message()]);
+            return new WP_Error("Failed to setup Email Client. {$mailjet->get_error_message()}");
         }
 
         $send_to = $send_to
@@ -79,9 +87,9 @@ class MSMailer
             ],
         ];
 
-        if (!empty($addt_args)) {
+        if (!empty($extra_args)) {
             // Anything else like Subject, HTMLPart, TextPart, Variables, Template ID
-            foreach ($addt_args as $key_name => $value) {
+            foreach ($extra_args as $key_name => $value) {
                 $mailjet_body['Messages'][0][$key_name] = $value;
             }
         }
@@ -90,11 +98,11 @@ class MSMailer
         $resp_body = $response->getBody();
 
         if ($response->success()) {
-            $email_logger->info("Email Sent", $resp_body['Messages'][0]['To']);
-            return $response->getBody();
+            $email_logger->info("Email Sent", $resp_body['Messages'][0]['To'] ?? '');
+            return $resp_body;
+        } else {
+            $error_logger->error("Email Failed", $response->getBody());
+            return new WP_Error($response->getStatus() ?? 400, $resp_body);
         }
-
-        $email_logger->error("Email Failed", $response->getBody());
-        return new Error($response->getBody());
     }
 }
