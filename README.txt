@@ -2,10 +2,10 @@
 Contributors: Nick Makris
 Donate link: https://cliquestudios.com
 Tags:
-Requires at least: 5.8.0
+Requires at least: 5.9.0
 Tested up to: 5.8.1
 Requires PHP: 7.4
-Stable tag: 1.1
+Stable tag: 1.0.6.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,22 +15,15 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 
 == Changelog ==
 
-= 1.1 =
+= 1.0.6.2 =
 
-Reworked a lot of the logic for the locations mapping
-	Will no longer get a Google location if the one existing already has a lat/lng defined
+Added in integration for proper language mapping and taxonomy terms based on the locations countries
 
-Added in Disallow Country list and using that if there are no defined countries to focus on
+Adjusted a few pieces of integrations to optimize code and use as little memory as possible
 
-Adjusted the way the country language and country map works, and integrated it into a new taxonomy
+Fixed issue with locations parsing after grabbing API data, removing countries not to import
 
-Made a new trial_language taxonomy for setting a trial to specific languages, with a fallback to all
-
-Reworked some methods for cleanup and ease of adjustments
-
-Adjusted the way Keywords and Conditions are defined and cleaning up their text values
-
-Migrated some cleanup and adjustments from the default Merck Scraper plugin
+Minor tweaks to the geocode to skip entries that already have a lat/lng entered to save on API calls
 
 = 1.0.6.1 =
 
