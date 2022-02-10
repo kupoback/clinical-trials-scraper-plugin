@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Merck_Scraper\Traits;
 
@@ -25,8 +25,7 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseId(object $id_module)
-    :Collection
+    protected function parseId(object $id_module): Collection
     {
         // $protocol_id  = collect();
         $other_ids = collect($id_module->SecondaryIdInfoList->SecondaryIdInfo ?? []);
@@ -46,11 +45,11 @@ trait MSApiField
                 ->filter();
         }
 
-        $base_url = self::acfOptionField('clinical_trials_show_page');
+        $base_url = $this->acfOptionField('clinical_trials_show_page');
 
         $title = '';
         if ($id_module->BriefTitle !== null) {
-            $title = self::filterParenthesis($id_module->BriefTitle);
+            $title = $this->filterParenthesis($id_module->BriefTitle);
         }
 
         return collect(
@@ -62,8 +61,8 @@ trait MSApiField
                 'official_title' => $id_module->OfficialTitle ?? '',
                 'other_ids'      => $other_ids,
                 'study_keyword'  => $id_module
-                        ->OrgStudyIdInfo
-                        ->OrgStudyId ?? '',
+                    ->OrgStudyIdInfo
+                    ->OrgStudyId ?? '',
             ]
         );
     }
@@ -76,21 +75,20 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseStatus(object $status_module)
-    :Collection
+    protected function parseStatus(object $status_module): Collection
     {
         return collect(
             [
                 'trial_status'            => $status_module->OverallStatus,
                 'start_date'              => $status_module
-                        ->StartDateStruct
-                        ->StartDate ?? '',
+                    ->StartDateStruct
+                    ->StartDate ?? '',
                 'primary_completion_date' => $status_module
-                        ->PrimaryCompletionDateStruct
-                        ->PrimaryCompletionDate ?? '',
+                    ->PrimaryCompletionDateStruct
+                    ->PrimaryCompletionDate ?? '',
                 'completion_date'         => $status_module
-                        ->CompletionDateStruct
-                        ->CompletionDate ?? '',
+                    ->CompletionDateStruct
+                    ->CompletionDate ?? '',
                 // 'study_first_post_date'   => $status_module->StudyFirstPostDateStruct->CompletionDate ?? '',
                 // 'results_first_post_date' => $status_module->ResultsFirstPostDateStruct->ResultsFirstPostDate ?? '',
             ]
@@ -104,14 +102,13 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseSponsors(object $sponsor_module)
-    :Collection
+    protected function parseSponsors(object $sponsor_module): Collection
     {
         return collect(
             [
                 'lead_sponsor_name' => $sponsor_module
-                        ->LeadSponsor
-                        ->LeadSponsorName ?? '',
+                    ->LeadSponsor
+                    ->LeadSponsorName ?? '',
             ]
         );
     }
@@ -123,13 +120,10 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseOversight(object $oversight_module)
-    :Collection
+    protected function parseOversight(object $oversight_module): Collection
     {
         return collect(
-            [
-
-            ]
+            []
         );
     }
 
@@ -140,8 +134,7 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseDescription(object $description_module)
-    :Collection
+    protected function parseDescription(object $description_module): Collection
     {
         return collect(
             [
@@ -158,13 +151,12 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseCondition(object $condition_module)
-    :Collection
+    protected function parseCondition(object $condition_module): Collection
     {
         return collect(
             [
-                'conditions' => self::standardizeArrayWords($condition_module->ConditionList->Condition),
-                'keywords'   => self::standardizeArrayWords($condition_module->KeywordList->Keyword),
+                'conditions' => $this->standardizeArrayWords($condition_module->ConditionList->Condition ?? []),
+                'keywords'   => $this->standardizeArrayWords($condition_module->KeywordList->Keyword ?? []),
             ]
         );
     }
@@ -176,8 +168,7 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseDesign(object $design_module)
-    :Collection
+    protected function parseDesign(object $design_module): Collection
     {
         /**
          * Unsure if needed
@@ -227,8 +218,7 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseArms(object $arms_module)
-    :Collection
+    protected function parseArms(object $arms_module): Collection
     {
         $intervention_arr = collect([]);
         $interventions    = $arms_module->InterventionList ?? [];
@@ -250,10 +240,10 @@ trait MSApiField
                 'interventions' => $intervention_arr ?? [],
                 'drugs'         => $intervention_arr->isNotEmpty() ?
                     $intervention_arr
-                        ->map(function ($arr_item) {
-                            return strtolower($arr_item['type']) === 'drug' ? $arr_item['name'] : false;
-                        })
-                        ->filter()
+                    ->map(function ($arr_item) {
+                        return strtolower($arr_item['type']) === 'drug' ? $arr_item['name'] : false;
+                    })
+                    ->filter()
                     : collect(),
             ]
         );
@@ -266,16 +256,15 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseOutcome(object $outcome_module)
-    :Collection
+    protected function parseOutcome(object $outcome_module): Collection
     {
         $outcomes        = collect([]);
         $primary_outcome = $outcome_module
-                ->PrimaryOutcomeList
-                ->PrimaryOutcome ?? [];
+            ->PrimaryOutcomeList
+            ->PrimaryOutcome ?? [];
         $second_outcome  = $outcome_module
-                ->SecondaryOutcomeList
-                ->SecondaryOutcome ?? [];
+            ->SecondaryOutcomeList
+            ->SecondaryOutcome ?? [];
 
         if (!empty($primary_outcome)) {
             collect($primary_outcome)
@@ -309,8 +298,7 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseEligibility(object $eligibility_module)
-    :Collection
+    protected function parseEligibility(object $eligibility_module): Collection
     {
         return collect(
             [
@@ -328,8 +316,7 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseLocation(object $location_module)
-    :Collection
+    protected function parseLocation(object $location_module): Collection
     {
         $status = $this->trialStatus
             ->toArray();
@@ -355,7 +342,7 @@ trait MSApiField
 
                     if ($allowed_countries->isNotEmpty()) {
                         $in_array = in_array(Str::lower($location->LocationCountry), $allowed_countries->toArray());
-                    } elseif ($allowed_countries->isNotEmpty()) {
+                    } elseif ($disallowed_countries->isNotEmpty()) {
                         $in_array = !in_array(Str::lower($location->LocationCountry), $disallowed_countries->toArray());
                     } else {
                         $in_array = true;
@@ -365,7 +352,7 @@ trait MSApiField
                         return [
                             'city'              => $location->LocationCity ?? '',
                             'country'           => $location->LocationCountry ?? '',
-                            'facility'          => self::filterParenthesis($location->LocationFacility ?? ''),
+                            'facility'          => $this->filterParenthesis($location->LocationFacility ?? ''),
                             'recruiting_status' => $location_status,
                             'state'             => $location->LocationState ?? '',
                             'zip'               => $location->LocationZip ?? '',
@@ -391,13 +378,10 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseIDP(object $ipd_module)
-    :Collection
+    protected function parseIDP(object $ipd_module): Collection
     {
         return collect(
-            [
-
-            ]
+            []
         );
     }
 
@@ -408,8 +392,7 @@ trait MSApiField
      *
      * @return array
      */
-    protected function parsePostArgs(array $post_args)
-    :array
+    protected function parsePostArgs(array $post_args): array
     {
         return [
             'post_title'   => $post_args['title'],
@@ -428,8 +411,7 @@ trait MSApiField
      *
      * @return bool
      */
-    protected function inBetween(int $value, int $min_value, int $max_value)
-    :bool
+    protected function inBetween(int $value, int $min_value, int $max_value): bool
     {
         if ($value < $min_value) {
             return false;
@@ -527,18 +509,21 @@ trait MSApiField
      *
      * @return array
      */
-    protected function standardizeArrayWords(array $collection)
-    :array
+    protected function standardizeArrayWords(array $collection): array
     {
         return collect($collection)
             ->filter()
             ->map(function ($keyword) {
-                return ucwords(self::filterParenthesis($keyword));
-            })->toArray();
+                if ($keyword) {
+                    return ucwords($this->filterParenthesis($keyword));
+                }
+                return false;
+            })
+            ->filter()
+            ->toArray();
     }
 
-    protected function getTrialLocations(int $post_id = 0)
-    :Collection
+    protected function getTrialLocations(int $post_id = 0): Collection
     {
         return collect(get_field('api_data_locations', $post_id));
     }

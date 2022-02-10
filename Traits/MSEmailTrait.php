@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Merck_Scraper\Traits;
 
@@ -20,8 +20,8 @@ trait MSEmailTrait
 
     protected function mailerClient()
     {
-        $api_key         = self::acfOptionField('mailjet_api_key');
-        $api_secret      = self::acfOptionField('mailjet_api_secret_key');
+        $api_key         = $this->acfOptionField('mailjet_api_key');
+        $api_secret      = $this->acfOptionField('mailjet_api_secret_key');
 
         if (!$api_key || !$api_secret) {
             return new WP_Error("Please check that the API Key or Secret Key are populated and/or valid", 400);

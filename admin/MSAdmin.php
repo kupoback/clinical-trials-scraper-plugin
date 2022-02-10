@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Merck_Scraper\admin;
 
@@ -77,8 +77,8 @@ class MSAdmin
      */
     public function enqueueStyles()
     {
-        if (is_admin() && (
-                in_array(get_current_screen()->id, $this->screens)
+        if (
+            is_admin() && (in_array(get_current_screen()->id, $this->screens)
                 || in_array(get_current_screen()->id, $this->optsScreens)
             )
         ) {
@@ -294,7 +294,7 @@ class MSAdmin
     {
         global $wpdb;
 
-        if (self::isTrialsAdmin()) {
+        if ($this->isTrialsAdmin()) {
             $join .= " LEFT JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id";
         }
 
@@ -311,7 +311,7 @@ class MSAdmin
     public function trialsAdminWhere(string $where)
     {
         global $pagenow, $wpdb;
-        if (self::isTrialsAdmin()) {
+        if ($this->isTrialsAdmin()) {
             /**
              * Extend the post_title search to search the api_data_nct_id
              */
@@ -343,7 +343,7 @@ class MSAdmin
     public function trialsAdminDistc(string $where)
     {
         global $wpdb;
-        if (self::isTrialsAdmin()) {
+        if ($this->isTrialsAdmin()) {
             return "DISTINCT";
         }
         return $where;
@@ -354,8 +354,7 @@ class MSAdmin
      *
      * @return bool
      */
-    protected function isTrialsAdmin()
-    :bool
+    protected function isTrialsAdmin(): bool
     {
         if (is_admin() && function_exists('get_current_screen')) {
             $current_screen   = get_current_screen();

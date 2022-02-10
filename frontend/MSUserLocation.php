@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Merck_Scraper\frontend;
 
@@ -99,7 +99,7 @@ class MSUserLocation
         $err_return              = $this->errReturn;
         $err_return['locations'] = [];
 
-        $results = self::geoQueryCallback();
+        $results = $this->geoQueryCallback();
 
         if (!$results->isEmpty() && !is_wp_error($results)) {
             return [
@@ -137,7 +137,7 @@ class MSUserLocation
         $err_return             = $this->errReturn;
         $err_return['location'] = [];
 
-        $results = self::geoQueryCallback();
+        $results = $this->geoQueryCallback();
 
         if (!$results->isEmpty() && !is_wp_error($results)) {
             $first_result = $results->first();
@@ -151,8 +151,7 @@ class MSUserLocation
                     'adminLvlFullname' => $first_result
                         ->getAdminLevels()
                         ->first()
-                        ->getName()
-                    ,
+                        ->getName(),
                     'coordinates'      => [
                         'lat' => $first_result
                             ->getCoordinates()
@@ -194,7 +193,7 @@ class MSUserLocation
         $err_return['zipcode']     = false;
         $err_return['coordinates'] = false;
 
-        $results = self::geoQueryCallback();
+        $results = $this->geoQueryCallback();
 
         if (!$results->isEmpty() && !is_wp_error($results)) {
             $first_result = $results->first();
@@ -235,7 +234,7 @@ class MSUserLocation
                 ->using($this->usingName)
                 ->geocodeQuery(GeocodeQuery::create($this->userLocation));
         } catch (Exception $exception) {
-            $logger = self::initLogger('geolocate', 'iplookup', MERCK_SCRAPER_LOG_DIR . '/iplookup');
+            $logger = $this->initLogger('geolocate', 'iplookup', MERCK_SCRAPER_LOG_DIR . '/iplookup');
             $logger->error(
                 "Provider or Providers Using Name is incorrectly set or missing. {$exception->getMessage()}"
             );
@@ -249,5 +248,4 @@ class MSUserLocation
             );
         }
     }
-
 }

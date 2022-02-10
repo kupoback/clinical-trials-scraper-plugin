@@ -7,9 +7,8 @@ namespace Merck_Scraper\admin;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-
-use Merck_Scraper\Helper\MSMailer;
 use Merck_Scraper\Helper\MSHelper;
+use Merck_Scraper\Helper\MSMailer;
 use Merck_Scraper\Traits\MSAcfTrait;
 use Merck_Scraper\Traits\MSApiField;
 use Merck_Scraper\Traits\MSApiTrait;
@@ -36,14 +35,13 @@ class MSApiScraper
 {
 
     //region Class Uses
-    use MSApiTrait;
-    use MSAcfTrait;
-    use MSGoogleMaps;
-    use MSLoggerTrait;
-    use MSHttpCallback;
     use MSApiField;
+    use MSAcfTrait;
+    use MSApiTrait;
     use MSDBCallbacks;
-
+    use MSGoogleMaps;
+    use MSHttpCallback;
+    use MSLoggerTrait;
     //endregion
 
     //region Class Vars
@@ -150,7 +148,7 @@ class MSApiScraper
          */
         $this->allowedConditions = collect(
             MSHelper::textareaToArr(
-                self::acfStrOptionFld('allowed_conditions')
+                $this->acfStrOptionFld('allowed_conditions')
             )
         )
             ->filter();
@@ -160,17 +158,17 @@ class MSApiScraper
          */
         $this->allowedTrialLocations = collect(
             MSHelper::textareaToArr(
-                self::acfStrOptionFld('clinical_trials_api_location_search')
+                $this->acfStrOptionFld('clinical_trials_api_location_search')
             )
         )
             ->filter();
 
         /**
-     * Collection of the disallowed conditions
-     */
+         * Collection of the disallowed conditions
+         */
         $this->disallowedConditions = collect(
             MSHelper::textareaToArr(
-                self::acfStrOptionFld('disallowed_conditions')
+                $this->acfStrOptionFld('disallowed_conditions')
             )
         )
             ->filter();
@@ -180,7 +178,7 @@ class MSApiScraper
          */
         $this->disallowedTrialLocations = collect(
             MSHelper::textareaToArr(
-                self::acfStrOptionFld('clinical_trials_api_omit_location_search')
+                $this->acfStrOptionFld('clinical_trials_api_omit_location_search')
             )
         )
             ->filter();
@@ -200,14 +198,14 @@ class MSApiScraper
          */
         $this->trialStatus = collect(
             MSHelper::textareaToArr(
-                self::acfStrOptionFld('clinical_trials_api_status_search')
+                $this->acfStrOptionFld('clinical_trials_api_status_search')
             )
         )
             ->filter();
 
         $timestamp      = $this->nowTime->timestamp;
-        $this->errorLog = self::initLogger("api-error", "error-$timestamp", "$apiLogDirectory/error");
-        $this->apiLog   = self::initLogger("api-import", "api-$timestamp", "$apiLogDirectory/log", Logger::INFO);
+        $this->errorLog = $this->initLogger("api-error", "error-$timestamp", "$apiLogDirectory/error");
+        $this->apiLog   = $this->initLogger("api-import", "api-$timestamp", "$apiLogDirectory/log", Logger::INFO);
     }
 
     /**
@@ -218,7 +216,7 @@ class MSApiScraper
         /**
          * Import Trials
          */
-        self::registerRoute(
+        $this->registerRoute(
             'api-scraper',
             WP_REST_Server::CREATABLE,
             [$this, 'apiImport'],
@@ -245,28 +243,28 @@ class MSApiScraper
     public function apiImport(WP_REST_Request $request = null)
     {
         // Callback to the frontend to let them know we're starting the import
-        self::updatePosition("Starting Import");
+        $this->updatePosition("Starting Import");
         set_time_limit(600);
-        ini_set('memory_limit', '2048M');
-        ini_set('post_max_size', '1024M');
-        $nct_id_field      = $request['nctidField'] ?? false;
-        $num_not_imported = 0;
+        ini_set('memory_limit', '4096M');
+        ini_set('post_max_size', '2048M');
 
-        $starting_rank = self::acfOptionField('min_import_rank') ?: 1;
-        $max_rank      = self::acfOptionField('max_import_rank') ?: 30;
+        $nct_id_field     = $request['nctidField'] ?? false;
+        $num_not_imported = 0;
+        $starting_rank    = $this->acfOptionField('min_import_rank') ?: 1;
+        $max_rank         = $this->acfOptionField('max_import_rank') ?: 30;
 
         /**
          * Creates an array of languages, codes and the countries they should be associated to. This is
          * used to split up the API calls and better map the data import.
          */
-        $language_codes = collect(apply_filters('wpml_active_languages', null))
+        $language_codes               = collect(apply_filters('wpml_active_languages', null))
             ->mapWithKeys(function ($language) {
                 return [$language['translated_name'] => $language['code']];
             });
-        $this->countryMappedLanguages = collect(self::acfOptionField('clinical_trials_api_language_locations'))
+        $this->countryMappedLanguages = collect($this->acfOptionField('clinical_trials_api_language_locations'))
             ->map(function ($country_language) use ($language_codes) {
                 return [
-                    'code' => $language_codes->get($country_language['language']) ?? 'en',
+                    'code'     => $language_codes->get($country_language['language']) ?? 'en',
                     'country'  => collect(MSHelper::textareaToArr($country_language["countries"] ?? ''))
                         ->filter(),
                     'language' => $country_language['language'] ?? '',
@@ -309,7 +307,7 @@ class MSApiScraper
 
             // Trial Status Search type
             if ($this->trialStatus->isNotEmpty()) {
-                $recruiting_status = self::mapImplode($this->trialStatus);
+                $recruiting_status = $this->mapImplode($this->trialStatus);
                 $expression->push(
                     "(AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( $recruiting_status ))"
                 );
@@ -317,23 +315,22 @@ class MSApiScraper
 
             // Trial Location search
             if ($this->disallowedTrialLocations->isEmpty()) {
-                $location = self::mapImplode($this->allowedTrialLocations);
+                $location = $this->mapImplode($this->allowedTrialLocations);
                 $expression->push(
                     "( AREA[LocationCountry] $location )"
                 );
             } elseif ($this->disallowedTrialLocations->isNotEmpty()) {
-                $location = self::mapImplode($this->disallowedTrialLocations);
+                $location = $this->mapImplode($this->disallowedTrialLocations);
                 $expression->push(
                     "( AREA[LocationCountry] NOT $location )"
                 );
             }
 
             // Trial sponsor search name
-            $sponsor_name = self::acfOptionField('clinical_trials_api_sponsor_search') ?: "Merck Sharp &amp; Dohme Corp.";
+            $sponsor_name = $this->acfOptionField('clinical_trials_api_sponsor_search') ?: "Merck Sharp &amp; Dohme Corp.";
             $expression->push(
                 "( AREA[LeadSponsorName] \"$sponsor_name\" )"
             );
-
 
             // Expression builder
             $expression = $expression
@@ -352,7 +349,7 @@ class MSApiScraper
 
         $studies_imported = collect();
 
-        $client_http = self::scraperHttpCB(
+        $client_http = $this->scraperHttpCB(
             '/api/query/full_studies',
             "GET",
             $client_args,
@@ -364,7 +361,7 @@ class MSApiScraper
             $api_data = json_decode($client_http->getBody()->getContents());
 
             // Parse and organize each field and single-level subfield
-            $this->acfFields  = self::getTrialsFieldGroups();
+            $this->acfFields = $this->getTrialsFieldGroups();
             if ($this->acfFields->isEmpty()) {
                 $this
                     ->errorLog
@@ -406,8 +403,8 @@ class MSApiScraper
                         }
 
                         return [
-                            'name' => $term->name,
-                            'slug' => $term->slug,
+                            'name'    => $term->name,
+                            'slug'    => $term->slug,
                             'min_age' => isset($min_age) ? intval($min_age) : 0,
                             'max_age' => isset($max_age) ? intval($max_age) : 999,
                         ];
@@ -416,11 +413,11 @@ class MSApiScraper
 
             if ((int) $api_data->NStudiesFound > 0) {
                 // Grab a list of trashed posts that are supposed to be archived
-                $trashed_posts = collect(self::dbArchivedPosts());
+                $trashed_posts = collect($this->dbArchivedPosts());
                 if ($trashed_posts->isNotEmpty()) {
                     $trashed_posts = $trashed_posts
                         ->map(function ($post) {
-                            return self::dbFetchNctId(intval($post->ID));
+                            return $this->dbFetchNctId(intval($post->ID));
                         });
                 }
 
@@ -434,7 +431,7 @@ class MSApiScraper
                         $client_args['min_rnk'] = $client_args['min_rnk'] + $max_rank;
                         $client_args['max_rnk'] = $client_args['max_rnk'] + $max_rank;
 
-                        $client_http = self::scraperHttpCB(
+                        $client_http = $this->scraperHttpCB(
                             '/api/query/full_studies',
                             "GET",
                             $client_args,
@@ -467,7 +464,6 @@ class MSApiScraper
                         }
                     }
 
-
                     $studies       = collect($api_data->FullStudies);
                     $initial_count = $studies->count();
                     $studies       = $studies
@@ -483,7 +479,7 @@ class MSApiScraper
                             $study_id_module = collect($collect_study)
                                 ->get('IdentificationModule');
 
-                            $study = self::parseId($study_id_module);
+                            $study = $this->parseId($study_id_module);
                             return !$trashed_posts->search($study->get('nct_id'));
                         })
                         ->values();
@@ -491,8 +487,8 @@ class MSApiScraper
                     $num_not_imported = $num_not_imported + ($initial_count - $studies->count());
 
                     if ($studies->count() > 0) {
-                        $studies = self::studyImportLoop($studies);
-                        $studies_imported = $studies['studies'];
+                        $studies_imported
+                            ->push($this->studyImportLoop($studies));
                     }
                 endfor;
             } else {
@@ -506,8 +502,17 @@ class MSApiScraper
                 ->error($client_http
                             ->get_error_message());
         }
-        //
-        // self::emailSetup($studies_imported, $num_not_imported);
+
+        if ($studies_imported->isNotEmpty()) {
+            $studies_imported = $studies_imported
+                ->flatten(1)
+                ->values();
+            $this
+                ->apiLog
+                ->info("Imported {$studies_imported->count()} Studies", $studies_imported->toArray());
+        }
+
+        $this->emailSetup($studies_imported, $num_not_imported);
 
         // Restore the max_execution_time
         ini_restore('post_max_size');
@@ -516,7 +521,7 @@ class MSApiScraper
         ini_restore('memory_limit');
 
         // Clear position
-        self::clearPosition();
+        $this->clearPosition();
 
         return rest_ensure_response(true);
     }
@@ -528,13 +533,14 @@ class MSApiScraper
      *
      * @param Collection $studies
      *
-     * @return array|int
+     * @return Collection
      */
     private function studyImportLoop(Collection $studies)
+    :Collection
     {
         // Map through our studies and begin assigning data to fields
         if ($studies->count() > 0) {
-            self::updatePosition(
+            $this->updatePosition(
                 "Trials Found",
                 [
                     'position'     => 1,
@@ -542,10 +548,10 @@ class MSApiScraper
                 ]
             );
 
-            $studies = $studies
+            return $studies
                 ->map(function ($study) {
                     $study_data = collect($study);
-                    return self::studyImport(
+                    return $this->studyImport(
                         collect(
                             $study_data
                                 ->get('Study')
@@ -558,17 +564,8 @@ class MSApiScraper
                     );
                 })
                 ->filter();
-
-            // $this
-            //     ->apiLog
-            //     ->info("Imported {$studies->count()} Studies", $studies->toArray());
-
-            return [
-                'numOfStudies' => $studies->count(),
-                'studies'      => $studies,
-            ];
         }
-        return 0;
+        return collect();
     }
 
     /**
@@ -581,32 +578,34 @@ class MSApiScraper
      */
     protected function studyImport(object $field_data, int $position_index)
     {
-        set_time_limit(300);
-        ini_set('max_execution_time', '300');
+        set_time_limit(600);
+        ini_set('max_execution_time', '600');
+        ini_set('memory_limit', '4096M');
+        ini_set('post_max_size', '2048M');
 
         $return = collect([]);
 
         //region Modules
-        $arms_module      = self::parseArms($field_data->get('ArmsInterventionsModule'));
-        $condition_module = self::parseCondition($field_data->get('ConditionsModule'));
-        $contact_module   = self::parseLocation($field_data->get('ContactsLocationsModule'));
-        $desc_module      = self::parseDescription($field_data->get('DescriptionModule'));
-        $design_module    = self::parseDesign($field_data->get('DesignModule'));
-        $eligible_module = self::parseEligibility($field_data->get('EligibilityModule'));
-        $id_module        = self::parseId($field_data->get('IdentificationModule'));
-        $status_module    = self::parseStatus($field_data->get('StatusModule'));
-        $sponsor_module   = self::parseSponsors($field_data->get('SponsorCollaboratorsModule'));
+        $arms_module      = $this->parseArms($field_data->get('ArmsInterventionsModule'));
+        $condition_module = $this->parseCondition($field_data->get('ConditionsModule'));
+        $contact_module   = $this->parseLocation($field_data->get('ContactsLocationsModule'));
+        $desc_module      = $this->parseDescription($field_data->get('DescriptionModule'));
+        $design_module    = $this->parseDesign($field_data->get('DesignModule'));
+        $eligible_module  = $this->parseEligibility($field_data->get('EligibilityModule'));
+        $id_module        = $this->parseId($field_data->get('IdentificationModule'));
+        $status_module    = $this->parseStatus($field_data->get('StatusModule'));
+        $sponsor_module   = $this->parseSponsors($field_data->get('SponsorCollaboratorsModule'));
         //endregion
 
         // Not currently used field mappings
         // $oversight_module = $field_data->get('OversightModule');
-        // $outcome_module   = self::parseOutcome($field_data->get('OutcomesModule'));
-        // $ipd_module = self::parseIDP($field_data->get('IPDSharingStatementModule'));
+        // $outcome_module   = $this->parseOutcome($field_data->get('OutcomesModule'));
+        // $ipd_module = $this->parseIDP($field_data->get('IPDSharingStatementModule'));
 
         $this->nctId = $id_module->get('nct_id');
-        $nct_id = $this->nctId;
+        $nct_id      = $this->nctId;
         // Grabs the post_id from the DB based on the NCT ID value
-        $post_id = intval(self::dbFetchPostId('meta_value', $nct_id));
+        $post_id = intval($this->dbFetchPostId('meta_value', $nct_id));
 
         // Default post status
         $do_not_import  = false;
@@ -618,7 +617,7 @@ class MSApiScraper
             ->toArray();
 
         // Set up the post data
-        $parse_args = self::parsePostArgs(
+        $parse_args = $this->parsePostArgs(
             [
                 'title'   => $id_module
                     ->get('post_title'),
@@ -635,10 +634,11 @@ class MSApiScraper
             $do_not_import = true;
             $post_args->put('post_status', 'trash');
         }
+
         if ($post_id === 0) {
             // Don't import the post and dump out of the loop for this item
             if ($do_not_import) {
-                return self::doNotImportTrial(
+                return $this->doNotImportTrial(
                     0,
                     $post_args->get('post_title'),
                     $nct_id,
@@ -650,11 +650,12 @@ class MSApiScraper
             $post_args
                 ->put('post_status', 'draft');
             // Set up the post for creation
-            $post_id = wp_insert_post(
+            $post_id                 = wp_insert_post(
                 $post_args
                     ->toArray(),
                 "Failed to create post."
             );
+            $this->existingLocations = collect();
         } else {
             // Updating our post
             $post_args
@@ -667,7 +668,7 @@ class MSApiScraper
                 "Failed to update post."
             );
 
-            $this->existingLocations = self::getTrialLocations($post_id);
+            $this->existingLocations = $this->getTrialLocations($post_id);
         }
 
         // Grab the post status
@@ -694,7 +695,7 @@ class MSApiScraper
             return false;
         }
 
-        self::updatePosition(
+        $this->updatePosition(
             "Trials Import",
             [
                 'position'    => $position_index,
@@ -712,7 +713,7 @@ class MSApiScraper
             /**
              * Check to make sure we're still able to grab out ACF values
              */
-            $google_api_key = self::acfOptionField('google_maps_api_key');
+            $google_api_key = $this->acfOptionField('google_maps_api_key');
             // Set up our collection to pull data from
             //region Field Data Setup
             $field_data = collect([])
@@ -744,7 +745,10 @@ class MSApiScraper
                         $sub_fields = $field['sub_fields'] ?? false;
                         if ($sub_fields && $sub_fields->isNotEmpty()) {
                             // Retrieve the data based on the parent data_name
-                            $arr_data = $field_data->get($data_name) ?? false;
+                            $arr_data = $field_data->get($data_name) ?? collect();
+                            if ($arr_data->isEmpty()) {
+                                return false;
+                            }
 
                             //region Locations
                             /**
@@ -757,12 +761,7 @@ class MSApiScraper
                                  * Skip the grabbing of the geocoding if there is no Google Maps API key set
                                  */
                                 if ($google_api_key) {
-                                    /**
-                                     * We'll want to reset the existing data as
-                                     * some trials be now be considered "Complete"
-                                     */
-                                    // self::updateACF($field['name'], [], $post_id);
-                                    $arr_data = self::locationGeocode($arr_data);
+                                    $arr_data = $this->locationGeocode($arr_data);
                                 } else {
                                     $this
                                         ->errorLog
@@ -772,7 +771,7 @@ class MSApiScraper
                             //endregion
 
                             if ($arr_data) {
-                                return self::updateACF($field['name'], $arr_data, $post_id);
+                                return $this->updateACF($field['name'], $arr_data, $post_id);
                             }
                             return false;
                         }
@@ -790,7 +789,7 @@ class MSApiScraper
                                 $field_data = $field_data
                                     ->get($data_name);
                             }
-                            return self::updateACF(
+                            return $this->updateACF(
                                 $field['name'],
                                 $field_data,
                                 $post_id
@@ -799,7 +798,7 @@ class MSApiScraper
                         return false;
                     }
 
-                    return self::updateACF($field['name'], $field_data->get($data_name), $post_id);
+                    return $this->updateACF($field['name'], $field_data->get($data_name), $post_id);
                 });
             //endregion
 
@@ -823,14 +822,15 @@ class MSApiScraper
             if ($arms_module->get('drugs') && $arms_module->get('drugs')->isNotEmpty()) {
                 collect()
                     ->put('trial_drugs', $arms_module->get('drugs'))
-                    ->each(function ($terms, $taxonomy) use ($post_id) {
+                    ->map(function ($terms, $taxonomy) use ($post_id) {
+                        $tax_terms = [];
                         if ($terms instanceof Collection) {
-                            $terms = $terms->toArray();
+                            $tax_terms = $terms->toArray();
                         } elseif (is_object($terms)) {
-                            $terms = (array) $terms;
+                            $tax_terms = (array) $terms;
                         }
 
-                        return wp_set_object_terms($post_id, $terms, $taxonomy);
+                        wp_set_object_terms($post_id, $tax_terms, $taxonomy);
                     });
             }
 
@@ -852,8 +852,8 @@ class MSApiScraper
                         ->each(function ($term) use ($min_age, $max_age, $post_id) {
                             $term_min_age = intval($term['min_age']);
                             $term_max_age = intval($term['max_age']);
-                            if (self::inBetween($term_min_age, $min_age, $max_age)
-                                || self::inBetween($term_max_age, $min_age, $max_age)
+                            if ($this->inBetween($term_min_age, $min_age, $max_age)
+                                || $this->inBetween($term_max_age, $min_age, $max_age)
                             ) {
                                 /**
                                  * For whatever reason, the comparison has to be if set equal
@@ -874,28 +874,25 @@ class MSApiScraper
              * the country found in the trial exists in the defined ACF settings field
              */
             if ($this->existingLocations->isEmpty()) {
-                $this->existingLocations = self::getTrialLocations();
+                $this->existingLocations = $this->getTrialLocations();
             }
-            $this->existingLocations
-                ->map(function ($location) {
-                    return $location['country'];
-                })
-                ->filter()
-                ->each(function ($country) use ($post_id) {
-                    $languages = $this->countryMappedLanguages
-                        ->map(function ($location) use ($country) {
-                            // $location['country'] is a Collection
-                            if (is_int($location['country']->search($country, true))) {
-                                return $location['language'];
-                            }
-                            return false;
-                        })
-                        ->filter();
-
-                    $terms = $languages->isNotEmpty() ? $languages->toArray() : 'All';
-                    wp_set_object_terms($post_id, $terms, 'trial_language');
-                });
-
+            wp_set_object_terms(
+                $post_id,
+                $this->existingLocations
+                    ->map(function ($location) use ($post_id) {
+                        return $location['country'] ?? false;
+                    })
+                    ->filter()
+                    ->map(function ($country) use ($post_id) {
+                        return $this->mapLanguage($country);
+                    })
+                    ->flatten(1)
+                    ->values()
+                    ->filter()
+                    ->unique()
+                    ->toArray(),
+                'trial_language'
+            );
             //endregion
         }
 
@@ -912,28 +909,35 @@ class MSApiScraper
     }
 
     /**
-     * Grabs the geocode location data from Google Maps
+     * Grabs the geocode location data from Google Maps, but only if the location doesn't
+     * exist in the first place
      *
      * @param Collection $arr_data The array data
-     * @param string     $nct_id   The NCT ID, used for errorLog print
      *
      * @return array
      */
     protected function locationGeocode(Collection $arr_data)
     :array
     {
-        $existing_locations = $this->existingLocations;
-        $nct_id = $this->nctId;
+        set_time_limit(600);
+        ini_set('max_execution_time', '600');
         return $arr_data
-            ->map(function ($location) use ($existing_locations, $nct_id) {
+            ->map(function ($location) {
                 // Grab and filter the facility
-                $facility = self::filterParenthesis($location['facility'] ?? '');
-                $data_grabbed = $existing_locations->filter(function ($location) use ($facility) {
-                    return $location['facility'] === $facility;
-                });
+                $facility = $this->filterParenthesis($location['facility'] ?? '');
+                // Check if the location is already imported, so we don't grab the lat/lng again
+                $data_grabbed = $this->existingLocations
+                    ->filter(function ($location) use ($facility) {
+                        return $location['facility'] === $facility;
+                    });
+
+                if (!isset($location['location_language'])) {
+                    $location_language             = $this->mapLanguage($location['country']);
+                    $location['location_language'] = $location_language->isNotEmpty() ? $location_language->first() : "All";
+                }
 
                 if ($data_grabbed->isEmpty()) {
-                    $gm_geocoder_data = self::getFullLocation(
+                    $gm_geocoder_data = $this->getFullLocation(
                         collect(
                             [
                                 $facility,
@@ -952,7 +956,7 @@ class MSApiScraper
                      * use the city, state, zip and country to get a lat/lng
                      */
                     if (is_wp_error($gm_geocoder_data)) {
-                        $gm_geocoder_data = self::getFullLocation(
+                        $gm_geocoder_data = $this->getFullLocation(
                             collect(
                                 [
                                     $location['city'] ?? '',
@@ -980,6 +984,15 @@ class MSApiScraper
                             ->put('recruiting_status', ($location['recruiting_status'] ?? ''))
                             ->put('phone', ($location['phone'] ?? ''));
 
+                        // Sets the location_language field data so that the trials can be filtered by language
+                        $location_language = $this->mapLanguage($gm_geocoder_data->get('country'));
+                        $gm_geocoder_data->put(
+                            'location_language',
+                            $location_language->isNotEmpty()
+                                ? $location_language->first()
+                                : "All"
+                        );
+
                         return $gm_geocoder_data
                             ->toArray();
                     }
@@ -987,10 +1000,13 @@ class MSApiScraper
                     $this
                         ->errorLog
                         ->error(
-                            "Unable to get geocode for $nct_id\r\n",
+                            "Unable to get geocode for $this->nctId;\r\n",
                             (array) $gm_geocoder_data->errors
                         );
+
+                    return $gm_geocoder_data;
                 }
+
                 return $location;
             })
             ->filter()
@@ -1012,9 +1028,9 @@ class MSApiScraper
         string $name,
         string $file_name,
         string $file_path = MERCK_SCRAPER_LOG_DIR,
-        int $logger_type = Logger::ERROR
+        int    $logger_type = Logger::ERROR
     ) {
-        return self::initLogger($name, $file_name, $file_path, $logger_type);
+        return $this->initLogger($name, $file_name, $file_path, $logger_type);
     }
 
     /**
@@ -1052,7 +1068,7 @@ class MSApiScraper
          * Merck Email Client
          */
         if ($this->sendTo->isEmpty()) {
-            $this->sendTo = collect(self::acfOptionField('api_logger_email_to'));
+            $this->sendTo = collect($this->acfOptionField('api_logger_email_to'));
         }
 
         /**
@@ -1070,7 +1086,7 @@ class MSApiScraper
          */
         $email_args = [
             'TemplateLanguage' => true,
-            'TemplateID'       => (int) (self::acfOptionField('api_email_template_id') ?? 0),
+            'TemplateID'       => (int) ($this->acfOptionField('api_email_template_id') ?? 0),
             'Variables'        => [
                 'timestamp' => $this->nowTime
                     ->format("l F j, Y h:i A"),
@@ -1146,5 +1162,26 @@ class MSApiScraper
                 return "\"$location\"";
             })
             ->implode(" $operator ");
+    }
+
+    /**
+     * Maps through the location data and returns a filtered collection
+     *
+     * @param string $country The country to search and map for
+     *
+     * @return Collection
+     */
+    protected function mapLanguage(string $country)
+    :Collection
+    {
+        return $this->countryMappedLanguages
+            ->map(function ($location) use ($country) {
+                // $location['country'] is a Collection
+                if (is_int($location['country']->search($country, true))) {
+                    return $location['language'];
+                }
+                return false;
+            })
+            ->filter();
     }
 }

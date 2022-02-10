@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Merck_Scraper\Traits;
 
@@ -44,11 +44,11 @@ trait MSHttpCallback
      */
     protected function scraperHttpCB(string $endpoint_path, string $request_type = "GET", array $query_args = [], array $http_args = [], array $guzzle_args = [])
     {
-        $base_uri = self::acfOptionField('clinical_trials_api_base');
+        $base_uri = $this->acfOptionField('clinical_trials_api_base');
 
         if ($base_uri) {
             $handler_stack = HandlerStack::create(new CurlHandler());
-            $handler_stack->push(Middleware::retry(self::retryCall(), self::retryDelay()));
+            $handler_stack->push(Middleware::retry($this->retryCall(), $this->retryDelay()));
 
             $default_args = [
                 'base_uri' => $base_uri,
@@ -74,7 +74,7 @@ trait MSHttpCallback
 
                 return new WP_Error($response->getStatusCode(), $response->getBody()->getContents());
             } catch (GuzzleException $exception) {
-                self::httpErrLogger()
+                $this->httpErrLogger()
                     ->error(
                         "Unable to connect to API for {$endpoint_path}. Error: {$exception->getMessage()}"
                     );
@@ -108,7 +108,7 @@ trait MSHttpCallback
     ) {
         if ($api_base) {
             $handler_stack = HandlerStack::create(new CurlHandler());
-            $handler_stack->push(Middleware::retry(self::retryCall(), self::retryDelay()));
+            $handler_stack->push(Middleware::retry($this->retryCall(), $this->retryDelay()));
 
             $default_args = [
                 'base_uri' => $api_base,
@@ -135,7 +135,7 @@ trait MSHttpCallback
 
                 return new WP_Error($response->getStatusCode(), $response->getBody()->getContents());
             } catch (GuzzleException $exception) {
-                self::httpErrLogger()
+                $this->httpErrLogger()
                     ->error(
                         "Unable to connect to API for {$endpoint_path}. Error: {$exception->getMessage()}"
                     );
@@ -149,8 +149,7 @@ trait MSHttpCallback
      *
      * @return ClosureAlias
      */
-    private function retryCall()
-    :ClosureAlias
+    private function retryCall(): ClosureAlias
     {
         return function (
             $retries,
@@ -165,14 +164,14 @@ trait MSHttpCallback
 
             // Retry connection exceptions
             if ($exception instanceof ConnectException) {
-                self::httpErrLogger()->error("Error Connection: {$request->getUri()}");
+                $this->httpErrLogger()->error("Error Connection: {$request->getUri()}");
                 return true;
             }
 
             if ($response) {
                 // Retry on server errors
                 if ($response->getStatusCode() >= 500) {
-                    self::httpErrLogger()
+                    $this->httpErrLogger()
                         ->error(
                             "Error status code: {$response->getStatusCode()} on url {$request->getUri()}"
                         );
@@ -189,8 +188,7 @@ trait MSHttpCallback
      *
      * @return ClosureAlias
      */
-    private function retryDelay()
-    :ClosureAlias
+    private function retryDelay(): ClosureAlias
     {
         return function ($numberOfRetries) {
             return 1000 * $numberOfRetries;
@@ -204,6 +202,6 @@ trait MSHttpCallback
      */
     protected function httpErrLogger()
     {
-        return self::initLogger("http-error", "http-error", MERCK_SCRAPER_LOG_DIR . "/http/error");
+        return $this->initLogger("http-error", "http-error", MERCK_SCRAPER_LOG_DIR . "/http/error");
     }
 }

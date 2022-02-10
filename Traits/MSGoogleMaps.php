@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Merck_Scraper\Traits;
 
@@ -53,7 +53,7 @@ trait MSGoogleMaps
 
     protected function getFullLocation(array $location = [])
     {
-        $gm_api_callback = self::googleMapsApiCB(
+        $gm_api_callback = $this->googleMapsApiCB(
             collect($location)
                 ->map(function ($location) {
                     return urlencode($location);
@@ -62,7 +62,7 @@ trait MSGoogleMaps
         );
 
         if (!is_wp_error($gm_api_callback)) {
-            $address = self::parseAddress(collect($gm_api_callback->address_components));
+            $address = $this->parseAddress(collect($gm_api_callback->address_components));
             if ($gm_api_callback->geometry->location ?? false) {
                 $address->put('latitude', $gm_api_callback->geometry->location->lat);
                 $address->put('longitude', $gm_api_callback->geometry->location->lng);
@@ -83,7 +83,7 @@ trait MSGoogleMaps
      */
     protected function getLatLng(array $location = [])
     {
-        $gm_api_callback = self::googleMapsApiCB(
+        $gm_api_callback = $this->googleMapsApiCB(
             collect($location)
                 ->implode('+')
         );
@@ -102,8 +102,7 @@ trait MSGoogleMaps
      *
      * @return Collection
      */
-    protected function parseAddress(Collection $address)
-    :Collection
+    protected function parseAddress(Collection $address): Collection
     {
         if ($address->isNotEmpty()) {
             $accepted_types = [
@@ -176,10 +175,10 @@ trait MSGoogleMaps
      */
     protected function googleMapsApiCB(string $address)
     {
-        $geocode_api_key = self::acfOptionField('google_maps_server_side_api_key');
+        $geocode_api_key = $this->acfOptionField('google_maps_server_side_api_key');
 
         if ($geocode_api_key) {
-            $response = self::httpCallback(
+            $response = $this->httpCallback(
                 $this->googleApiUrl,
                 $this->geoCodeEP,
                 "GET",

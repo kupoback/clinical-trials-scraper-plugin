@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Merck_Scraper\admin;
 
@@ -26,7 +26,7 @@ class MSCustomPT
         $post_args = [];
 
         // CPT Trials
-        $post_args["trials"] = self::postTypeArray(
+        $post_args["trials"] = $this->postTypeArray(
             'Trial',
             'dashicons-analytics',
             __("This post type is used to store trials scraped from the gov't api.", 'merck-scraper'),

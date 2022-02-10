@@ -556,6 +556,26 @@
                     "maxlength": ""
                 },
                 {
+                    "key": "field_62052a3017117",
+                    "label": "Location Language",
+                    "name": "location_language",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "one-third",
+                        "id": ""
+                    },
+                    "wpml_cf_preferences": 1,
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                },
+                {
                     "key": "field_612d42b9e845e",
                     "label": "Street",
                     "name": "street",
@@ -565,7 +585,7 @@
                     "conditional_logic": 0,
                     "wrapper": {
                         "width": "",
-                        "class": "",
+                        "class": "two-thirds",
                         "id": ""
                     },
                     "wpml_cf_preferences": 3,
@@ -720,5 +740,5 @@
     "active": true,
     "description": "Default Fields that are mapped and imported from the Merck Scraper",
     "show_in_rest": 0,
-    "modified": 1639669919
+    "modified": 1644505841
 }

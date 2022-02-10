@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Merck_Scraper\Traits;
 
@@ -101,7 +101,7 @@ trait MSApiTrait
                                 filemtime($file_with_path),
                                 'America/New_York'
                             )
-                                                ->format('F j, Y g:i A'),
+                                ->format('F j, Y g:i A'),
                             'fileName' => $file,
                         ];
                     });
@@ -133,9 +133,10 @@ trait MSApiTrait
 
         return new WP_Error(
             200,
-            ['message' =>
-                 __("Error getting file and or it's contents", 'merck-scraper'),
-             'fileContents' => ''
+            [
+                'message' =>
+                __("Error getting file and or it's contents", 'merck-scraper'),
+                'fileContents' => ''
             ]
         );
     }
@@ -150,7 +151,7 @@ trait MSApiTrait
     public function importPosition()
     {
         $response = get_option('merck_import_position');
-        $current_time = self::timeNowFormatted();
+        $current_time = $this->timeNowFormatted();
 
         $return = [
             'helper'     => null,
@@ -198,7 +199,7 @@ trait MSApiTrait
                 'position'   => $args['position'] ?? 0,
                 'totalCount' => $args['total_count'] ?? 0,
                 'status'     => 200,
-                'time'       => self::timeNowFormatted(),
+                'time'       => $this->timeNowFormatted(),
                 // 'memoryUsage' => floor((memory_get_usage() / 1024) / 1024) . 'MB / ' . ini_get('memory_limit'),
             ]
         );
@@ -207,8 +208,7 @@ trait MSApiTrait
     /**
      * Resets the option of the current position
      */
-    private function clearPosition()
-    :bool
+    private function clearPosition(): bool
     {
         update_option('merck_import_position', '');
         return true;
@@ -219,8 +219,7 @@ trait MSApiTrait
      *
      * @return DateTime
      */
-    private function timeNowFormatted()
-    :DateTime
+    private function timeNowFormatted(): DateTime
     {
         return new DateTime();
     }
