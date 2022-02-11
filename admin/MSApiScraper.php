@@ -928,7 +928,10 @@ class MSApiScraper
                 // Check if the location is already imported, so we don't grab the lat/lng again
                 $data_grabbed = $this->existingLocations
                     ->filter(function ($location) use ($facility) {
-                        return $location['facility'] === $facility;
+                        if (($location['latitude'] ?? false) && ($location['longitude'] ?? false)) {
+                            return $location['facility'] === $facility;
+                        }
+                        return false;
                     });
 
                 if (!isset($location['location_language'])) {

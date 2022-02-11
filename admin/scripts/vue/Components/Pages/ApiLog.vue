@@ -144,7 +144,6 @@
                 this.getLogContents(true);
             },
             deleteFile(fileId, filePath) {
-                const fileName = file.accordionId;
                 this.$confirm(
                     "Are you sure you wish to delete this log file?",
                     `Delete ${fileId}?`,

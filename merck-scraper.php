@@ -28,11 +28,11 @@ use Merck_Scraper\Traits\MSAcfTrait;
  * Plugin Name:       Merck Scrapper - WPML
  * Plugin URI:        #
  * Description:       This plugin is used to scrape data from clinicaltrials.gov website. This is a fork for WPML
- * Version:           1.0.6.2
+ * Version:           1.0.6.4
  * Author:            Clique Studios
  * Author URI:        https://cliquestudios.com
- * Requires at least: 5.8.1
- * Tested up to:      5.8.1
+ * Requires at least: 5.0
+ * Tested up to:      5.9.0
  * Requires PHP:      7.4
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -53,7 +53,7 @@ require plugin_dir_path(__FILE__) . 'vendor/autoload.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('MERCK_SCRAPER_VERSION', '1.0.6.2');
+define('MERCK_SCRAPER_VERSION', '1.0.6.4');
 
 /**
  * This constant is used to save the logs to a specific directory

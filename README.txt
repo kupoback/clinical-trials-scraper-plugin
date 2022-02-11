@@ -3,9 +3,9 @@ Contributors: Nick Makris
 Donate link: https://cliquestudios.com
 Tags:
 Requires at least: 5.9.0
-Tested up to: 5.8.1
+Tested up to: 5.9.0
 Requires PHP: 7.4
-Stable tag: 1.0.6.2
+Stable tag: 1.0.6.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,14 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 == Description ==
 
 == Changelog ==
+
+= 1.0.6.4 =
+
+Minor tweak to the import logic for the locations, checking if the lat/lng is set for a location
+
+= 1.0.6.3 =
+
+Fixed issue in ApiLog.vue for file undefined causing the inability to delete the files.
 
 = 1.0.6.2 =
 
