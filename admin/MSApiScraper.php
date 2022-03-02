@@ -928,7 +928,7 @@ class MSApiScraper
                 // Check if the location is already imported, so we don't grab the lat/lng again
                 $data_grabbed = $this->existingLocations
                     ->filter(function ($location) use ($facility) {
-                        if (($location['latitude'] ?? false) && ($location['longitude'] ?? false)) {
+                        if (!empty($location['latitude']) && !empty($location['longitude'])) {
                             return $location['facility'] === $facility;
                         }
                         return false;
@@ -936,7 +936,7 @@ class MSApiScraper
 
                 if (!isset($location['location_language'])) {
                     $location_language             = $this->mapLanguage($location['country']);
-                    $location['location_language'] = $location_language->isNotEmpty() ? $location_language->first() : "All";
+                    $location['location_language'] = $location_language->isNotEmpty() ? $location_language->implode(';') : "All";
                 }
 
                 if ($data_grabbed->isEmpty()) {
@@ -992,7 +992,7 @@ class MSApiScraper
                         $gm_geocoder_data->put(
                             'location_language',
                             $location_language->isNotEmpty()
-                                ? $location_language->first()
+                                ? $location_language->implode(';')
                                 : "All"
                         );
 

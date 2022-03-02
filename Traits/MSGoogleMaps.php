@@ -92,6 +92,7 @@ trait MSGoogleMaps
                 return $gm_api_callback->geometry->location ?? false;
             }
         }
+
         return $gm_api_callback;
     }
 
@@ -153,9 +154,9 @@ trait MSGoogleMaps
             $street_name   = $address->pull('route');
 
             if ($subpremise && $street_number && $street_name) {
-                $street_address = "{$subpremise} {$street_number} {$street_name}";
+                $street_address = "$subpremise $street_number $street_name";
             } elseif (!$subpremise && $street_number && $street_name) {
-                $street_address = "{$street_number} {$street_name}";
+                $street_address = "$street_number $street_name";
             } else {
                 $street_address = $street_name ?: '';
             }
@@ -203,6 +204,7 @@ trait MSGoogleMaps
                 if ($body_res->status === 'OK' && !empty($body_res->results)) {
                     return $body_res->results[0];
                 } else {
+                    $this->errorLog->error($body_res->error_message);
                     return new WP_Error(
                         $response->getStatusCode(),
                         "Unable to get location." . PHP_EOL . ($body_res->error_message ?? '')

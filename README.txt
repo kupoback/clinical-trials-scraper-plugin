@@ -5,7 +5,7 @@ Tags:
 Requires at least: 5.9.0
 Tested up to: 5.9.0
 Requires PHP: 7.4
-Stable tag: 1.0.6.3
+Stable tag: 1.0.6.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,20 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 == Description ==
 
 == Changelog ==
+
+= 1.0.6.6 =
+
+Added field for Single Trial Settings for directions.
+
+Code cleanup in MSGoogleMaps
+
+Changed the way location languages are grabbed by going about using ->implode() instead of ->first()
+
+= 1.0.6.5 =
+
+Adjustments to how the location is parsed and assigns the language
+
+Semi-colon separated the locations as before was just using the first item
 
 = 1.0.6.4 =
 
