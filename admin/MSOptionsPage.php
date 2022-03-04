@@ -84,7 +84,6 @@ class MSOptionsPage
             'merck-logs-scraper',
             [$this, 'logsScraperPage']
         );
-
     }
 
     /**

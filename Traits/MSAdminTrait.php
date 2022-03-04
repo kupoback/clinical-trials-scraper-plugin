@@ -29,9 +29,9 @@ trait MSAdminTrait
      * @return array
      */
     protected function postTypeArray(string $singular, string $dashicon, string $description = '', string $type = "post", array $editor_args = [])
+    :array
     {
         $default_args = ["title", "editor", "thumbnail", "excerpt", "revisions", "post-formats"];
-        $supports_args = wp_parse_args($editor_args, $default_args);
 
         $plural = Str::plural($singular);
         $single_lower = strtolower($singular);
@@ -42,33 +42,33 @@ trait MSAdminTrait
             "labels"              => [
                 "name"                  => _x($singular, "Post Type General Name", "merck-scraper"),
                 "singular_name"         => _x($singular, "Post Type Singular Name", "merck-scraper"),
-                "menu_name"             => __($singular, "merck-scraper"),
+                "menu_name"             => __($plural, "merck-scraper"),
                 "name_admin_bar"        => __($singular, "merck-scraper"),
                 "archives"              => __($plural, "merck-scraper"),
-                "attributes"            => __("{$singular} Attributes", "merck-scraper"),
-                "parent_item_colon"     => __("Parent {$singular}:", "merck-scraper"),
+                "attributes"            => __("$singular Attributes", "merck-scraper"),
+                "parent_item_colon"     => __("Parent $singular:", "merck-scraper"),
                 "all_items"             => __("All {$plural}", "merck-scraper"),
-                "add_new_item"          => __("Add New {$singular}", "merck-scraper"),
-                "add_new"               => __("Add New {$singular}", "merck-scraper"),
-                "new_item"              => __("New {$singular}", "merck-scraper"),
-                "edit_item"             => __("Edit {$singular}", "merck-scraper"),
-                "update_item"           => __("Update {$singular}", "merck-scraper"),
-                "view_item"             => __("View {$singular}", "merck-scraper"),
-                "view_items"            => __("View {$plural}", "merck-scraper"),
-                "search_items"          => __("Search {$plural}", "merck-scraper"),
+                "add_new_item"          => __("Add New $singular", "merck-scraper"),
+                "add_new"               => __("Add New $singular", "merck-scraper"),
+                "new_item"              => __("New $singular", "merck-scraper"),
+                "edit_item"             => __("Edit $singular", "merck-scraper"),
+                "update_item"           => __("Update $singular", "merck-scraper"),
+                "view_item"             => __("View $singular", "merck-scraper"),
+                "view_items"            => __("View $plural", "merck-scraper"),
+                "search_items"          => __("Search $plural", "merck-scraper"),
                 "not_found"             => __("Not found", "merck-scraper"),
                 "not_found_in_trash"    => __("Not found in Trash", "merck-scraper"),
-                "featured_image"        => __("{$singular} Image", "merck-scraper"),
-                "set_featured_image"    => __("Set {$single_lower} image", "merck-scraper"),
-                "remove_featured_image" => __("Remove {$single_lower} image", "merck-scraper"),
-                "use_featured_image"    => __("Use as {$single_lower} image", "merck-scraper"),
-                "insert_into_item"      => __("Place into {$single_lower}", "merck-scraper"),
-                "uploaded_to_this_item" => __("Uploaded to this {$singular}", "merck-scraper"),
-                "items_list"            => __("{$singular} list", "merck-scraper"),
-                "items_list_navigation" => __("{$singular} list navigation", "merck-scraper"),
-                "filter_items_list"     => __("Filter {$singular} list", "merck-scraper"),
+                "featured_image"        => __("$singular Image", "merck-scraper"),
+                "set_featured_image"    => __("Set $single_lower image", "merck-scraper"),
+                "remove_featured_image" => __("Remove $single_lower image", "merck-scraper"),
+                "use_featured_image"    => __("Use as $single_lower image", "merck-scraper"),
+                "insert_into_item"      => __("Place into $single_lower", "merck-scraper"),
+                "uploaded_to_this_item" => __("Uploaded to this $singular", "merck-scraper"),
+                "items_list"            => __("$singular list", "merck-scraper"),
+                "items_list_navigation" => __("$singular list navigation", "merck-scraper"),
+                "filter_items_list"     => __("Filter $singular list", "merck-scraper"),
             ],
-            "supports"            => $supports_args,
+            "supports"            => $editor_args['supports'] ?? $default_args,
             "hierarchical"        => false,
             "public"              => true,
             "show_ui"             => true,
@@ -96,6 +96,7 @@ trait MSAdminTrait
      * @param bool        $hierarchical Whether this mimics a category or a tag
      */
     protected function taxonomyArray(string $singular, string $plural, string $tax_slug = null, bool $hierarchical = true)
+    :array
     {
         $single_lower = strtolower($singular);
         $plural_lower = strtolower($plural);
@@ -103,24 +104,24 @@ trait MSAdminTrait
             "labels"            => [
                 "name"                       => _x($singular, "Taxonomy General Name", "merck-scraper"),
                 "singular_name"              => _x($singular, "Taxonomy Singular Name", "merck-scraper"),
-                "menu_name"                  => __($singular, "merck-scraper"),
-                "all_items"                  => __("All {$plural}", "merck-scraper"),
-                "parent_item"                => __("Parent {$singular}", "merck-scraper"),
-                "parent_item_colon"          => __("Parent {$singular}:", "merck-scraper"),
-                "new_item_name"              => __("New {$singular}", "merck-scraper"),
-                "add_new_item"               => __("Add {$singular}", "merck-scraper"),
-                "edit_item"                  => __("Edit {$singular}", "merck-scraper"),
-                "update_item"                => __("Update {$singular}", "merck-scraper"),
-                "view_item"                  => __("View {$singular}", "merck-scraper"),
-                "separate_items_with_commas" => __("Separate {$single_lower} with commas", "merck-scraper"),
-                "add_or_remove_items"        => __("Add or remove {$plural_lower}", "merck-scraper"),
+                "menu_name"                  => __($plural, "merck-scraper"),
+                "all_items"                  => __("All $plural", "merck-scraper"),
+                "parent_item"                => __("Parent $singular", "merck-scraper"),
+                "parent_item_colon"          => __("Parent $singular:", "merck-scraper"),
+                "new_item_name"              => __("New $singular", "merck-scraper"),
+                "add_new_item"               => __("Add $singular", "merck-scraper"),
+                "edit_item"                  => __("Edit $singular", "merck-scraper"),
+                "update_item"                => __("Update $singular", "merck-scraper"),
+                "view_item"                  => __("View $singular", "merck-scraper"),
+                "separate_items_with_commas" => __("Separate $single_lower with commas", "merck-scraper"),
+                "add_or_remove_items"        => __("Add or remove $plural_lower", "merck-scraper"),
                 "choose_from_most_used"      => __("Choose from the most used", "merck-scraper"),
-                "popular_items"              => __("Popular {$plural}", "merck-scraper"),
-                "search_items"               => __("Search {$plural}", "merck-scraper"),
+                "popular_items"              => __("Popular $plural", "merck-scraper"),
+                "search_items"               => __("Search $plural", "merck-scraper"),
                 "not_found"                  => __("Not Found", "merck-scraper"),
-                "no_terms"                   => __("No {$plural_lower}", "merck-scraper"),
-                "items_list"                 => __("{$plural} list", "merck-scraper"),
-                "items_list_navigation"      => __("{$plural} list navigation", "merck-scraper"),
+                "no_terms"                   => __("No $plural_lower", "merck-scraper"),
+                "items_list"                 => __("$plural list", "merck-scraper"),
+                "items_list_navigation"      => __("$plural list navigation", "merck-scraper"),
             ],
             "hierarchical"      => $hierarchical,
             "public"            => true,

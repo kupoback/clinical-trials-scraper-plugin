@@ -9,6 +9,7 @@ use Merck_Scraper\admin\MSApiLogger;
 use Merck_Scraper\admin\MSApiScraper;
 use Merck_Scraper\admin\MSCustomPT;
 use Merck_Scraper\admin\MSCustomTax;
+use Merck_Scraper\admin\MSLocationMetaBox;
 use Merck_Scraper\admin\MSOptionsPage;
 use Merck_Scraper\frontend\MSFrontEndAPI;
 use Merck_Scraper\frontend\MSPublic;
@@ -147,6 +148,7 @@ class MSMainClass
          * including filters and searching for custom ACF field
          */
         $this->loader->addAction('pre_get_posts', $plugin_admin, 'trialsAdminQuery');
+        $this->loader->addAction('before_delete_post', $plugin_admin, 'removeTrialLocations', 99, 2);
         $this->loader->addFilter('manage_edit-trials_sortable_columns', $plugin_admin, 'filterCustomCol');
         $this->loader->addFilter('posts_join', $plugin_admin, 'trialsAdminJoin');
         $this->loader->addFilter('posts_where', $plugin_admin, 'trialsAdminWhere');
@@ -179,6 +181,10 @@ class MSMainClass
         $scraper_api = new MSApiScraper();
         $this->loader->addAction('rest_api_init', $scraper_api, 'registerEndpoint');
         // $this->loader->addAction('init', $scraper_api, 'registerCronType');
+
+        $location_meta_box = new MSLocationMetaBox;
+        $this->loader->addAction('add_meta_boxes', $location_meta_box, 'addMetaBoxes');
+        // $this->loader->addAction('save_post', $location_meta_box, 'savePost');
     }
 
     /**

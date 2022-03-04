@@ -353,15 +353,24 @@ trait MSApiField
                             'city'              => $location->LocationCity ?? '',
                             'country'           => $location->LocationCountry ?? '',
                             'facility'          => $this->filterParenthesis($location->LocationFacility ?? ''),
+                            'id'                => Str::camel(sanitize_title($location->LocationFacility ?? '')),
+                            'phone'             => $phone ?? '',
+                            'post_title'        => strtr(
+                                $location->LocationFacility ?? '',
+                                [
+                                    '( ' => '(',
+                                    ' )' => ')',
+                                ]
+                            ),
                             'recruiting_status' => $location_status,
                             'state'             => $location->LocationState ?? '',
                             'zip'               => $location->LocationZip ?? '',
-                            'phone'             => $phone ?? '',
                         ];
                     }
                     return false;
                 })
-                ->filter();
+                ->filter()
+                ->values();
         }
 
         return collect(
@@ -395,10 +404,10 @@ trait MSApiField
     protected function parsePostArgs(array $post_args): array
     {
         return [
-            'post_title'   => $post_args['title'],
-            'post_name'    => sanitize_title($post_args['slug']),
-            'post_content' => $post_args['content'],
-            'post_excerpt' => $post_args['content'] ? Helper::generateExcerpt($post_args['content'], 31) : '',
+            'post_title'   => $post_args['title'] ?? '',
+            'post_name'    => sanitize_title($post_args['slug'] ?? ($post_args['title'] ?? '')),
+            'post_content' => $post_args['content'] ?? '',
+            'post_excerpt' => isset($post_args['content']) ? Helper::generateExcerpt($post_args['content'], 31) : '',
         ];
     }
 
@@ -449,56 +458,18 @@ trait MSApiField
     }
 
     /**
-     * Maps through the Trials Field group and parses the data for importing
+     * Maps through the ACF group ID to use for import
      *
-     * @return Collection|mixed
+     * @param string $acf_field The ACF Group ID
+     *
+     * @return Collection
      */
-    protected function getTrialsFieldGroups()
+    protected function getFieldGroup(string $acf_field)
+    :Collection
     {
-        $fields = collect(
-            acf_get_fields('group_60fae8b82087d')
-        );
+        $fields = collect(acf_get_fields($acf_field));
 
-        $ignored_fields = ['tab', 'message'];
-
-        if ($fields->isNotEmpty()) {
-            return $fields
-                ->filter(function ($field) use ($ignored_fields) {
-                    return $field['type'] && !in_array($field['type'], $ignored_fields);
-                })
-                ->map(function ($field) use ($ignored_fields) {
-                    $field_name = $field['name'] ?? '';
-                    $field_arr  = [
-                        'data_name'     => str_replace('api_data_', '', $field_name),
-                        'default_value' => $field['default_value'] ?? false,
-                        'key'           => $field['key'] ?? false,
-                        'name'          => $field_name ?: false,
-                        'type'          => $field['type'] ?? false,
-                    ];
-
-                    $sub_fields = $field['sub_fields'] ?? false;
-                    if ($sub_fields) {
-                        $field_arr['sub_fields'] = collect($sub_fields)
-                            ->map(function ($sub_field) use ($ignored_fields) {
-                                if ($sub_field['type'] && !in_array($sub_field['type'], $ignored_fields)) {
-                                    return [
-                                        'default_value' => $sub_field['default_value'] ?? false,
-                                        'key'           => $sub_field['key'] ?? false,
-                                        'name'          => $sub_field['name'] ?? false,
-                                        'type'          => $sub_field['type'],
-                                    ];
-                                }
-                                return false;
-                            })
-                            ->filter()
-                            ->values();
-                    }
-                    return $field_arr;
-                })
-                ->values();
-        }
-
-        return collect();
+        return $fields->isNotEmpty() ? self::mapAcfGroup($fields) : collect();
     }
 
     /**
@@ -521,6 +492,57 @@ trait MSApiField
             })
             ->filter()
             ->toArray();
+    }
+
+    /**
+     * Maps through a Collection of ACF fields provided, ignoring any defined ones.
+     *
+     * @param Collection $fields         A collection of the ACF Group ID
+     * @param array      $ignored_fields Any field types to ignore. Defaults are tab and message
+     *
+     * @return Collection
+     */
+    protected function mapAcfGroup(Collection $fields, array $ignored_fields = [])
+    :Collection
+    {
+        $default_ignore = ['tab', 'message'];
+
+        $ignored_fields = wp_parse_args($ignored_fields, $default_ignore);
+
+        return $fields
+            ->filter(function ($field) use ($ignored_fields) {
+                return $field['type'] && !in_array($field['type'], $ignored_fields);
+            })
+            ->map(function ($field) use ($ignored_fields) {
+                $field_name = $field['name'] ?? '';
+                $field_arr  = [
+                    'data_name'     => str_replace('api_data_', '', $field_name),
+                    'default_value' => $field['default_value'] ?? false,
+                    'key'           => $field['key'] ?? false,
+                    'name'          => $field_name ?: false,
+                    'type'          => $field['type'] ?? false,
+                ];
+
+                $sub_fields = $field['sub_fields'] ?? false;
+                if ($sub_fields) {
+                    $field_arr['sub_fields'] = collect($sub_fields)
+                        ->map(function ($sub_field) use ($ignored_fields) {
+                            if ($sub_field['type'] && !in_array($sub_field['type'], $ignored_fields)) {
+                                return [
+                                    'default_value' => $sub_field['default_value'] ?? false,
+                                    'key'           => $sub_field['key'] ?? false,
+                                    'name'          => $sub_field['name'] ?? false,
+                                    'type'          => $sub_field['type'],
+                                ];
+                            }
+                            return false;
+                        })
+                        ->filter()
+                        ->values();
+                }
+                return $field_arr;
+            })
+            ->values();
     }
 
     protected function getTrialLocations(int $post_id = 0): Collection

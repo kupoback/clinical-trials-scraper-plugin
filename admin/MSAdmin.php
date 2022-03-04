@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Merck_Scraper\admin;
 
+use WP_Query;
+
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -39,14 +41,14 @@ class MSAdmin
      *
      * @var string[]
      */
-    private array $screens = [];
+    private array $screens;
 
     /**
      * An array of screens that things should be added to
      *
      * @var string[]
      */
-    private array $optsScreens = [];
+    private array $optsScreens;
 
     /**
      * Initialize the class and set its properties.
@@ -61,7 +63,7 @@ class MSAdmin
         $this->pluginName = $plugin_name;
         $this->version    = $version;
 
-        $this->screens = ['trials',];
+        $this->screens = ['trials', 'locations',];
 
         $this->optsScreens = [
             'toplevel_page_merck-scraper',
@@ -77,17 +79,12 @@ class MSAdmin
      */
     public function enqueueStyles()
     {
-        if (
-            is_admin() && (in_array(get_current_screen()->id, $this->screens)
-                || in_array(get_current_screen()->id, $this->optsScreens)
-            )
-        ) {
+        if (is_admin() && (in_array(get_current_screen()->id, $this->screens) || in_array(get_current_screen()->id, $this->optsScreens))) {
             wp_enqueue_style(
                 $this->pluginName,
                 plugin_dir_url(__FILE__) . 'dist/merck-scraper-admin.css',
                 [],
-                $this->version,
-                'all'
+                $this->version
             );
         }
     }
@@ -101,8 +98,8 @@ class MSAdmin
     {
         $current_screen  = get_current_screen()->id;
         $api_path        = "merck-scraper/v1";
-        $js_script_name  = "{$this->pluginName}-js";
-        $vue_script_name = "{$this->pluginName}-vue";
+        $js_script_name  = "$this->pluginName-js";
+        $vue_script_name = "$this->pluginName-vue";
 
         if (is_admin() && in_array($current_screen, $this->screens)) {
             wp_enqueue_script(
@@ -114,7 +111,7 @@ class MSAdmin
             );
         }
 
-        if (is_admin() && in_array($current_screen, $this->optsScreens)) {
+        if (is_admin() && in_array($current_screen, $this->optsScreens) || in_array($current_screen, $this->screens)) {
             wp_enqueue_script(
                 $vue_script_name,
                 plugin_dir_url(__FILE__) . 'dist/merck-scraper-vue.js',
@@ -132,10 +129,10 @@ class MSAdmin
                 $vue_script_name,
                 'MERCK_API',
                 [
-                    'apiUrl'           => rest_url("{$api_path}/api-scraper"),
-                    'apiSingle'        => rest_url("{$api_path}/api-scraper"),
-                    'apiPosition'      => rest_url("{$api_path}/api-position"),
-                    'apiClearPosition' => rest_url("{$api_path}/api-clear-position"),
+                    'apiUrl'           => rest_url("$api_path/api-scraper"),
+                    'apiSingle'        => rest_url("$api_path/api-scraper"),
+                    'apiPosition'      => rest_url("$api_path/api-position"),
+                    'apiClearPosition' => rest_url("$api_path/api-clear-position"),
                 ]
             );
         }
@@ -148,10 +145,23 @@ class MSAdmin
                 $vue_script_name,
                 'MERCK_LOG',
                 [
-                    'apiLog'        => rest_url("{$api_path}/api-log"),
-                    'apiGetLogDirs' => rest_url("{$api_path}/api-directories"),
-                    'apiGetLogUrl'  => rest_url("{$api_path}/api-get-log-file"),
-                    'apiDeleteFile' => rest_url("{$api_path}/api-delete-file"),
+                    'apiLog'        => rest_url("$api_path/api-log"),
+                    'apiGetLogDirs' => rest_url("$api_path/api-directories"),
+                    'apiGetLogUrl'  => rest_url("$api_path/api-get-log-file"),
+                    'apiDeleteFile' => rest_url("$api_path/api-delete-file"),
+                ]
+            );
+        }
+
+        if (is_admin() && $current_screen === 'locations') {
+            global $post;
+            wp_localize_script(
+                $vue_script_name,
+                'MERCK_GEO',
+                [
+                    'apiUrl' => rest_url("$api_path/geo-locate"),
+                    'getText' => __('Get Location', 'merck-scraper'),
+                    'id' => $post->ID ?? 0,
                 ]
             );
         }
@@ -171,6 +181,7 @@ class MSAdmin
             'group_60fed83c786ed', // Merck Settings
             'group_618e88f57b867', // Trial Ages
             'group_615c5ca5928cd', // Trial Settings
+            'group_6220de6da8144', // Location Single Post
         ];
 
         if (in_array($group['key'], $groups)) {
@@ -185,9 +196,10 @@ class MSAdmin
      *
      * @param array $paths The json file paths
      *
-     * @return mixed
+     * @return array
      */
     public function loadACFJson(array $paths)
+    :array
     {
         $paths[] = dirname(__FILE__) . '/acf-json';
         return $paths;
@@ -201,6 +213,7 @@ class MSAdmin
      * @return array
      */
     public function customSchedule(array $schedules)
+    :array
     {
         $schedules['thursday_api'] = [
             'interval' => 604800,
@@ -218,6 +231,7 @@ class MSAdmin
      * @return array
      */
     public function addColumns(array $columns)
+    :array
     {
         // Save the $columns['date'] field
         $post_date = $columns['date'];
@@ -306,7 +320,7 @@ class MSAdmin
      *
      * @param string $where The where clause
      *
-     * @return null|array|mixed|string|string[]
+     * @return null|array|string|string[]
      */
     public function trialsAdminWhere(string $where)
     {
@@ -341,12 +355,66 @@ class MSAdmin
      * @return string
      */
     public function trialsAdminDistc(string $where)
+    :string
     {
         global $wpdb;
         if ($this->isTrialsAdmin()) {
             return "DISTINCT";
         }
         return $where;
+    }
+
+    /**
+     * Hook to either remove a location if it is attached to only one location, or
+     * delete the NCT ID term from that location.
+     * @param $postid
+     * @param $post
+     *
+     * @return void
+     */
+    public function removeTrialLocations($postid, $post)
+    {
+        if ('trials' === $post->post_type) {
+            $location_ids = get_field('api_data_location_ids', $postid);
+            $nct_id       = get_field('api_data_nct_id', $postid);
+            if ($location_ids) {
+                collect(
+                    explode(';', $location_ids)
+                )
+                    ->each(function ($post) use ($nct_id) {
+                        $the_post = get_post($post);
+                        $post_id  = $the_post->ID ?? 0;
+                        if (!is_wp_error($the_post) && $post_id > 0) {
+                            $terms = collect(wp_get_post_terms($post_id, 'location_nctid'));
+
+                            /**
+                             * If the location has more than one NCT ID's attached to it,
+                             * remove that NCT ID from that location, otherwise it's safe
+                             * to delete the location entirely.
+                             */
+                            if ($terms->count() > 1) {
+                                $terms
+                                    ->filter(function ($term) use ($nct_id) {
+                                        return $term->name === $nct_id;
+                                    })
+                                    ->each(function ($term) use ($post_id) {
+                                        if ($term->term_id ?? false) {
+                                            wp_remove_object_terms($post_id, $term->term_id, 'location_nctid');
+                                        }
+                                    });
+                            } else {
+                                wp_delete_post($post_id, true);
+                            }
+                        }
+                    });
+
+                // Grab the NCT ID term from the locations and delete it
+                $term = get_term_by('name', $nct_id, 'location_nctid');
+                if (!is_wp_error($term) && $term->term_id > 0) {
+                    wp_delete_term($term->term_id, 'location_nctid');
+                }
+            }
+        }
     }
 
     /**

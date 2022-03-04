@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Merck_Scraper\admin;
 
@@ -20,29 +20,45 @@ class MSCustomPT
 
     /**
      * Registers all necessary post types
+     * @link WordPressDasicons https://developer.wordpress.org/resource/dashicons/
      */
     public function registerPostType()
     {
-        $post_args = [];
-
-        // CPT Trials
-        $post_args["trials"] = $this->postTypeArray(
-            'Trial',
-            'dashicons-analytics',
-            __("This post type is used to store trials scraped from the gov't api.", 'merck-scraper'),
-            'post',
+        collect(
             [
-                'rewrite' => [
-                    'slug'       => 'trial',
-                    'with_front' => true,
-                    'pages'      => true,
-                    'feeds'      => true,
-                ],
+                'trials' => $this->postTypeArray(
+                    'Trial',
+                    'dashicons-analytics',
+                    __("This post type is used to store trials scraped from the gov't api.", 'merck-scraper'),
+                    'post',
+                    [
+                        'rewrite' => [
+                            'slug'       => 'trial',
+                            'with_front' => true,
+                            'pages'      => true,
+                            'feeds'      => true,
+                        ],
+                    ]
+                ),
+                'locations' => $this->postTypeArray(
+                    'Location',
+                    'dashicons-admin-site',
+                    __("This post type is used to store trial locations scraped from the gov't api.", 'merck-scraper'),
+                    'post',
+                    [
+                        'rewrite' => [
+                            'slug'       => 'location',
+                            'with_front' => false,
+                            'pages'      => false,
+                            'feeds'      => false,
+                        ],
+                        'supports' => ['title', 'editor', 'revisions']
+                    ],
+                ),
             ]
-        );
-
-        foreach ($post_args as $post_type => $pt_args) {
-            register_post_type($post_type, $pt_args);
-        }
+        )
+            ->each(function ($pt_args, $post_type) {
+                register_post_type($post_type, $pt_args);
+            });
     }
 }

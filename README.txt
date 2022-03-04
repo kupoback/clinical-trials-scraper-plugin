@@ -5,7 +5,7 @@ Tags:
 Requires at least: 5.9.0
 Tested up to: 5.9.0
 Requires PHP: 7.4
-Stable tag: 1.0.6.5
+Stable tag: 1.0.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,20 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 == Description ==
 
 == Changelog ==
+
+= 1.0.7 =
+
+Added new Locations Post type
+
+Added new Location NCTID Taxonomy for Locations PT
+
+Added new Location Language Taxonomy for Locations PT
+
+Added in new meta-box with Vue element to fetch the location's Latitude/Longitude from the post itself and save the returned data
+
+Added new Locations ACF for trial data and override
+
+Added in before_delete_post hook to remove the NCT ID from the locations' term list, OR delete the location entirely if it only exists to one Trial
 
 = 1.0.6.6 =
 

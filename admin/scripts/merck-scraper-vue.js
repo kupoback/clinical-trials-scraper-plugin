@@ -21,6 +21,7 @@ const VueInstance = new Vue({
 document.addEventListener("DOMContentLoaded", (event) => {
     const apiImportElm = document.getElementById('merck-scraper-api');
     const apiLogElm = document.getElementById('merck-scraper-log');
+    const geolocationElm = document.getElementById('merck-geolocation');
     
     /**
      * Mount the API Import Component
@@ -43,6 +44,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
             el: "#merck-scraper-log",
             store,
             render: h => h(apiLogComponent)
+        });
+    }
+    
+    if (geolocationElm) {
+        const geolocationComponent = Vue.component("LocationGeoFetch", require('./vue/Components/Pages/LocationGeoFetch.vue').default);
+        const geolocationVueElm = new Vue({
+            el: "#merck-geolocation",
+            store,
+            render: h => h(geolocationComponent)
         });
     }
     
