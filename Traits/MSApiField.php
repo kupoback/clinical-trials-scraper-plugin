@@ -348,6 +348,8 @@ trait MSApiField
                         $in_array = true;
                     }
 
+                    $languages = $this->mapLanguage($location->LocationCountry ?? '');
+
                     if ($in_array && in_array(Str::lower($location_status), $status)) {
                         return [
                             'city'              => $location->LocationCity ?? '',
@@ -362,6 +364,7 @@ trait MSApiField
                                     ' )' => ')',
                                 ]
                             ),
+                            'location_language' => $languages->isNotEmpty() ? $languages->implode(';') : "All",
                             'recruiting_status' => $location_status,
                             'state'             => $location->LocationState ?? '',
                             'zip'               => $location->LocationZip ?? '',

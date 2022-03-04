@@ -94,7 +94,7 @@ class MSApiScraper
     /**
      * @var Collection ACF Values of existing trial locations
      */
-    private Collection $existingLocations;
+    // private Collection $existingLocations;
 
     /**
      * @var Collection Location ACF Field Names
@@ -584,7 +584,6 @@ class MSApiScraper
     public function geoLocate(WP_REST_Request $request)
     {
         $post_id = $request->get_param('id');
-        $this->existingLocations = collect();
 
         $location = collect(
             [
@@ -998,7 +997,7 @@ class MSApiScraper
         /**
          * Grab all locations based on its unique ID, so that we aren't importing the same location more than once
          */
-        $this->existingLocations = collect($this->trialLocations)
+        $existing_locations = collect($this->trialLocations)
             ->mapWithKeys(function ($location) {
                 $post_id = intval($this->dbFetchPostId('meta_value', $location['id']));
                 if ($post_id > 0) {
@@ -1011,11 +1010,11 @@ class MSApiScraper
                             })
                             ->merge(
                                 [
-                                    'facility'  => get_the_title($post_id),
                                     'latitude'  => get_post_meta($post_id, 'ms_location_latitude', true),
                                     'longitude' => get_post_meta($post_id, 'ms_location_longitude', true),
                                 ]
                             )
+                            ->filter()
                             ->toArray()
                     ];
                 }
@@ -1024,16 +1023,18 @@ class MSApiScraper
             ->filter()
             ->unique();
 
+        $total_items = $this->trialLocations
+            ->count();
+
         // Fetch, filter and sanitize the locations' data
-        self::locationGeocode($this->trialLocations)
+        self::locationGeocode($this->trialLocations, $existing_locations)
             // Map through each location and create or update the location post
-            ->each(function ($location, $index) use ($location_ids, $nct_id) {
+            ->each(function ($location, $index) use ($location_ids, $nct_id, $total_items) {
                 $this->updatePosition(
                     "Import Locations",
                     [
                         'position' => $index,
-                        'total_import' => $this->trialLocations
-                            ->count(),
+                        'total_import' => $total_items,
                         'helper'      => "Importing Locations for $nct_id",
                     ]
                 );
@@ -1124,23 +1125,24 @@ class MSApiScraper
      * Grabs the geocode location data from Google Maps, but only if the location doesn't
      * exist in the first place
      *
-     * @param Collection $arr_data The array data
+     * @param Collection $arr_data           The array data imported
+     * @param Collection $existing_locations The existing locations
      *
      * @return Collection
      */
-    protected function locationGeocode(Collection $arr_data)
+    protected function locationGeocode(Collection $arr_data, Collection $existing_locations)
     :Collection
     {
         set_time_limit(600);
         ini_set('max_execution_time', '600');
         return $arr_data
-            ->map(function ($location) {
+            ->map(function ($location) use ($existing_locations) {
                 // Grab and filter the facility
                 $facility = $this->filterParenthesis($location['facility'] ?? '');
                 // Check if the location is already imported, so we don't grab the lat/lng again
-                $data_grabbed = $this->existingLocations
+                $data_grabbed = $existing_locations
                     ->filter(function ($location) use ($facility) {
-                        if (!empty($location['latitude']) && !empty($location['longitude'])) {
+                        if (($location['latitude'] ?? false)) {
                             return $location['facility'] === $facility;
                         }
                         return false;
