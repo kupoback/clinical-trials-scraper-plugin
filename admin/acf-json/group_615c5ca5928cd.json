@@ -731,26 +731,6 @@
             "maxlength": ""
         },
         {
-            "key": "field_621656da305ec",
-            "label": "Not Recruiting Text",
-            "name": "not_recruiting_text",
-            "type": "text",
-            "instructions": "This content appears if the trial is not recruiting.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "wpml_cf_preferences": 2,
-            "default_value": "Sorry, this trial is currently not actively recruiting.",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        },
-        {
             "key": "field_621fc927b3a0e",
             "label": "Directions Text",
             "name": "directions_text",
@@ -967,5 +947,5 @@
     "active": true,
     "description": "Settings for the Single Trial titles and content which won't change per trial.",
     "show_in_rest": 0,
-    "modified": 1646250297
+    "modified": 1646767574
 }

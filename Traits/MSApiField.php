@@ -316,9 +316,10 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseLocation(object $location_module): Collection
+    protected function parseLocation(object $location_module, object $trial_status): Collection
     {
-        $status = $this->trialStatus
+        $import_trial = true;
+        $allowed_status = $this->trialStatus
             ->toArray();
         $allowed_countries = $this->allowedTrialLocations;
         $disallowed_countries = $this->disallowedTrialLocations;
@@ -328,9 +329,13 @@ trait MSApiField
          */
         $locations = collect($location_module->LocationList->Location ?? []);
         if ($locations->isNotEmpty()) {
+            $trial_status = $trial_status->OverallStatus ?? '';
             $locations = $locations
-                ->map(function ($location) use ($allowed_countries, $disallowed_countries, $status) {
+                ->map(function ($location) use ($allowed_countries, $allowed_status, $disallowed_countries, $trial_status) {
                     $location_status = $location->LocationStatus ?? '';
+                    $country = $location->LocationCountry ?? '';
+                    $has_status = false;
+                    $in_array = false;
 
                     /**
                      * Grab the phone number for the contact
@@ -341,19 +346,21 @@ trait MSApiField
                     }
 
                     if ($allowed_countries->isNotEmpty()) {
-                        $in_array = in_array(Str::lower($location->LocationCountry), $allowed_countries->toArray());
+                        $in_array = $allowed_countries->search(Str::lower($country));
                     } elseif ($disallowed_countries->isNotEmpty()) {
-                        $in_array = !in_array(Str::lower($location->LocationCountry), $disallowed_countries->toArray());
-                    } else {
-                        $in_array = true;
+                        $in_array = $disallowed_countries->search(Str::lower($country));
                     }
 
-                    $languages = $this->mapLanguage($location->LocationCountry ?? '');
+                    if (in_array(Str::lower($location_status), $allowed_status) || $trial_status) {
+                        $has_status = true;
+                    }
 
-                    if ($in_array && in_array(Str::lower($location_status), $status)) {
+                    $languages = $this->mapLanguage($country);
+
+                    if (is_bool($in_array) && $has_status) {
                         return [
                             'city'              => $location->LocationCity ?? '',
-                            'country'           => $location->LocationCountry ?? '',
+                            'country'           => $country,
                             'facility'          => $this->filterParenthesis($location->LocationFacility ?? ''),
                             'id'                => Str::camel(sanitize_title($location->LocationFacility ?? '')),
                             'phone'             => $phone ?? '',
@@ -365,7 +372,7 @@ trait MSApiField
                                 ]
                             ),
                             'location_language' => $languages->isNotEmpty() ? $languages->implode(';') : "All",
-                            'recruiting_status' => $location_status,
+                            'recruiting_status' => $location_status ?: $trial_status,
                             'state'             => $location->LocationState ?? '',
                             'zip'               => $location->LocationZip ?? '',
                         ];
@@ -374,11 +381,16 @@ trait MSApiField
                 })
                 ->filter()
                 ->values();
+
+            if ($locations->isEmpty()) {
+                $import_trial = false;
+            }
         }
 
         return collect(
             [
                 'locations' => $locations,
+                'import' => $import_trial,
             ]
         );
     }

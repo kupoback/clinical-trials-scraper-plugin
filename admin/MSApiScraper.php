@@ -353,17 +353,17 @@ class MSApiScraper
             }
 
             // Trial Location search
-            if ($this->disallowedTrialLocations->isEmpty()) {
-                $location = $this->mapImplode($this->allowedTrialLocations);
-                $expression->push(
-                    "( AREA[LocationCountry] $location )"
-                );
-            } elseif ($this->disallowedTrialLocations->isNotEmpty()) {
-                $location = $this->mapImplode($this->disallowedTrialLocations);
-                $expression->push(
-                    "( AREA[LocationCountry] NOT $location )"
-                );
-            }
+            // if ($this->disallowedTrialLocations->isEmpty()) {
+            //     $location = $this->mapImplode($this->allowedTrialLocations);
+            //     $expression->push(
+            //         "( AREA[LocationCountry] $location )"
+            //     );
+            // } elseif ($this->disallowedTrialLocations->isNotEmpty()) {
+            //     $location = $this->mapImplode($this->disallowedTrialLocations);
+            //     $expression->push(
+            //         "( AREA[LocationCountry] NOT $location )"
+            //     );
+            // }
 
             // Trial sponsor search name
             $sponsor_name = $this->acfOptionField('clinical_trials_api_sponsor_search') ?: "Merck Sharp &amp; Dohme Corp.";
@@ -714,7 +714,7 @@ class MSApiScraper
         //region Modules
         $arms_module      = $this->parseArms($field_data->get('ArmsInterventionsModule'));
         $condition_module = $this->parseCondition($field_data->get('ConditionsModule'));
-        $contact_module   = $this->parseLocation($field_data->get('ContactsLocationsModule'));
+        $contact_module   = $this->parseLocation($field_data->get('ContactsLocationsModule'), $field_data->get('StatusModule'));
         $desc_module      = $this->parseDescription($field_data->get('DescriptionModule'));
         $design_module    = $this->parseDesign($field_data->get('DesignModule'));
         $eligible_module  = $this->parseEligibility($field_data->get('EligibilityModule'));
@@ -964,7 +964,7 @@ class MSApiScraper
                 }
             }
 
-            if ($contact_module->get('locations')) {
+            if ($contact_module->get('locations') && $contact_module->get('import')) {
                 $this->trialLocations = $contact_module->get('locations');
             }
             //endregion
@@ -1038,6 +1038,7 @@ class MSApiScraper
                         'helper'      => "Importing Locations for $nct_id",
                     ]
                 );
+
                 $location_data = collect($location);
                 if ($location_data->filter()->isNotEmpty()) {
                     $location_post_id = intval($this->dbFetchPostId('meta_value', $location['id']));
@@ -1133,8 +1134,8 @@ class MSApiScraper
     protected function locationGeocode(Collection $arr_data, Collection $existing_locations)
     :Collection
     {
-        set_time_limit(600);
-        ini_set('max_execution_time', '600');
+        set_time_limit(1800);
+        ini_set('max_execution_time', '1800');
         return $arr_data
             ->map(function ($location) use ($existing_locations) {
                 // Grab and filter the facility

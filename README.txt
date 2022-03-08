@@ -5,7 +5,7 @@ Tags:
 Requires at least: 5.9.0
 Tested up to: 5.9.0
 Requires PHP: 7.4
-Stable tag: 1.0.7.1
+Stable tag: 1.0.7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,16 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 == Description ==
 
 == Changelog ==
+
+= 1.0.7.2 =
+
+Changed import process to use the countries to allow or omit to filter out the locations imported instead of limiting the trials
+
+Changed import delay from Google API from 200 to 150
+
+Increase locations import execution time to 30min to prevent hangups
+
+Removed no active locations ACF field
 
 = 1.0.7.1 =
 

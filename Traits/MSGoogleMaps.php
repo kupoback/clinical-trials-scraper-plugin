@@ -189,7 +189,7 @@ trait MSGoogleMaps
                 ],
                 [
                     'http_args' => [
-                        'delay' => 200,
+                        'delay' => 120,
                     ],
                     'guzzle'    => [
                         'verify' => true,
