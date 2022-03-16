@@ -3,7 +3,7 @@ Contributors: Nick Makris
 Donate link: https://cliquestudios.com
 Tags:
 Requires at least: 5.9.0
-Tested up to: 5.9.0
+Tested up to: 5.9.2
 Requires PHP: 7.4
 Stable tag: 1.0.7.2
 License: GPLv2 or later
@@ -14,6 +14,10 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 == Description ==
 
 == Changelog ==
+
+= 1.0.7.3 =
+
+Adjusted Trial Settings for breadcrumbs fallback
 
 = 1.0.7.2 =
 
