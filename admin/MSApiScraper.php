@@ -122,6 +122,11 @@ class MSApiScraper
     private Carbon $nowTime;
 
     /**
+     * @var Collection A collection of protocol names to search for. Used for the study_protocol field
+     */
+    private Collection $protocolNames;
+
+    /**
      * @var array|Collection Array for whom the email needs to be sent to
      */
     private $sendTo;
@@ -208,6 +213,16 @@ class MSApiScraper
          * Now timestamp used to keep the log files in order
          */
         $this->nowTime = Carbon::now();
+
+        /**
+         * Iterates through a textarea of the Study Protocol items
+         */
+        $this->protocolNames = collect(
+            MSHelper::textareaToArr(
+                $this->acfStrOptionFld('clinical_trials_api_study_protocol_filter')
+            )
+        )
+            ->filter();
 
         /**
          * An array of people who the email notification should be sent out to
@@ -842,6 +857,7 @@ class MSApiScraper
                 ->put('official_title', $id_module->get('official_title'))
                 ->put('trial_purpose', $desc_module->get('trial_purpose'))
                 ->put('study_keyword', $id_module->get('study_keyword'))
+                ->put('study_protocol', $id_module->get('study_protocol'))
                 ->put('start_date', $status_module->get('start_date'))
                 ->put('primary_completion_date', $status_module->get('primary_completion_date'))
                 ->put('completion_date', $status_module->get('completion_date'))
@@ -1286,83 +1302,88 @@ class MSApiScraper
         /**
          * Merck Email Client
          */
-        if ($this->sendTo->isEmpty()) {
+        if ($this->sendTo->filter()->isEmpty()) {
             $this->sendTo = collect($this->acfOptionField('api_logger_email_to'));
         }
 
-        /**
-         * Check if AIO is installed and setup
-         */
-        $login_url = wp_login_url();
-        global $aio_wp_security;
-        if ($aio_wp_security && $aio_wp_security->configs->get_value('aiowps_enable_rename_login_page') === '1') {
-            $home_url  = trailingslashit(home_url()) . (!get_option('permalink_structure') ? '?' : '');
-            $login_url = "$home_url{$aio_wp_security->configs->get_value('aiowps_login_page_slug')}";
-        }
+        if ($this->sendTo->filter()->isNotEmpty()) {
 
-        /**
-         * A list of array fields for the MailJet Email Client
-         */
-        $email_args = [
-            'TemplateLanguage' => true,
-            'TemplateID'       => (int) ($this->acfOptionField('api_email_template_id') ?? 0),
-            'Variables'        => [
-                'timestamp' => $this->nowTime
-                    ->format("l F j, Y h:i A"),
-                'trials'    => '',
-                'wplogin'   => $login_url,
-            ],
-        ];
+            /**
+             * Check if AIO is installed and setup
+             */
+            $login_url = wp_login_url();
+            global $aio_wp_security;
+            if ($aio_wp_security && $aio_wp_security->configs->get_value('aiowps_enable_rename_login_page') === '1') {
+                $home_url  = trailingslashit(home_url()) . (!get_option('permalink_structure') ? '?' : '');
+                $login_url = "$home_url{$aio_wp_security->configs->get_value('aiowps_login_page_slug')}";
+            }
 
-        /**
-         * Adds the Trails' data to Variables
-         */
-        if ($studies_imported->isNotEmpty()) {
-            $new_posts     = collect();
-            $trashed_posts = collect();
-            $updated_posts = collect();
+            /**
+             * A list of array fields for the MailJet Email Client
+             */
+            $email_args = [
+                'TemplateLanguage' => true,
+                'TemplateID'       => (int) ($this->acfOptionField('api_email_template_id') ?? 0),
+                'Variables'        => [
+                    'timestamp' => $this->nowTime
+                        ->format("l F j, Y h:i A"),
+                    'trials'    => '',
+                    'wplogin'   => $login_url,
+                ],
+            ];
 
-            $studies_imported
-                ->map(function ($study) use ($new_posts, $trashed_posts, $updated_posts) {
-                    $status = $study
-                            ->get('POST_STATUS') ?? '';
-                    if (is_string($status)) {
-                        switch (strtolower($status)) {
-                            case "draft":
-                            case "pending":
-                                $new_posts
-                                    ->push($study);
-                                break;
-                            case "trash":
-                                $trashed_posts
-                                    ->push($study);
-                                break;
-                            case "publish":
-                                $updated_posts
-                                    ->push($study);
-                                break;
-                            default:
-                                break;
+            /**
+             * Adds the Trails' data to Variables
+             */
+            if ($studies_imported->isNotEmpty()) {
+                $new_posts     = collect();
+                $trashed_posts = collect();
+                $updated_posts = collect();
+
+                $studies_imported
+                    ->map(function ($study) use ($new_posts, $trashed_posts, $updated_posts) {
+                        $status = $study
+                                ->get('POST_STATUS') ?? '';
+                        if (is_string($status)) {
+                            switch (strtolower($status)) {
+                                case "draft":
+                                case "pending":
+                                    $new_posts
+                                        ->push($study);
+                                    break;
+                                case "trash":
+                                    $trashed_posts
+                                        ->push($study);
+                                    break;
+                                case "publish":
+                                    $updated_posts
+                                        ->push($study);
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
-                    }
-                    return $study;
-                });
+                        return $study;
+                    });
 
-            $total_found      = sprintf('<li>Total Found: %s</li>', $studies_imported->count());
-            $new_posts        = sprintf('<li>New Trials: %s</li>', $new_posts->count());
-            $trashed_posts    = sprintf('<li>Removed Trials: %s</li>', $trashed_posts->count());
-            $num_not_imported = sprintf('<li>Trials Not Scraped: %s</li>', $num_not_imported ?? 0);
-            $updated_posts    = sprintf('<li>Updated Trials: %s</li>', $updated_posts->count());
+                $total_found      = sprintf('<li>Total Found: %s</li>', $studies_imported->count());
+                $new_posts        = sprintf('<li>New Trials: %s</li>', $new_posts->count());
+                $trashed_posts    = sprintf('<li>Removed Trials: %s</li>', $trashed_posts->count());
+                $num_not_imported = sprintf('<li>Trials Not Scraped: %s</li>', $num_not_imported ?? 0);
+                $updated_posts    = sprintf('<li>Updated Trials: %s</li>', $updated_posts->count());
 
-            $email_args['Variables']['trials'] = sprintf(
-                '<ul>%s</ul>',
-                $total_found . $new_posts . $trashed_posts . $num_not_imported . $updated_posts
-            );
+                $email_args['Variables']['trials'] = sprintf(
+                    '<ul>%s</ul>',
+                    $total_found . $new_posts . $trashed_posts . $num_not_imported . $updated_posts
+                );
+            }
+
+            // Email notification on completion
+            return (new MSMailer())
+                ->mailer($this->sendTo, $email_args);
         }
 
-        // Email notification on completion
-        return (new MSMailer())
-            ->mailer($this->sendTo, $email_args);
+        return false;
     }
 
     /**

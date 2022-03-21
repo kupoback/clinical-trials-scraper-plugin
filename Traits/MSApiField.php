@@ -27,8 +27,10 @@ trait MSApiField
      */
     protected function parseId(object $id_module): Collection
     {
-        // $protocol_id  = collect();
         $other_ids = collect($id_module->SecondaryIdInfoList->SecondaryIdInfo ?? []);
+        // $protocol_id  = collect();
+        $study_protocol  = collect();
+
         if ($other_ids->isNotEmpty()) {
             // $protocol_id = $other_ids
             //     ->filter(function ($second_id) use ($org_study_id) {
@@ -37,6 +39,29 @@ trait MSApiField
             //     ->map(function ($second_id) {
             //         return $second_id->SecondaryId;
             //     });
+
+            if ($this->protocolNames->isNotEmpty()) {
+                $study_protocol = $other_ids
+                    ->filter(function ($second_id) {
+                        $id = Str::lower(
+                            preg_replace(
+                                "/[^[:alpha:]]/u",
+                                '',
+                                $second_id->SecondaryId ?? ''
+                            )
+                        );
+                        return $this->protocolNames->search($id);
+                    })
+                    ->map(function ($second_id) {
+                        return Str::title(
+                            preg_replace(
+                                "/[^[:alnum:]]/u",
+                                ' ',
+                                $second_id->SecondaryId
+                            )
+                        );
+                    });
+            }
 
             $other_ids = $other_ids
                 ->map(function ($second_id) {
@@ -63,6 +88,8 @@ trait MSApiField
                 'study_keyword'  => $id_module
                     ->OrgStudyIdInfo
                     ->OrgStudyId ?? '',
+                'study_protocol' => $study_protocol
+                    ->first(),
             ]
         );
     }

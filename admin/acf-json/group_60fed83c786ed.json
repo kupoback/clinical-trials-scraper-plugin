@@ -229,6 +229,26 @@
             "maxlength": ""
         },
         {
+            "key": "field_6238bf00c23f7",
+            "label": "Clinical Trials API Study Protocol Filter",
+            "name": "clinical_trials_api_study_protocol_filter",
+            "type": "textarea",
+            "instructions": "These are study protocol words to search for.<br \/>\r\nAdd each protocol word here on each line and separate with semi-colons.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "wpml_cf_preferences": 1,
+            "default_value": "keylynk;\r\nkeynote;\r\nkeyvibe;\r\nleap;\r\nlitespark;\r\nlynk;\r\nhopskip;",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": 4,
+            "new_lines": ""
+        },
+        {
             "key": "field_611e6d493a1bd",
             "label": "Import Rank",
             "name": "",
@@ -651,5 +671,5 @@
     "active": true,
     "description": "Option Settings for the Merck Scraper Plugin. Do not translate anything in here, as these are used for the API import only.",
     "show_in_rest": 0,
-    "modified": 1644355958
+    "modified": 1647886308
 }

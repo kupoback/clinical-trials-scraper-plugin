@@ -88,7 +88,7 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-third",
+                "class": "one-quarter",
                 "id": ""
             },
             "wpml_cf_preferences": 3,
@@ -108,7 +108,7 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-third",
+                "class": "one-quarter",
                 "id": ""
             },
             "wpml_cf_preferences": 3,
@@ -128,7 +128,27 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-third",
+                "class": "one-quarter",
+                "id": ""
+            },
+            "wpml_cf_preferences": 3,
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_6238be99f242f",
+            "label": "Study Protocol",
+            "name": "api_data_study_protocol",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "one-quarter",
                 "id": ""
             },
             "wpml_cf_preferences": 3,
@@ -488,7 +508,7 @@
                 "class": "",
                 "id": ""
             },
-            "wpml_cf_preferences": 1,
+            "wpml_cf_preferences": 0,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -514,5 +534,5 @@
     "active": true,
     "description": "Default Fields that are mapped and imported from the Merck Scraper",
     "show_in_rest": 0,
-    "modified": 1646341798
+    "modified": 1647886040
 }
