@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Merck_Scraper\Traits;
 
@@ -21,48 +21,17 @@ trait MSApiField
     /**
      * Parses the IdentificationModule object field, returning the Post Title, NCTID, and Official Title field
      *
-     * @param object $id_module The IdentificationModule object from the gov't API data
+     * @param object $id_module The IdentificationModule object from the govt API data
      *
      * @return Collection
      */
-    protected function parseId(object $id_module): Collection
+    protected function parseId(object $id_module)
+    :Collection
     {
         $other_ids = collect($id_module->SecondaryIdInfoList->SecondaryIdInfo ?? []);
-        // $protocol_id  = collect();
-        $study_protocol  = collect();
+        $study_protocol = collect();
 
         if ($other_ids->isNotEmpty()) {
-            // $protocol_id = $other_ids
-            //     ->filter(function ($second_id) use ($org_study_id) {
-            //         return str_contains(($second_id->SecondaryId ?? ''), $org_study_id);
-            //     })
-            //     ->map(function ($second_id) {
-            //         return $second_id->SecondaryId;
-            //     });
-
-            if ($this->protocolNames->isNotEmpty()) {
-                $study_protocol = $other_ids
-                    ->filter(function ($second_id) {
-                        $id = Str::lower(
-                            preg_replace(
-                                "/[^[:alpha:]]/u",
-                                '',
-                                $second_id->SecondaryId ?? ''
-                            )
-                        );
-                        return $this->protocolNames->search($id);
-                    })
-                    ->map(function ($second_id) {
-                        return Str::title(
-                            preg_replace(
-                                "/[^[:alnum:]]/u",
-                                ' ',
-                                $second_id->SecondaryId
-                            )
-                        );
-                    });
-            }
-
             $other_ids = $other_ids
                 ->map(function ($second_id) {
                     return $second_id->SecondaryId ?? '';
@@ -74,7 +43,40 @@ trait MSApiField
 
         $title = '';
         if ($id_module->BriefTitle !== null) {
-            $title = $this->filterParenthesis($id_module->BriefTitle);
+            $title          = $this->filterParenthesis($id_module->BriefTitle);
+            $study_keywords = self::extractParenthesis($id_module->BriefTitle);
+            if (!empty($study_keywords)) {
+                $study_protocol = collect($study_keywords)
+                    ->map(function ($keywords) {
+                        $keywords = explode('/', $keywords);
+                        if (!empty($keywords)) {
+                            return collect($keywords)
+                                ->filter(function ($keyword) {
+                                    $id = Str::lower(
+                                        preg_replace(
+                                            "/[^[:alpha:]]/u",
+                                            '',
+                                            $keyword
+                                        )
+                                    );
+                                    return $this->protocolNames->search($id);
+                                })
+                                ->map(function ($keyword) {
+                                    return Str::title(
+                                        preg_replace(
+                                            "/[^[:alnum:]]/u",
+                                            ' ',
+                                            $keyword
+                                        )
+                                    );
+                                })
+                                ->first();
+                        }
+                        return false;
+                    })
+                    ->filter()
+                    ->values();
+            }
         }
 
         return collect(
@@ -86,8 +88,8 @@ trait MSApiField
                 'official_title' => $id_module->OfficialTitle ?? '',
                 'other_ids'      => $other_ids,
                 'study_keyword'  => $id_module
-                    ->OrgStudyIdInfo
-                    ->OrgStudyId ?? '',
+                        ->OrgStudyIdInfo
+                        ->OrgStudyId ?? '',
                 'study_protocol' => $study_protocol
                     ->first(),
             ]
@@ -102,20 +104,21 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseStatus(object $status_module): Collection
+    protected function parseStatus(object $status_module)
+    :Collection
     {
         return collect(
             [
                 'trial_status'            => $status_module->OverallStatus,
                 'start_date'              => $status_module
-                    ->StartDateStruct
-                    ->StartDate ?? '',
+                        ->StartDateStruct
+                        ->StartDate ?? '',
                 'primary_completion_date' => $status_module
-                    ->PrimaryCompletionDateStruct
-                    ->PrimaryCompletionDate ?? '',
+                        ->PrimaryCompletionDateStruct
+                        ->PrimaryCompletionDate ?? '',
                 'completion_date'         => $status_module
-                    ->CompletionDateStruct
-                    ->CompletionDate ?? '',
+                        ->CompletionDateStruct
+                        ->CompletionDate ?? '',
                 // 'study_first_post_date'   => $status_module->StudyFirstPostDateStruct->CompletionDate ?? '',
                 // 'results_first_post_date' => $status_module->ResultsFirstPostDateStruct->ResultsFirstPostDate ?? '',
             ]
@@ -129,13 +132,14 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseSponsors(object $sponsor_module): Collection
+    protected function parseSponsors(object $sponsor_module)
+    :Collection
     {
         return collect(
             [
                 'lead_sponsor_name' => $sponsor_module
-                    ->LeadSponsor
-                    ->LeadSponsorName ?? '',
+                        ->LeadSponsor
+                        ->LeadSponsorName ?? '',
             ]
         );
     }
@@ -147,7 +151,8 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseOversight(object $oversight_module): Collection
+    protected function parseOversight(object $oversight_module)
+    :Collection
     {
         return collect(
             []
@@ -157,11 +162,12 @@ trait MSApiField
     /**
      * Parses the Description Module, returning the Brief Summary as post content
      *
-     * @param $description_module
+     * @param object $description_module
      *
      * @return Collection
      */
-    protected function parseDescription(object $description_module): Collection
+    protected function parseDescription(object $description_module)
+    :Collection
     {
         return collect(
             [
@@ -178,7 +184,8 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseCondition(object $condition_module): Collection
+    protected function parseCondition(object $condition_module)
+    :Collection
     {
         return collect(
             [
@@ -195,7 +202,8 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseDesign(object $design_module): Collection
+    protected function parseDesign(object $design_module)
+    :Collection
     {
         /**
          * Unsure if needed
@@ -245,7 +253,8 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseArms(object $arms_module): Collection
+    protected function parseArms(object $arms_module)
+    :Collection
     {
         $intervention_arr = collect([]);
         $interventions    = $arms_module->InterventionList ?? [];
@@ -267,10 +276,10 @@ trait MSApiField
                 'interventions' => $intervention_arr ?? [],
                 'drugs'         => $intervention_arr->isNotEmpty() ?
                     $intervention_arr
-                    ->map(function ($arr_item) {
-                        return strtolower($arr_item['type']) === 'drug' ? $arr_item['name'] : false;
-                    })
-                    ->filter()
+                        ->map(function ($arr_item) {
+                            return strtolower($arr_item['type']) === 'drug' ? $arr_item['name'] : false;
+                        })
+                        ->filter()
                     : collect(),
             ]
         );
@@ -283,15 +292,16 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseOutcome(object $outcome_module): Collection
+    protected function parseOutcome(object $outcome_module)
+    :Collection
     {
         $outcomes        = collect([]);
         $primary_outcome = $outcome_module
-            ->PrimaryOutcomeList
-            ->PrimaryOutcome ?? [];
+                ->PrimaryOutcomeList
+                ->PrimaryOutcome ?? [];
         $second_outcome  = $outcome_module
-            ->SecondaryOutcomeList
-            ->SecondaryOutcome ?? [];
+                ->SecondaryOutcomeList
+                ->SecondaryOutcome ?? [];
 
         if (!empty($primary_outcome)) {
             collect($primary_outcome)
@@ -325,7 +335,8 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseEligibility(object $eligibility_module): Collection
+    protected function parseEligibility(object $eligibility_module)
+    :Collection
     {
         return collect(
             [
@@ -339,16 +350,18 @@ trait MSApiField
     /**
      * Parses the Contacts Locations Module, returning a collection for the Location field
      *
-     * @param object $location_module   The location array data grabbed
+     * @param object $location_module The location array data grabbed
+     * @param object $trial_status    The status of the trial
      *
      * @return Collection
      */
-    protected function parseLocation(object $location_module, object $trial_status): Collection
+    protected function parseLocation(object $location_module, object $trial_status)
+    :Collection
     {
-        $import_trial = true;
-        $allowed_status = $this->trialStatus
+        $import_trial         = true;
+        $allowed_status       = $this->trialStatus
             ->toArray();
-        $allowed_countries = $this->allowedTrialLocations;
+        $allowed_countries    = $this->allowedTrialLocations;
         $disallowed_countries = $this->disallowedTrialLocations;
         /**
          * Map through all the locations, and set them up for import. During this time
@@ -357,12 +370,12 @@ trait MSApiField
         $locations = collect($location_module->LocationList->Location ?? []);
         if ($locations->isNotEmpty()) {
             $trial_status = $trial_status->OverallStatus ?? '';
-            $locations = $locations
+            $locations    = $locations
                 ->map(function ($location) use ($allowed_countries, $allowed_status, $disallowed_countries, $trial_status) {
                     $location_status = $location->LocationStatus ?? '';
-                    $country = $location->LocationCountry ?? '';
-                    $has_status = false;
-                    $in_array = false;
+                    $country         = $location->LocationCountry ?? '';
+                    $has_status      = false;
+                    $in_array        = false;
 
                     /**
                      * Grab the phone number for the contact
@@ -417,7 +430,7 @@ trait MSApiField
         return collect(
             [
                 'locations' => $locations,
-                'import' => $import_trial,
+                'import'    => $import_trial,
             ]
         );
     }
@@ -429,7 +442,8 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseIDP(object $ipd_module): Collection
+    protected function parseIDP(object $ipd_module)
+    :Collection
     {
         return collect(
             []
@@ -439,11 +453,12 @@ trait MSApiField
     /**
      * Sets up the array needed to create or update a post
      *
-     * @param array $post_args The post args to setup for an wp_insert_post or wp_create_post
+     * @param array $post_args The post args to set up for a wp_insert_post or wp_create_post
      *
      * @return array
      */
-    protected function parsePostArgs(array $post_args): array
+    protected function parsePostArgs(array $post_args)
+    :array
     {
         return [
             'post_title'   => $post_args['title'] ?? '',
@@ -462,7 +477,8 @@ trait MSApiField
      *
      * @return bool
      */
-    protected function inBetween(int $value, int $min_value, int $max_value): bool
+    protected function inBetween(int $value, int $min_value, int $max_value)
+    :bool
     {
         if ($value < $min_value) {
             return false;
@@ -482,7 +498,20 @@ trait MSApiField
      */
     protected function filterParenthesis(string $text)
     {
-        return preg_replace('#\([^)]+\)#i', '', strval($text));
+        return preg_replace('#\([^)]+\)#i', '', $text);
+    }
+
+    /**
+     * Quick filter to extract only the items in parentheses
+     *
+     * @param string $text
+     *
+     * @return array|false|int
+     */
+    protected function extractParenthesis(string $text)
+    {
+        preg_match_all('#\((.*?)\)#', $text, $parenthesis_text);
+        return $parenthesis_text[1] ?? [];
     }
 
     /**
@@ -492,7 +521,7 @@ trait MSApiField
      * @param mixed  $field_data The data to save
      * @param int    $post_id    The post ID to save to
      *
-     * @return bool|int
+     * @return bool
      */
     protected function updateACF(string $field_name, $field_data, int $post_id)
     {
@@ -522,7 +551,8 @@ trait MSApiField
      *
      * @return array
      */
-    protected function standardizeArrayWords(array $collection): array
+    protected function standardizeArrayWords(array $collection)
+    :array
     {
         return collect($collection)
             ->filter()
@@ -587,7 +617,8 @@ trait MSApiField
             ->values();
     }
 
-    protected function getTrialLocations(int $post_id = 0): Collection
+    protected function getTrialLocations(int $post_id = 0)
+    :Collection
     {
         return collect(get_field('api_data_locations', $post_id));
     }

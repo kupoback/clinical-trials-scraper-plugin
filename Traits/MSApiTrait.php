@@ -51,10 +51,10 @@ trait MSApiTrait
         string $query_args = '',
         array  $args = []
     ) {
-        $rest_prefix = "{$this->apiNamespace}/{$this->apiVersion}";
+        $rest_prefix = "$this->apiNamespace/$this->apiVersion";
 
         if ($query_args) {
-            $route = "{$route}/{$query_args}";
+            $route = "$route/$query_args";
         }
 
         register_rest_route(
@@ -92,7 +92,7 @@ trait MSApiTrait
             if ($dir_contents->isNotEmpty()) {
                 return $dir_contents
                     ->map(function ($file) use ($folder_name) {
-                        $file_with_path = "{$folder_name}/{$file}";
+                        $file_with_path = "$folder_name/$file";
                         return [
                             // 'fileContent' => file_get_contents($file_with_path, true),
                             'id'       => pathinfo($file, PATHINFO_FILENAME),

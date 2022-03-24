@@ -15,8 +15,10 @@ namespace Merck_Scraper\admin;
  */
 class MSOptionsPage
 {
+
     /**
      * Holds the values to be used in the fields callbacks
+     * @var
      */
     private $options;
 
@@ -57,6 +59,7 @@ class MSOptionsPage
 
     /**
      * Custom Sub Options pages under the ACF Options page. These are just used to mount Vue components
+     * @return void
      */
     public function customOptsPage()
     {
@@ -88,58 +91,51 @@ class MSOptionsPage
 
     /**
      * This is the Scraper Plugin API Import page
+     * @return void
      */
     public function apiScraperPage()
     {
         // Set class property
         $this->options = get_option('merck_import');
-        ?>
-		<div class="wrap merck-scraper-settings merck-scraper-import" id="merck-scraper-settings">
-			<h1><?= __('API Scrapper Import', 'merck-scraper'); ?></h1>
-			<div id="merck-scraper-api"></div>
-		</div>
-        <?php
+        echo self::htmlOut(
+            'merck-scraper-import',
+            __('API Scrapper Import', 'merck-scraper'),
+            'merck-scraper-api'
+        );
     }
 
     /**
      * This is the Scraper Plugin Logs page
+     * @return void
      */
     public function logsScraperPage()
     {
         // Set class property
         $this->options = get_option('merck_import');
-        ?>
-		<div class="wrap merck-scraper-settings merck-scraper-log" id="merck-scraper-settings">
-			<h1><?= __('API Logs', 'merck-scraper'); ?></h1>
-			<div id="merck-scraper-log"></div>
-		</div>
-        <?php
+        echo self::htmlOut(
+            'merck-scraper-log',
+            __('API Logs', 'merck-scraper'),
+            'merck-scraper-log'
+        );
     }
 
-
-
     /**
-     * A textarea for the fields we're to import
+     * Creates the options' page for a mounted Vue Component
+     *
+     * @param string $container_class The container class
+     * @param string $title           The page title
+     * @param string $vue_id          The Vue component ID
+     *
+     * @return string
      */
-    public function importFields()
+    protected function htmlOut(string $container_class, string $title, string $vue_id)
+    :string
     {
-        $helper = sprintf(
-            '<p class="description">%s</p><p class="description"><a href="%s" target="_blank" rel="noopener">%s</p>',
-            __(
-                "Please enter in one field name per line, or use a semi-colon to separate the fields out. Upon saving, the entries will be filtered for duplicates, and return with a one item per line, followed by a semi-colon.",
-                "merck-scraper"
-            ),
-            esc_url('https://clinicaltrials.gov/api/info/study_fields_list'),
-            __('Those fields can be found here.', 'merck-scraper')
-        );
-
-        $defaults = 'NCTId;OfficialTitle;BriefTitle;BriefSummary;CompletionDate;StartDate;PrimaryCompletionDate;MaximumAge;MinimumAge;LocationFacility;LocationCity;LocationState;LocationZip;Phase;StudyType;LeadSponsorName;';
-
-        printf(
-            '<textarea class="merck-scraper-settings__textarea" type="textarea" rows="8" id="%2$s" name="merck_import[%2$s]">%1$s</textarea>%3$s',
-            $this->options['import_fields'] ?? $defaults,
-            'import_fields',
-            $helper,
+        return sprintf(
+            '<div class="%1$s" id="merck-scraper-settings"><h1>%2$s</h1><div id="%3$s"></div></div>',
+            "wrap merck-scraper-settings $container_class",
+            $title,
+            $vue_id
         );
     }
 }

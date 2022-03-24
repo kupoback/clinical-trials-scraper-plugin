@@ -29,7 +29,7 @@ class MSCustomPT
                 'trials' => $this->postTypeArray(
                     'Trial',
                     'dashicons-analytics',
-                    __("This post type is used to store trials scraped from the gov't api.", 'merck-scraper'),
+                    __("This post type is used to store trials scraped from the govt api.", 'merck-scraper'),
                     'post',
                     [
                         'rewrite' => [
@@ -43,7 +43,7 @@ class MSCustomPT
                 'locations' => $this->postTypeArray(
                     'Location',
                     'dashicons-admin-site',
-                    __("This post type is used to store trial locations scraped from the gov't api.", 'merck-scraper'),
+                    __("This post type is used to store trial locations scraped from the govt api.", 'merck-scraper'),
                     'post',
                     [
                         'rewrite' => [

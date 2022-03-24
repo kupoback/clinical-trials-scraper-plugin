@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Merck_Scraper\admin;
 
-use WP_Query;
+use WP_Post;
 
 /**
  * The admin-specific functionality of the plugin.
@@ -270,9 +270,10 @@ class MSAdmin
      *
      * @param array $columns An array of registered admin columns
      *
-     * @return mixed
+     * @return array
      */
     public function filterCustomCol(array $columns)
+    :array
     {
         $columns['nct_id'] = 'nct_id';
         return $columns;
@@ -302,14 +303,15 @@ class MSAdmin
      *
      * @param string $join The join clause
      *
-     * @return mixed|string
+     * @return string
      */
     public function trialsAdminJoin(string $join)
+    :string
     {
         global $wpdb;
 
         if ($this->isTrialsAdmin()) {
-            $join .= " LEFT JOIN {$wpdb->postmeta} ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id";
+            $join .= " LEFT JOIN $wpdb->postmeta ON $wpdb->posts.ID = $wpdb->postmeta.post_id";
         }
 
         return $join;
@@ -324,14 +326,14 @@ class MSAdmin
      */
     public function trialsAdminWhere(string $where)
     {
-        global $pagenow, $wpdb;
+        global $wpdb;
         if ($this->isTrialsAdmin()) {
             /**
              * Extend the post_title search to search the api_data_nct_id
              */
             $where = preg_replace(
-                "/\(\s*{$wpdb->posts}.post_title\s+LIKE\s*(\'[^\']+\')\s*\)/",
-                "({$wpdb->posts}.post_title LIKE $1) OR ({$wpdb->postmeta}.meta_key = 'api_data_nct_id' AND {$wpdb->postmeta}.meta_value LIKE $1)",
+                "/\(\s*$wpdb->posts.post_title\s+LIKE\s*('[^']+')\s*\)/",
+                "($wpdb->posts.post_title LIKE $1) OR ($wpdb->postmeta.meta_key = 'api_data_nct_id' AND $wpdb->postmeta.meta_value LIKE $1)",
                 $where
             );
 
@@ -339,7 +341,7 @@ class MSAdmin
              * Remove searching for the post_content
              */
             $where = preg_replace(
-                "/OR\s+\(\s*{$wpdb->posts}.post_content\s+LIKE\s*(\'[^\']+\')\s*\)/",
+                "/OR\s+\(\s*$wpdb->posts.post_content\s+LIKE\s*('[^']+')\s*\)/",
                 "",
                 $where
             );
@@ -348,16 +350,15 @@ class MSAdmin
     }
 
     /**
-     * This is setting the $where disctict clause
+     * This is setting the $where distinct clause
      *
      * @param string $where
      *
      * @return string
      */
-    public function trialsAdminDistc(string $where)
+    public function trialsAdminDistinct(string $where)
     :string
     {
-        global $wpdb;
         if ($this->isTrialsAdmin()) {
             return "DISTINCT";
         }
@@ -367,16 +368,17 @@ class MSAdmin
     /**
      * Hook to either remove a location if it is attached to only one location, or
      * delete the NCT ID term from that location.
-     * @param $postid
-     * @param $post
+     *
+     * @param string|int $post_id  The post ID
+     * @param WP_Post    $post     The WP_Post Object
      *
      * @return void
      */
-    public function removeTrialLocations($postid, $post)
+    public function removeTrialLocations($post_id, WP_Post $post)
     {
         if ('trials' === $post->post_type) {
-            $location_ids = get_field('api_data_location_ids', $postid);
-            $nct_id       = get_field('api_data_nct_id', $postid);
+            $location_ids = get_field('api_data_location_ids', $post_id);
+            $nct_id       = get_field('api_data_nct_id', $post_id);
             if ($location_ids) {
                 collect(
                     explode(';', $location_ids)

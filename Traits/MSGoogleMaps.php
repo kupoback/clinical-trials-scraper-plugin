@@ -22,9 +22,7 @@ trait MSGoogleMaps
     use MSHttpCallback;
 
     /**
-     * The google maps API key
-     *
-     * @var string
+     * @var string The Google Maps API key
      */
     private string $apiKey = '';
 
@@ -38,19 +36,22 @@ trait MSGoogleMaps
     private string $googleApiUrl = 'https://maps.googleapis.com';
 
     /**
-     * The endpoint to get the geocode
-     *
-     * @var string $geoCodeEP
+     * @var string $geoCodeEP The endpoint to get the geocode
      */
     private string $geoCodeEP = '/maps/api/geocode/json';
 
     /**
-     * The error message for REST API
-     *
-     * @var array
+     * @var array The error message for REST API
      */
     private array $error;
 
+    /**
+     * Grabs the full locations' data from Google's Map API
+     *
+     * @param array $location
+     *
+     * @return Collection|mixed|WP_Error
+     */
     protected function getFullLocation(array $location = [])
     {
         $gm_api_callback = $this->googleMapsApiCB(

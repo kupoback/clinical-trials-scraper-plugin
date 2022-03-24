@@ -15,18 +15,19 @@ use Illuminate\Support\Str;
  */
 trait MSAdminTrait
 {
+
     /**
      * Creates the array needed to register the post type
      *
      * @param string $singular    The single name for the post type
-     * @param string $plural      The plural name for the post type
      * @param string $dashicon    The dashicon name for the post type, an image/svg or url
      * @param string $description The description of the post type
      * @param string $type        Determines whether it's a post or a page style hierarchy
-     *
-     * @link Dashicon https://developer.wordpress.org/resource/dashicons
+     * @param array  $editor_args Any args for the post type to override defaults
      *
      * @return array
+     * @link Dashicon https://developer.wordpress.org/resource/dashicons
+     *
      */
     protected function postTypeArray(string $singular, string $dashicon, string $description = '', string $type = "post", array $editor_args = [])
     :array
@@ -47,7 +48,7 @@ trait MSAdminTrait
                 "archives"              => __($plural, "merck-scraper"),
                 "attributes"            => __("$singular Attributes", "merck-scraper"),
                 "parent_item_colon"     => __("Parent $singular:", "merck-scraper"),
-                "all_items"             => __("All {$plural}", "merck-scraper"),
+                "all_items"             => __("All $plural", "merck-scraper"),
                 "add_new_item"          => __("Add New $singular", "merck-scraper"),
                 "add_new"               => __("Add New $singular", "merck-scraper"),
                 "new_item"              => __("New $singular", "merck-scraper"),

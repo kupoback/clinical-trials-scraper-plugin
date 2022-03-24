@@ -152,7 +152,7 @@ class MSMainClass
         $this->loader->addFilter('manage_edit-trials_sortable_columns', $plugin_admin, 'filterCustomCol');
         $this->loader->addFilter('posts_join', $plugin_admin, 'trialsAdminJoin');
         $this->loader->addFilter('posts_where', $plugin_admin, 'trialsAdminWhere');
-        $this->loader->addFilter('posts_distinct', $plugin_admin, 'trialsAdminDistc');
+        $this->loader->addFilter('posts_distinct', $plugin_admin, 'trialsAdminDistinct');
 
         // ACF JSON related
         $this->loader->addAction('acf/update_field_group', $plugin_admin, 'saveACFJson', 1, 1);

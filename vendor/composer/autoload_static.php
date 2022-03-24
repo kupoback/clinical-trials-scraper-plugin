@@ -4,15 +4,15 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit56aa35463cd66c4fef9fedb32e1c7db6
+class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
 {
     public static $files = array (
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
-        '9c67151ae59aff4788964ce8eb2a0f43' => __DIR__ . '/..' . '/clue/stream-filter/src/functions_include.php',
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
-        '8cff32064859f4559445b89279f3199c' => __DIR__ . '/..' . '/php-http/message/src/filters.php',
+        '9c67151ae59aff4788964ce8eb2a0f43' => __DIR__ . '/..' . '/clue/stream-filter/src/functions_include.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
+        '8cff32064859f4559445b89279f3199c' => __DIR__ . '/..' . '/php-http/message/src/filters.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         'a1105708a18b76903365ca1c4aa61b02' => __DIR__ . '/..' . '/symfony/translation/Resources/functions.php',
@@ -124,8 +124,8 @@ class ComposerStaticInit56aa35463cd66c4fef9fedb32e1c7db6
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-factory/src',
-            1 => __DIR__ . '/..' . '/psr/http-message/src',
+            0 => __DIR__ . '/..' . '/psr/http-message/src',
+            1 => __DIR__ . '/..' . '/psr/http-factory/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -145,7 +145,7 @@ class ComposerStaticInit56aa35463cd66c4fef9fedb32e1c7db6
         ),
         'Merck_Scraper\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/../merck-scraper-wpml',
+            0 => __DIR__ . '/../..' . '/',
         ),
         'Illuminate\\Support\\' => 
         array (
@@ -161,8 +161,8 @@ class ComposerStaticInit56aa35463cd66c4fef9fedb32e1c7db6
         ),
         'Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/php-http/message/src',
-            1 => __DIR__ . '/..' . '/php-http/message-factory/src',
+            0 => __DIR__ . '/..' . '/php-http/message-factory/src',
+            1 => __DIR__ . '/..' . '/php-http/message/src',
         ),
         'Http\\Discovery\\' => 
         array (
@@ -844,6 +844,33 @@ class ComposerStaticInit56aa35463cd66c4fef9fedb32e1c7db6
         'Mailjet\\Request' => __DIR__ . '/..' . '/mailjet/mailjet-apiv3-php/src/Mailjet/Request.php',
         'Mailjet\\Resources' => __DIR__ . '/..' . '/mailjet/mailjet-apiv3-php/src/Mailjet/Resources.php',
         'Mailjet\\Response' => __DIR__ . '/..' . '/mailjet/mailjet-apiv3-php/src/Mailjet/Response.php',
+        'Merck_Scraper\\Helper\\MSHelper' => __DIR__ . '/../..' . '/Helper/MSHelper.php',
+        'Merck_Scraper\\Helper\\MSMailer' => __DIR__ . '/../..' . '/Helper/MSMailer.php',
+        'Merck_Scraper\\Traits\\MSAcfTrait' => __DIR__ . '/../..' . '/Traits/MSAcfTrait.php',
+        'Merck_Scraper\\Traits\\MSAdminTrait' => __DIR__ . '/../..' . '/Traits/MSAdminTrait.php',
+        'Merck_Scraper\\Traits\\MSApiField' => __DIR__ . '/../..' . '/Traits/MSApiField.php',
+        'Merck_Scraper\\Traits\\MSApiTrait' => __DIR__ . '/../..' . '/Traits/MSApiTrait.php',
+        'Merck_Scraper\\Traits\\MSDBCallbacks' => __DIR__ . '/../..' . '/Traits/MSDBCallbacks.php',
+        'Merck_Scraper\\Traits\\MSEmailTrait' => __DIR__ . '/../..' . '/Traits/MSEmailTrait.php',
+        'Merck_Scraper\\Traits\\MSGoogleMaps' => __DIR__ . '/../..' . '/Traits/MSGoogleMaps.php',
+        'Merck_Scraper\\Traits\\MSHttpCallback' => __DIR__ . '/../..' . '/Traits/MSHttpCallback.php',
+        'Merck_Scraper\\Traits\\MSLoggerTrait' => __DIR__ . '/../..' . '/Traits/MSLoggerTrait.php',
+        'Merck_Scraper\\Traits\\MSPublicTrait' => __DIR__ . '/../..' . '/Traits/MSPublicTrait.php',
+        'Merck_Scraper\\admin\\MSAdmin' => __DIR__ . '/../..' . '/admin/MSAdmin.php',
+        'Merck_Scraper\\admin\\MSApiLogger' => __DIR__ . '/../..' . '/admin/MSApiLogger.php',
+        'Merck_Scraper\\admin\\MSApiScraper' => __DIR__ . '/../..' . '/admin/MSApiScraper.php',
+        'Merck_Scraper\\admin\\MSCustomPT' => __DIR__ . '/../..' . '/admin/MSCustomPT.php',
+        'Merck_Scraper\\admin\\MSCustomTax' => __DIR__ . '/../..' . '/admin/MSCustomTax.php',
+        'Merck_Scraper\\admin\\MSLocationMetaBox' => __DIR__ . '/../..' . '/admin/MSLocationMetaBox.php',
+        'Merck_Scraper\\admin\\MSOptionsPage' => __DIR__ . '/../..' . '/admin/MSOptionsPage.php',
+        'Merck_Scraper\\frontend\\MSFrontEndAPI' => __DIR__ . '/../..' . '/frontend/MSFrontEndAPI.php',
+        'Merck_Scraper\\frontend\\MSPublic' => __DIR__ . '/../..' . '/frontend/MSPublic.php',
+        'Merck_Scraper\\frontend\\MSUserLocation' => __DIR__ . '/../..' . '/frontend/MSUserLocation.php',
+        'Merck_Scraper\\includes\\MSActivator' => __DIR__ . '/../..' . '/includes/MSActivator.php',
+        'Merck_Scraper\\includes\\MSDeactivator' => __DIR__ . '/../..' . '/includes/MSDeactivator.php',
+        'Merck_Scraper\\includes\\MSI18n' => __DIR__ . '/../..' . '/includes/MSI18n.php',
+        'Merck_Scraper\\includes\\MSLoader' => __DIR__ . '/../..' . '/includes/MSLoader.php',
+        'Merck_Scraper\\includes\\MSMainClass' => __DIR__ . '/../..' . '/includes/MSMainClass.php',
         'Mockery' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery.php',
         'Mockery\\Adapter\\Phpunit\\MockeryPHPUnitIntegration' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryPHPUnitIntegration.php',
         'Mockery\\Adapter\\Phpunit\\MockeryPHPUnitIntegrationAssertPostConditions' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryPHPUnitIntegrationAssertPostConditions.php',
@@ -919,7 +946,6 @@ class ComposerStaticInit56aa35463cd66c4fef9fedb32e1c7db6
         'Mockery\\Matcher\\NoArgs' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Matcher/NoArgs.php',
         'Mockery\\Matcher\\Not' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Matcher/Not.php',
         'Mockery\\Matcher\\NotAnyOf' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Matcher/NotAnyOf.php',
-        'Mockery\\Matcher\\PHPUnitConstraint' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Matcher/PHPUnitConstraint.php',
         'Mockery\\Matcher\\Pattern' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Matcher/Pattern.php',
         'Mockery\\Matcher\\Subset' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Matcher/Subset.php',
         'Mockery\\Matcher\\Type' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Matcher/Type.php',
@@ -932,6 +958,7 @@ class ComposerStaticInit56aa35463cd66c4fef9fedb32e1c7db6
         'Mockery\\Undefined' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Undefined.php',
         'Mockery\\VerificationDirector' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/VerificationDirector.php',
         'Mockery\\VerificationExpectation' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/VerificationExpectation.php',
+        'Monolog\\Attribute\\AsMonologProcessor' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Attribute/AsMonologProcessor.php',
         'Monolog\\DateTimeImmutable' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/DateTimeImmutable.php',
         'Monolog\\ErrorHandler' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/ErrorHandler.php',
         'Monolog\\Formatter\\ChromePHPFormatter' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Formatter/ChromePHPFormatter.php',
@@ -1024,6 +1051,7 @@ class ComposerStaticInit56aa35463cd66c4fef9fedb32e1c7db6
         'Monolog\\Handler\\WebRequestRecognizerTrait' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Handler/WebRequestRecognizerTrait.php',
         'Monolog\\Handler\\WhatFailureGroupHandler' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Handler/WhatFailureGroupHandler.php',
         'Monolog\\Handler\\ZendMonitorHandler' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Handler/ZendMonitorHandler.php',
+        'Monolog\\LogRecord' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/LogRecord.php',
         'Monolog\\Logger' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Logger.php',
         'Monolog\\Processor\\GitProcessor' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Processor/GitProcessor.php',
         'Monolog\\Processor\\HostnameProcessor' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Processor/HostnameProcessor.php',
@@ -1196,10 +1224,10 @@ class ComposerStaticInit56aa35463cd66c4fef9fedb32e1c7db6
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit56aa35463cd66c4fef9fedb32e1c7db6::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit56aa35463cd66c4fef9fedb32e1c7db6::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit56aa35463cd66c4fef9fedb32e1c7db6::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit56aa35463cd66c4fef9fedb32e1c7db6::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd::$classMap;
 
         }, null, ClassLoader::class);
     }

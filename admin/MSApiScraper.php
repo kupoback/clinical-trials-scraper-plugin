@@ -665,8 +665,6 @@ class MSApiScraper
 
             return $studies
                 ->map(function ($study) {
-                    $study_data = collect($study);
-
                     $study_import = $this->studyImport(
                         collect(
                             collect($study)
@@ -1010,130 +1008,132 @@ class MSApiScraper
     {
         $location_ids = collect();
 
-        /**
-         * Grab all locations based on its unique ID, so that we aren't importing the same location more than once
-         */
-        $existing_locations = collect($this->trialLocations)
-            ->mapWithKeys(function ($location) {
-                $post_id = intval($this->dbFetchPostId('meta_value', $location['id']));
-                if ($post_id > 0) {
-                    return [
-                        $post_id => collect(get_fields($post_id))
-                            ->mapWithKeys(function ($value, $key) {
-                                return [
-                                    str_replace('api_data_', '', $key) => $value,
-                                ];
-                            })
-                            ->merge(
-                                [
-                                    'latitude'  => get_post_meta($post_id, 'ms_location_latitude', true),
-                                    'longitude' => get_post_meta($post_id, 'ms_location_longitude', true),
-                                ]
-                            )
-                            ->filter()
-                            ->toArray()
-                    ];
-                }
-                return [0 => false];
-            })
-            ->filter()
-            ->unique();
+        if ($this->trialLocations ?? false) {
+            /**
+             * Grab all locations based on its unique ID, so that we aren't importing the same location more than once
+             */
+            $existing_locations = collect($this->trialLocations)
+                ->mapWithKeys(function ($location) {
+                    $post_id = intval($this->dbFetchPostId('meta_value', $location['id']));
+                    if ($post_id > 0) {
+                        return [
+                            $post_id => collect(get_fields($post_id))
+                                ->mapWithKeys(function ($value, $key) {
+                                    return [
+                                        str_replace('api_data_', '', $key) => $value,
+                                    ];
+                                })
+                                ->merge(
+                                    [
+                                        'latitude'  => get_post_meta($post_id, 'ms_location_latitude', true),
+                                        'longitude' => get_post_meta($post_id, 'ms_location_longitude', true),
+                                    ]
+                                )
+                                ->filter()
+                                ->toArray()
+                        ];
+                    }
+                    return [0 => false];
+                })
+                ->filter()
+                ->unique();
 
-        $total_items = $this->trialLocations
-            ->count();
+            $total_items = $this->trialLocations
+                ->count();
 
-        // Fetch, filter and sanitize the locations' data
-        self::locationGeocode($this->trialLocations, $existing_locations)
-            // Map through each location and create or update the location post
-            ->each(function ($location, $index) use ($location_ids, $nct_id, $total_items) {
-                $this->updatePosition(
-                    "Import Locations",
-                    [
-                        'position' => $index,
-                        'total_import' => $total_items,
-                        'helper'      => "Importing Locations for $nct_id",
-                    ]
-                );
-
-                $location_data = collect($location);
-                if ($location_data->filter()->isNotEmpty()) {
-                    $location_post_id = intval($this->dbFetchPostId('meta_value', $location['id']));
-                    $latitude = $location_data->get('latitude');
-                    $longitude = $location_data->get('longitude');
-                    $language = $location_data->get('location_language');
-                    $status = $location_data->get('recruiting_status');
-                    $location_data
-                        ->forget(
-                            [
-                                'latitude',
-                                'longitude',
-                                'location_language',
-                                'recruiting_status'
-                            ]
-                        );
-
-                    // Set up the post data
-                    $location_args = collect(
-                        wp_parse_args(
-                            $this->parsePostArgs(
-                                [
-                                    'title'   => $location_data->get('post_title'),
-                                    'slug'    => $location_data->get('facility'),
-                                ]
-                            ),
-                            $this->locationPostDefault
-                        )
+            // Fetch, filter and sanitize the locations' data
+            self::locationGeocode($this->trialLocations, $existing_locations)
+                // Map through each location and create or update the location post
+                ->each(function ($location, $index) use ($location_ids, $nct_id, $total_items) {
+                    $this->updatePosition(
+                        "Import Locations",
+                        [
+                            'position'     => $index,
+                            'total_import' => $total_items,
+                            'helper'       => "Importing Locations for $nct_id",
+                        ]
                     );
 
-                    if ($location_post_id === 0) {
-                        $location_post_id = wp_insert_post(
-                            $location_args
-                                ->toArray(),
-                            "Failed to create location post."
+                    $location_data = collect($location);
+                    if ($location_data->filter()->isNotEmpty()) {
+                        $location_post_id = intval($this->dbFetchPostId('meta_value', $location['id']));
+                        $latitude         = $location_data->get('latitude');
+                        $longitude        = $location_data->get('longitude');
+                        $language         = $location_data->get('location_language');
+                        $status           = $location_data->get('recruiting_status');
+                        $location_data
+                            ->forget(
+                                [
+                                    'latitude',
+                                    'longitude',
+                                    'location_language',
+                                    'recruiting_status'
+                                ]
+                            );
+
+                        // Set up the post data
+                        $location_args = collect(
+                            wp_parse_args(
+                                $this->parsePostArgs(
+                                    [
+                                        'title' => $location_data->get('post_title'),
+                                        'slug'  => $location_data->get('facility'),
+                                    ]
+                                ),
+                                $this->locationPostDefault
+                            )
                         );
-                    } else {
-                        $location_args
-                            ->put('ID', $location_post_id);
-                        $location_args
-                            ->forget(['post_title', 'post_name']);
-                        wp_update_post(
+
+                        if ($location_post_id === 0) {
+                            $location_post_id = wp_insert_post(
+                                $location_args
+                                    ->toArray(),
+                                "Failed to create location post."
+                            );
+                        } else {
                             $location_args
-                                ->toArray(),
-                            "Failed to update post."
-                        );
+                                ->put('ID', $location_post_id);
+                            $location_args
+                                ->forget(['post_title', 'post_name']);
+                            wp_update_post(
+                                $location_args
+                                    ->toArray(),
+                                "Failed to update post."
+                            );
+                        }
+
+                        /**
+                         * Update the ACF Fields for this location, and set the latitude and longitude grabbed to the custom meta field
+                         */
+                        if ($location_post_id) {
+                            update_post_meta($location_post_id, 'ms_location_latitude', $latitude);
+                            update_post_meta($location_post_id, 'ms_location_longitude', $longitude);
+
+                            $acf_fields = $this->locationFields;
+                            $acf_fields
+                                ->map(function ($field) use ($location_data, $location_post_id) {
+                                    if (Str::contains($field['name'], 'api')) {
+                                        $data_name = $field['data_name'] ?? '';
+                                        return $this->updateACF($field['name'], $location_data->get($data_name), $location_post_id);
+                                    }
+                                    return false;
+                                });
+
+                            collect(
+                                [
+                                    'location_nctid'  => $nct_id,
+                                    'location_status' => $status,
+                                    'trial_language'  => explode(';', $language),
+                                ]
+                            )
+                                ->each(function ($terms, $taxonomy) use ($location_post_id) {
+                                    return wp_set_object_terms($location_post_id, $terms, $taxonomy, true);
+                                });
+                        }
+                        $location_ids->push($location_post_id);
                     }
-
-                    /**
-                     * Update the ACF Fields for this location, and set the latitude and longitude grabbed to the custom meta field
-                     */
-                    if ($location_post_id) {
-                        update_post_meta($location_post_id, 'ms_location_latitude', $latitude);
-                        update_post_meta($location_post_id, 'ms_location_longitude', $longitude);
-
-                        $acf_fields = $this->locationFields;
-                        $acf_fields
-                            ->map(function ($field) use ($location_data, $location_post_id) {
-                                if (Str::contains($field['name'], 'api')) {
-                                    $data_name = $field['data_name'] ?? '';
-                                    return $this->updateACF($field['name'], $location_data->get($data_name), $location_post_id);
-                                }
-                                return false;
-                            });
-
-                        collect(
-                            [
-                                'location_nctid'  => $nct_id,
-                                'location_status' => $status,
-                                'trial_language'  => explode(';', $language),
-                            ]
-                        )
-                            ->each(function ($terms, $taxonomy) use ($location_post_id) {
-                                return wp_set_object_terms($location_post_id, $terms, $taxonomy, true);
-                            });
-                    }
-                    $location_ids->push($location_post_id);
-                }
-            });
+                });
+        }
 
         return $location_ids;
     }

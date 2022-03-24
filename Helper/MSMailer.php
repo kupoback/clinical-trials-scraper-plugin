@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Merck_Scraper\Helper;
 
-use Error;
 use Illuminate\Support\Collection;
 use Mailjet\Resources;
 use Merck_Scraper\Traits\MSAcfTrait;

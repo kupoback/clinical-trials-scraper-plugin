@@ -17,20 +17,6 @@ class MSHelper
 {
 
     /**
-     * A basic method to check if an array is single level or multidimensional
-     *
-     * @param array $array The array to iterate through
-     *
-     * @return bool
-     */
-    public static function isMultiArray(array $array)
-    :bool
-    {
-        rsort($array);
-        return isset($array[0]) && is_array($array[0]);
-    }
-
-    /**
      * Returns the excerpt if it exists or creates the excerpt
      * based on the $post_override or $post->post_content
      *
@@ -62,30 +48,6 @@ class MSHelper
     public static function stripYears(string $years)
     {
         return preg_replace('/[^0-9]/', '', $years);
-    }
-
-    /**
-     * Formats the text needed for the textarea to omit any HTML and anything unacceptable for input
-     *
-     * @param string $sanitized_field The text we're sanitizing
-     *
-     * @return string
-     */
-    public static function formatTextarea(string $sanitized_field)
-    :string
-    {
-        if ($sanitized_field) {
-            $sanitized_field = sanitize_textarea_field($sanitized_field);
-            $sanitized_field = preg_replace('/\W/', ' ', $sanitized_field);
-            $sanitized_field = preg_replace('/\s+/', ' ', $sanitized_field);
-            $sanitized_field = trim($sanitized_field);
-            $sanitized_field = explode(' ', $sanitized_field);
-            $sanitized_field = collect($sanitized_field);
-            return $sanitized_field
-                ->unique()
-                ->implode(';' . PHP_EOL);
-        }
-        return '';
     }
 
     /**

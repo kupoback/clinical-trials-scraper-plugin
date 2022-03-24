@@ -76,7 +76,7 @@ trait MSHttpCallback
             } catch (GuzzleException $exception) {
                 $this->httpErrLogger()
                     ->error(
-                        "Unable to connect to API for {$endpoint_path}. Error: {$exception->getMessage()}"
+                        "Unable to connect to API for $endpoint_path. Error: {$exception->getMessage()}"
                     );
                 return new WP_Error($exception->getCode(), $exception->getMessage());
             }
@@ -137,7 +137,7 @@ trait MSHttpCallback
             } catch (GuzzleException $exception) {
                 $this->httpErrLogger()
                     ->error(
-                        "Unable to connect to API for {$endpoint_path}. Error: {$exception->getMessage()}"
+                        "Unable to connect to API for $endpoint_path. Error: {$exception->getMessage()}"
                     );
                 return new WP_Error($exception->getCode(), $exception->getMessage());
             }

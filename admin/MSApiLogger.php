@@ -210,8 +210,12 @@ class MSApiLogger
                 $file_dir = $file_type === 'success'
                     ? $this->apiLogDir : ($file_type === 'err' ? $this->apiErrDir : null);
             } else {
-                $file_type === 'err' ? $file_type = 'error' : null;
-                $file_type === 'success' ? $file_type = 'log' : null;
+                if ($file_type === 'err') {
+                    $file_type = 'error';
+                } elseif ($file_type === 'success') {
+                    $file_type = 'log';
+                }
+
                 $file_dir = MERCK_SCRAPER_LOG_DIR . "/$dir_type/$file_type";
             }
 

@@ -39,7 +39,7 @@ trait MSDBCallbacks
         return QueryBuilder::create('getPostId')
                            ->select('pm.post_id')
                            ->from('postmeta as `pm`')
-                           ->where(["pm.{$db_col}" => $value,])
+                           ->where(["pm.$db_col" => $value,])
                            ->first()
                 ->post_id ?? 0;
     }
@@ -81,34 +81,5 @@ trait MSDBCallbacks
                                ],
                            )
                            ->get();
-    }
-
-    /**
-     * Creates a db fetch to grab the attachment ID based on the likeness of the attachment name
-     *
-     * @param string $media_name The file name to check the database for
-     *
-     * @return array|int|object|WP_Error
-     * @throws Exception
-     */
-    protected function dbFetchMediaId(string $media_name)
-    {
-        if (!$media_name) {
-            return new WP_Error(400, __("Did not include a media_name to search for.", "merck-scraper"));
-        }
-
-        return QueryBuilder::create('getAttachmentId')
-                           ->select('ID')
-                           ->from('posts as `p`')
-                           ->where(
-                               [
-                                   "p.guid"      => [
-                                       'operator' => 'LIKE',
-                                       'value'    => "%{$media_name}%",
-                                   ],
-                                   'p.post_type' => 'attachment',
-                               ]
-                           )
-                           ->first() ?? 0;
     }
 }
