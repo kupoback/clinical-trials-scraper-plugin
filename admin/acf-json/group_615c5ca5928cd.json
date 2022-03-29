@@ -784,6 +784,63 @@
             ]
         },
         {
+            "key": "field_6243194e65032",
+            "label": "Global Ages",
+            "name": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "wpml_cf_preferences": 3,
+            "placement": "left",
+            "endpoint": 0
+        },
+        {
+            "key": "field_62431a0a65035",
+            "label": "No Ages",
+            "name": "no_ages",
+            "type": "text",
+            "instructions": "Text if there is no age range set",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "one-half",
+                "id": ""
+            },
+            "wpml_cf_preferences": 1,
+            "default_value": "All ages",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_6243198365034",
+            "label": "No Maximum Age",
+            "name": "no_maximum_age",
+            "type": "text",
+            "instructions": "Text if there is no maximum age set",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "one-half",
+                "id": ""
+            },
+            "wpml_cf_preferences": 2,
+            "default_value": "No Age Maximum",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
             "key": "field_6165a977beeba",
             "label": "Global Trial Locations",
             "name": "",
@@ -1123,5 +1180,5 @@
     "active": true,
     "description": "Settings for the Single Trial titles and content which won't change per trial.",
     "show_in_rest": 0,
-    "modified": 1647463782
+    "modified": 1648565093
 }
