@@ -180,7 +180,6 @@ class MSAdmin
             'group_60fae8b82087d', // Trails Single Post
             'group_60fed83c786ed', // Merck Settings
             'group_618e88f57b867', // Trial Ages
-            'group_615c5ca5928cd', // Trial Settings
             'group_6220de6da8144', // Location Single Post
         ];
 
