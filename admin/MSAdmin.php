@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Merck_Scraper\admin;
+namespace Merck_Scraper\Admin;
 
 use WP_Post;
 
 /**
- * The admin-specific functionality of the plugin.
+ * The Admin-specific functionality of the plugin.
  *
  * Defines the plugin name, version, registers the options page
  *
  * @package    Merck_Scraper
- * @subpackage Merck_Scraper/admin
+ * @subpackage Merck_Scraper/Admin
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
 class MSAdmin
@@ -73,7 +73,7 @@ class MSAdmin
     }
 
     /**
-     * Register the stylesheets for the admin area.
+     * Register the stylesheets for the Admin area.
      *
      * @since    1.0.0
      */
@@ -82,7 +82,7 @@ class MSAdmin
         if (is_admin() && (in_array(get_current_screen()->id, $this->screens) || in_array(get_current_screen()->id, $this->optsScreens))) {
             wp_enqueue_style(
                 $this->pluginName,
-                plugin_dir_url(__FILE__) . 'dist/merck-scraper-admin.css',
+                plugin_dir_url(__FILE__) . 'dist/merck-scraper-Admin.css',
                 [],
                 $this->version
             );
@@ -90,7 +90,7 @@ class MSAdmin
     }
 
     /**
-     * Register the JavaScript for the admin area.
+     * Register the JavaScript for the Admin area.
      *
      * @since    1.0.0
      */
@@ -104,7 +104,7 @@ class MSAdmin
         if (is_admin() && in_array($current_screen, $this->screens)) {
             wp_enqueue_script(
                 $js_script_name,
-                plugin_dir_url(__FILE__) . "dist/merck-scraper-admin.js",
+                plugin_dir_url(__FILE__) . "dist/merck-scraper-Admin.js",
                 [],
                 $this->version,
                 true
@@ -129,10 +129,11 @@ class MSAdmin
                 $vue_script_name,
                 'MERCK_API',
                 [
-                    'apiUrl'           => rest_url("$api_path/api-scraper"),
+                    'apiClearPosition' => rest_url("$api_path/api-clear-position"),
+                    'apiLocationsUrl'  => rest_url("$api_path/get-trial-locations"),
                     'apiSingle'        => rest_url("$api_path/api-scraper"),
                     'apiPosition'      => rest_url("$api_path/api-position"),
-                    'apiClearPosition' => rest_url("$api_path/api-clear-position"),
+                    'apiUrl'           => rest_url("$api_path/api-scraper"),
                 ]
             );
         }
@@ -145,10 +146,10 @@ class MSAdmin
                 $vue_script_name,
                 'MERCK_LOG',
                 [
-                    'apiLog'        => rest_url("$api_path/api-log"),
+                    'apiDeleteFile' => rest_url("$api_path/api-delete-file"),
                     'apiGetLogDirs' => rest_url("$api_path/api-directories"),
                     'apiGetLogUrl'  => rest_url("$api_path/api-get-log-file"),
-                    'apiDeleteFile' => rest_url("$api_path/api-delete-file"),
+                    'apiLog'        => rest_url("$api_path/api-log"),
                 ]
             );
         }
@@ -175,7 +176,7 @@ class MSAdmin
      */
     public function saveACFJson(array $group)
     {
-        // list of field groups that should be saved to merck-scraper/admin/acf-json
+        // list of field groups that should be saved to merck-scraper/Admin/acf-json
         $groups = [
             'group_60fae8b82087d', // Trails Single Post
             'group_60fed83c786ed', // Merck Settings
@@ -267,7 +268,7 @@ class MSAdmin
     /**
      * Sets up the custom columns to be filterable
      *
-     * @param array $columns An array of registered admin columns
+     * @param array $columns An array of registered Admin columns
      *
      * @return array
      */
@@ -419,7 +420,7 @@ class MSAdmin
     }
 
     /**
-     * Checks whether we're on the admin edit-trials archive page
+     * Checks whether we're on the Admin edit-trials archive page
      *
      * @return bool
      */

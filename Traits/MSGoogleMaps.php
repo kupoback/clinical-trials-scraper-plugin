@@ -177,20 +177,20 @@ trait MSGoogleMaps
      */
     protected function googleMapsApiCB(string $address)
     {
-        $geocode_api_key = $this->acfOptionField('google_maps_server_side_api_key');
-
-        if ($geocode_api_key) {
+        set_time_limit(120);
+        ini_set('max_execution_time', '120');
+        if ($this->gmApiKey ?? false) {
             $response = $this->httpCallback(
                 $this->googleApiUrl,
                 $this->geoCodeEP,
                 "GET",
                 [
                     'address' => $address,
-                    'key'     => $geocode_api_key,
+                    'key'     => $this->gmApiKey,
                 ],
                 [
                     'http_args' => [
-                        'delay' => 120,
+                        'delay' => 150,
                     ],
                     'guzzle'    => [
                         'verify' => true,
@@ -205,10 +205,12 @@ trait MSGoogleMaps
                 if ($body_res->status === 'OK' && !empty($body_res->results)) {
                     return $body_res->results[0];
                 } else {
-                    $this->errorLog->error($body_res->error_message);
+                    $this
+                        ->errorLog
+                        ->error("Error getting location", $body_res);
                     return new WP_Error(
                         $response->getStatusCode(),
-                        "Unable to get location." . PHP_EOL . ($body_res->error_message ?? '')
+                        "Unable to get location." . PHP_EOL . ($body_res ?? '')
                     );
                 }
             }

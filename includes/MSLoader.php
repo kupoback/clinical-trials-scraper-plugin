@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Merck_Scraper\includes;
+namespace Merck_Scraper\Includes;
 
 /**
  * Register all actions and filters for the plugin.

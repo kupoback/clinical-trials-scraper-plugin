@@ -139,9 +139,12 @@
 	
 	}
 	&__button-group {
-		&__btn-all {}
-		&__btn-clear {
-			color: white !important;
+		&__btn {
+			&-all {}
+			&-locations,
+			&-clear {
+				color: white !important;
+			}
 		}
 	}
 }
