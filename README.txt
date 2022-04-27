@@ -5,7 +5,7 @@ Tags:
 Requires at least: 5.9.0
 Tested up to: 5.9.2
 Requires PHP: 7.4
-Stable tag: 1.0.7.9
+Stable tag: 1.0.7.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,26 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 == Description ==
 
 == Changelog ==
+
+= 1.0.7.10 =
+
+Added a manual call to from the admin, so that emails aren't sent out when ever the scraper is ran manually
+
+Increased to Geolocate Callback time to 150ms
+
+Code cleanup and organization
+
+Trimed the import of the Facility name to remove ending spaces
+
+Fixed the location data bug that was occurring on import
+
+Adjusted to merge the initial grabbed data and override the existing location data, but retaining the existing lat/lng, which before was being removed entirely
+
+Updated package dependencies
+
+Added a button to the API page to get all imported locations' data in case any are missing
+
+Added method to handle getting locations' data from Google Maps
 
 = 1.0.7.9 =
 

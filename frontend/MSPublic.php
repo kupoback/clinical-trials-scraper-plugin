@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Merck_Scraper\frontend;
+namespace Merck_Scraper\Frontend;
 
 /**
  * The frontend-facing functionality of the plugin.

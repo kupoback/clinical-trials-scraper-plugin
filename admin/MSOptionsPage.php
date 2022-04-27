@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Merck_Scraper\admin;
+namespace Merck_Scraper\Admin;
 
 /**
  * Adds and registers the Custom Options pages for the scraper
@@ -10,7 +10,7 @@ namespace Merck_Scraper\admin;
  * Defines the plugin name, version, registers the options page
  *
  * @package    Merck_Scraper
- * @subpackage Merck_Scraper/admin
+ * @subpackage Merck_Scraper/Admin
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
 class MSOptionsPage

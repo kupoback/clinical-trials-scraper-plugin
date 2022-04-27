@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Provide a admin area view for the plugin
+ * Provide a Admin area view for the plugin
  *
- * This file is used to markup the admin-facing aspects of the plugin.
+ * This file is used to markup the Admin-facing aspects of the plugin.
  *
  * @link       https://cliquestudios.com
  * @since      1.0.0
  *
  * @package    Merck_Scraper
- * @subpackage Merck_Scraper/admin/partials
+ * @subpackage Merck_Scraper/Admin/partials
  */
 ?>
 

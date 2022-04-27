@@ -10,7 +10,7 @@ use WP_Error;
  * Methods that can be used throughout the plugin
  *
  * @package    Merck_Scraper
- * @subpackage Merck_Scraper/admin
+ * @subpackage Merck_Scraper/Admin
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
 class MSHelper

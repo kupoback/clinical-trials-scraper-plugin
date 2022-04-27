@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Merck_Scraper\Traits;
+namespace Merck_Scraper\Admin\Traits;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -401,7 +401,7 @@ trait MSApiField
                         return [
                             'city'              => $location->LocationCity ?? '',
                             'country'           => $country,
-                            'facility'          => $this->filterParenthesis($location->LocationFacility ?? ''),
+                            'facility'          => trim($this->filterParenthesis($location->LocationFacility ?? '')),
                             'id'                => Str::camel(sanitize_title($location->LocationFacility ?? '')),
                             'phone'             => $phone ?? '',
                             'post_title'        => strtr(
@@ -615,11 +615,5 @@ trait MSApiField
                 return $field_arr;
             })
             ->values();
-    }
-
-    protected function getTrialLocations(int $post_id = 0)
-    :Collection
-    {
-        return collect(get_field('api_data_locations', $post_id));
     }
 }

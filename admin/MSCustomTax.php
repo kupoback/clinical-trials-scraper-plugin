@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Merck_Scraper\admin;
+namespace Merck_Scraper\Admin;
 
 use Illuminate\Support\Collection;
-use Merck_Scraper\Traits\MSAdminTrait;
+use Merck_Scraper\Admin\Traits\MSAdminTrait;
 
 /**
  * Registers the custom taxonomy for the custom post type
  *
  * @package    Merck_Scraper
- * @subpackage Merck_Scraper/admin
+ * @subpackage Merck_Scraper/Admin
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
 class MSCustomTax

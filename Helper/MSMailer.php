@@ -6,8 +6,8 @@ namespace Merck_Scraper\Helper;
 
 use Illuminate\Support\Collection;
 use Mailjet\Resources;
+use Merck_Scraper\Admin\Traits\MSEmailTrait;
 use Merck_Scraper\Traits\MSAcfTrait;
-use Merck_Scraper\Traits\MSEmailTrait;
 use Merck_Scraper\Traits\MSLoggerTrait;
 use Monolog\Logger;
 use WP_Error;

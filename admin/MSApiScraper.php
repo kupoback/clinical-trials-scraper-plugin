@@ -2,16 +2,17 @@
 
 declare(strict_types = 1);
 
-namespace Merck_Scraper\admin;
+namespace Merck_Scraper\Admin;
 
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
+use Merck_Scraper\Admin\Traits\MSAdminTrial;
+use Merck_Scraper\Admin\Traits\MSApiField;
+use Merck_Scraper\Admin\Traits\MSEmailTrait;
+use Merck_Scraper\Admin\Traits\MSLocationTrait;
 use Merck_Scraper\Helper\MSHelper;
-use Merck_Scraper\Helper\MSMailer;
 use Merck_Scraper\Traits\MSAcfTrait;
-use Merck_Scraper\Traits\MSApiField;
 use Merck_Scraper\Traits\MSApiTrait;
 use Merck_Scraper\Traits\MSDBCallbacks;
 use Merck_Scraper\Traits\MSGoogleMaps;
@@ -20,6 +21,7 @@ use Merck_Scraper\Traits\MSLoggerTrait;
 use Monolog\Logger;
 use WP_Error;
 use WP_HTTP_Response;
+use WP_Query;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -29,19 +31,22 @@ use WP_REST_Server;
  * the allowed and disallowed list of words, countries, status' and main sponsor and import them as posts.
  *
  * @package    Merck_Scraper
- * @subpackage Merck_Scraper/admin
+ * @subpackage Merck_Scraper/Admin
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
 class MSApiScraper
 {
 
     //region Class Uses
-    use MSApiField;
     use MSAcfTrait;
+    use MSAdminTrial;
+    use MSApiField;
     use MSApiTrait;
     use MSDBCallbacks;
+    use MSEmailTrait;
     use MSGoogleMaps;
     use MSHttpCallback;
+    use MSLocationTrait;
     use MSLoggerTrait;
     //endregion
 
@@ -92,9 +97,9 @@ class MSApiScraper
     private Logger $errorLog;
 
     /**
-     * @var Collection ACF Values of existing trial locations
+     * @var string|mixed The Google Maps API key from the Database
      */
-    // private Collection $existingLocations;
+    private string $gmApiKey;
 
     /**
      * @var Collection Location ACF Field Names
@@ -169,6 +174,8 @@ class MSApiScraper
      */
     public function __construct(array $email_params = [], string $apiLogDirectory = MERCK_SCRAPER_API_LOG_DIR)
     {
+        $this->gmApiKey = $this->acfOptionField('google_maps_server_side_api_key');
+
         /**
          * Collection of the allowed conditions
          */
@@ -258,12 +265,18 @@ class MSApiScraper
             [$this, 'apiImport'],
             '',
             [
-                'nctid' => [
+                'nctidField' => [
                     'required'          => false,
                     'validate_callback' => function ($param) {
                         return is_string($param);
                     },
                 ],
+                'manualCall' => [
+                    'required' => false,
+                    'validate_callback' => function ($param) {
+                        return is_bool($param);
+                    }
+                ]
             ]
         );
 
@@ -282,6 +295,12 @@ class MSApiScraper
                     'sanitize_callback' => 'absint',
                 ]
             ]
+        );
+
+        $this->registerRoute(
+            'get-trial-locations',
+            WP_REST_Server::CREATABLE,
+            [$this, 'getTrialsLocations']
         );
     }
 
@@ -302,9 +321,11 @@ class MSApiScraper
         ini_set('memory_limit', '4096M');
         ini_set('post_max_size', '2048M');
 
-        $nct_id_field     = $request['nctidField'] ?? false;
+        $nct_id_field     = $request->get_param('nctidField') ?? false;
+        $manual_call      = $request->get_param('manualCall') ?? '';
         $num_not_imported = 0;
         $starting_rank    = $this->acfOptionField('min_import_rank') ?: 1;
+        // $max_rank         = 5;
         $max_rank         = $this->acfOptionField('max_import_rank') ?: 30;
 
         /**
@@ -435,6 +456,7 @@ class MSApiScraper
             $api_data = $api_data->FullStudiesResponse ?? null;
 
             // Number of trials found
+            // $this->totalFound = 5;
             $this->totalFound = $api_data->NStudiesFound ?: 0;
 
             /**
@@ -577,7 +599,7 @@ class MSApiScraper
         /**
          * Send the email only if it was run by the weekly call
          */
-        if (!$nct_id_field) {
+        if (!$manual_call) {
             $this->emailSetup($studies_imported, $num_not_imported);
         }
 
@@ -605,37 +627,9 @@ class MSApiScraper
     {
         $post_id = $request->get_param('id');
 
-        $location = collect(
-            [
-                'street',
-                'city',
-                'state',
-                'zipcode',
-                'country',
-            ]
-        )
-            ->mapWithKeys(function ($field) use ($post_id) {
-                $value = get_field("override_$field", $post_id) ?: get_field("api_data_$field", $post_id);
-                return [$field => $value];
-            });
+        $gm_geocoder_data = self::locationPostSetup($post_id);
 
-        $gm_geocoder_data = $this->getFullLocation(
-            collect(
-                [
-                    get_the_title($post_id),
-                    $location->get('city') ?? '',
-                    $location->get('state') ?? '',
-                    $location->get('zip') ?? ($location->get('zipcode') ?? ''),
-                    $location->get('country') ?? '',
-                ]
-            )
-                ->filter()
-                ->toArray()
-        );
-
-        if (!is_wp_error($gm_geocoder_data) && $gm_geocoder_data->get('latitude')) {
-            update_post_meta($post_id, 'ms_location_latitude', $gm_geocoder_data->get('latitude'));
-            update_post_meta($post_id, 'ms_location_longitude', $gm_geocoder_data->get('longitude'));
+        if ($gm_geocoder_data->get('latitude')) {
             return rest_ensure_response(
                 [
                     'latitude' => $gm_geocoder_data->get('latitude'),
@@ -647,614 +641,79 @@ class MSApiScraper
         return rest_ensure_response([]);
     }
 
-    //region Import Methods
     /**
-     * A separated loop to handle pagination of posts
+     * This method handles the manual call of importing all locations and getting the lat/lng primarily
      *
-     * @param Collection $studies
-     *
-     * @return Collection
+     * @return WP_Error|WP_HTTP_Response|WP_REST_Response
      */
-    private function studyImportLoop(Collection $studies)
-    :Collection
-    {
-        // Map through our studies and begin assigning data to fields
-        if ($studies->count() > 0) {
-            $this->updatePosition(
-                "Trials Found",
-                [
-                    'position'     => 1,
-                    'total_import' => $this->totalFound,
-                ]
-            );
-
-            return $studies
-                ->map(function ($study) {
-                    $study_import = $this->studyImport(
-                        collect(
-                            collect($study)
-                                ->get('Study')
-                                ->ProtocolSection
-                        ),
-                        $study
-                            ->Study
-                            ->ProtocolSection
-                            ->Rank
-                    );
-
-                    $location_ids = $this->locationsImport($study_import->get('NCT_ID'));
-
-                    // Update the imported trial with the location IDs we just imported
-                    update_field('api_data_location_ids', $location_ids->implode(';'), $study_import->get('ID'));
-
-                    // Update the imported trial with the languages for the locations imported
-                    wp_set_object_terms(
-                        $study_import->get('ID'),
-                        $location_ids
-                            ->map(function ($id) {
-                                return get_field('api_data_country', $id);
-                            })
-                            ->filter()
-                            ->map(function ($country) {
-                                return $this->mapLanguage($country);
-                            })
-                            ->flatten(1)
-                            ->values()
-                            ->filter()
-                            ->unique()
-                            ->toArray(),
-                        'trial_language'
-                    );
-
-                    return $study_import;
-                });
-        }
-        return collect();
-    }
-
-    /**
-     * Setups the post creation or update based on the data imported.
-     *
-     * @param object $field_data Data retrieved from the API
-     *
-     * @return false|Collection
-     * @throws Exception
-     */
-    protected function studyImport(object $field_data, int $position_index)
+    public function getTrialsLocations()
     {
         set_time_limit(600);
-        ini_set('max_execution_time', '600');
         ini_set('memory_limit', '4096M');
         ini_set('post_max_size', '2048M');
 
-        $return = collect([]);
+        // The initial query to get the first 100 locations and sets up the for loop
+        $locations_array = self::locationsQuery();
 
-        //region Modules
-        $arms_module      = $this->parseArms($field_data->get('ArmsInterventionsModule'));
-        $condition_module = $this->parseCondition($field_data->get('ConditionsModule'));
-        $contact_module   = $this->parseLocation($field_data->get('ContactsLocationsModule'), $field_data->get('StatusModule'));
-        $desc_module      = $this->parseDescription($field_data->get('DescriptionModule'));
-        $design_module    = $this->parseDesign($field_data->get('DesignModule'));
-        $eligible_module  = $this->parseEligibility($field_data->get('EligibilityModule'));
-        $id_module        = $this->parseId($field_data->get('IdentificationModule'));
-        $status_module    = $this->parseStatus($field_data->get('StatusModule'));
-        $sponsor_module   = $this->parseSponsors($field_data->get('SponsorCollaboratorsModule'));
-        //endregion
-
-        // Not currently used field mappings
-        // $oversight_module = $field_data->get('OversightModule');
-        // $outcome_module   = $this->parseOutcome($field_data->get('OutcomesModule'));
-        // $ipd_module = $this->parseIDP($field_data->get('IPDSharingStatementModule'));
-
-        $this->nctId = $id_module->get('nct_id');
-        $nct_id      = $this->nctId;
-        // Grabs the post_id from the DB based on the NCT ID value
-        $post_id = intval($this->dbFetchPostId('meta_value', $nct_id));
-
-        // Default post status
-        $do_not_import  = false;
-        $trial_status   = sanitize_title($status_module->get('trial_status'));
-        $allowed_status = $this->trialStatus
-            ->map(function ($status) {
-                return sanitize_title($status);
-            })
-            ->toArray();
-
-        // Set up the post data
-        $parse_args = $this->parsePostArgs(
-            [
-                'title'   => $id_module
-                    ->get('post_title'),
-                'slug'    => $nct_id,
-                'content' => $desc_module
-                    ->get('post_content'),
-            ]
-        );
-
-        $post_args = collect(wp_parse_args($parse_args, $this->trialPostDefault));
-
-        // Update some parameters to not import the post OR set its status to trash
-        if (!in_array($trial_status, $allowed_status)) {
-            $do_not_import = true;
-            $post_args->put('post_status', 'trash');
-        }
-
-        if ($post_id === 0) {
-            // Don't import the post and dump out of the loop for this item
-            if ($do_not_import) {
-                return $this->doNotImportTrial(
-                    0,
-                    $post_args->get('post_title'),
-                    $nct_id,
-                    __('Did not create new trial post.', 'merck-scraper')
-                );
-            }
-
-            // All new trials are set to draft status
-            $post_args
-                ->put('post_status', 'draft');
-            // Set up the post for creation
-            $post_id                 = wp_insert_post(
-                $post_args
-                    ->toArray(),
-                "Failed to create trial post."
-            );
-        } else {
-            // Updating our post
-            $post_args
-                ->put('ID', $post_id);
-            $post_args
-                ->forget(['post_title', 'post_content',]);
-            wp_update_post(
-                $post_args
-                    ->toArray(),
-                "Failed to update post."
-            );
-        }
-
-        // Grab the post status
-        $post_status = get_post_status($post_id);
-
-        /**
-         * Bail out if we don't have a post_id
-         */
-        if (is_wp_error($post_id)) {
-            $this
-                ->errorLog
-                ->error(
-                    "Error importing post",
-                    [
-                        'ID'    => $post_id ?? 0,
-                        'NAME'  => $post_args
-                            ->get('post_title'),
-                        'NCTID' => $nct_id,
-                        'error' => $post_id
-                            ->get_error_message(),
-                    ]
-                );
-
-            return false;
-        }
-
-        $this->updatePosition(
-            "Trials Import",
-            [
-                'position'    => $position_index,
-                'total_count' => $this->totalFound,
-                'helper'      => "Importing $nct_id",
-            ],
-        );
-
-        $message = "Imported with post status set to $post_status";
-
-        // Update the post meta if the trial is marked as allowed by its trial status
-        if (!$do_not_import) {
-            $acf_fields = $this->trialFields;
-
-            // Set up our collection to pull data from
-            //region Field Data Setup
-            $field_data = collect([])
-                ->put('nct_id', $nct_id)
-                ->put('url', $id_module->get('url'))
-                ->put('brief_title', $id_module->get('brief_title'))
-                ->put('official_title', $id_module->get('official_title'))
-                ->put('trial_purpose', $desc_module->get('trial_purpose'))
-                ->put('study_keyword', $id_module->get('study_keyword'))
-                ->put('study_protocol', $id_module->get('study_protocol'))
-                ->put('start_date', $status_module->get('start_date'))
-                ->put('primary_completion_date', $status_module->get('primary_completion_date'))
-                ->put('completion_date', $status_module->get('completion_date'))
-                ->put('lead_sponsor_name', $sponsor_module->get('lead_sponsor_name'))
-                ->put('gender', $eligible_module->get('gender'))
-                ->put('minimum_age', $eligible_module->get('minimum_age'))
-                ->put('maximum_age', $eligible_module->get('maximum_age'))
-                ->put('other_ids', $id_module->get('other_ids'))
-                // ->put('interventions', $arms_module->get('interventions'))
-                ->put('phase', $design_module->get('phase'));
-            //endregion
-
-            //region Field Data Import
-            // Map through our fields and update their values
-            $acf_fields
-                ->map(function ($field) use ($field_data, $post_id, $return) {
-                    $data_name = $field['data_name'] ?? '';
-                    if ($field['type'] === 'repeater') {
-                        $sub_fields = $field['sub_fields'] ?? false;
-                        if ($sub_fields && $sub_fields->isNotEmpty()) {
-                            // Retrieve the data based on the parent data_name
-                            $arr_data = $field_data->get($data_name) ?? collect();
-                            if ($arr_data->isEmpty()) {
-                                return false;
-                            }
-
-                            return $this->updateACF($field['name'], $arr_data, $post_id);
-                        }
-                        return false;
-                    }
-
-                    // Setup name escaping for textarea
-                    if ($field['type'] === 'textarea') {
-                        if ($field_data->isNotEmpty()) {
-                            if ($field['name'] === 'api_data_other_ids') {
-                                $field_data = $field_data
-                                    ->get($data_name)
-                                    ->implode(PHP_EOL);
-                            } else {
-                                $field_data = $field_data
-                                    ->get($data_name);
-                            }
-                            return $this->updateACF(
-                                $field['name'],
-                                $field_data,
-                                $post_id
-                            );
-                        }
-                        return false;
-                    }
-
-                    return $this->updateACF($field['name'], $field_data->get($data_name), $post_id);
-                });
-            //endregion
-
-            //region Taxonomy Setup
-            /**
-             * Set up the taxonomy terms
-             */
-            collect()
-                // Set the key as the taxonomy name
-                ->put('study_keyword', $condition_module->get('keywords'))
-                ->put('conditions', $condition_module->get('conditions'))
-                ->put('trial_status', $status_module->get('trial_status'))
-                // ->put('trial_category', [])
-                ->each(function ($terms, $taxonomy) use ($post_id) {
-                    return wp_set_object_terms($post_id, $terms, $taxonomy);
-                });
+        // Check if the locations returned any items
+        if ($locations_array['max_pages'] > 0) {
+            $total_pages = $locations_array['max_pages'];
+            $total_locations = $locations_array['total'];
+            $post_count = 1;
 
             /**
-             * Set up the taxonomy terms for Trial Drugs
+             * Our initial for loop, the iteration will be use also
+             * for the pagination of the locationsQuery
              */
-            if ($arms_module->get('drugs') && $arms_module->get('drugs')->isNotEmpty()) {
-                collect()
-                    ->put('trial_drugs', $arms_module->get('drugs'))
-                    ->map(function ($terms, $taxonomy) use ($post_id) {
-                        $tax_terms = [];
-                        if ($terms instanceof Collection) {
-                            $tax_terms = $terms->toArray();
-                        } elseif (is_object($terms)) {
-                            $tax_terms = (array) $terms;
-                        }
-
-                        wp_set_object_terms($post_id, $tax_terms, $taxonomy);
-                    });
-            }
-
-            if ($eligible_module->get('minimum_age') || $eligible_module->get('maximum_age')) {
-                // Reset the Trial Age terms, in case the ages previously imported have changed.
-                wp_delete_object_term_relationships($post_id, 'trial_age');
-
-                $min_age = intval($eligible_module->get('minimum_age'));
-                $max_age = intval($eligible_module->get('maximum_age'));
-
-                /**
-                 * Loop through the Trial Age Ranges set, and match the trial with
-                 * the right term, based on the terms min and max age.
-                 *
-                 * @returns array
-                 */
-                if ($this->ageRanges->isNotEmpty()) {
-                    $this->ageRanges
-                        ->each(function ($term) use ($min_age, $max_age, $post_id) {
-                            $term_min_age = intval($term['min_age']);
-                            $term_max_age = intval($term['max_age']);
-                            if ($this->inBetween($term_min_age, $min_age, $max_age)
-                                || $this->inBetween($term_max_age, $min_age, $max_age)
-                            ) {
-                                /**
-                                 * For whatever reason, the comparison has to be if set equal
-                                 * instead of the opposite. Might be due to type comparison
-                                 * as well as value comparison.
-                                 */
-                                return ($min_age === 0 && $max_age === 999)
-                                    ? []
-                                    : wp_set_object_terms($post_id, $term['slug'], 'trial_age', true);
-                            }
-                            return [];
-                        });
-                }
-            }
-            //endregion
-
-            if ($contact_module->get('locations') && $contact_module->get('import')) {
-                $this->trialLocations = $contact_module->get('locations');
-            }
-        }
-
-        $return->put('ID', $post_id);
-        $return->put('NAME', $id_module->get('post_title'));
-        $return->put('NCT_ID', $nct_id);
-        $return->put('MESSAGE', $message);
-        $return->put('POST_STATUS', $post_status);
-
-        ini_restore('post_max_size');
-        ini_restore('max_execution_time');
-
-        return $return;
-    }
-
-    /**
-     * This method parses through all the locations for the study just imported.
-     * @param string $nct_id The NCT ID of the location
-     *
-     * @return Collection
-     * @throws Exception
-     */
-    protected function locationsImport(string $nct_id)
-    :Collection
-    {
-        $location_ids = collect();
-
-        if ($this->trialLocations ?? false) {
-            /**
-             * Grab all locations based on its unique ID, so that we aren't importing the same location more than once
-             */
-            $existing_locations = collect($this->trialLocations)
-                ->mapWithKeys(function ($location) {
-                    $post_id = intval($this->dbFetchPostId('meta_value', $location['id']));
-                    if ($post_id > 0) {
-                        return [
-                            $post_id => collect(get_fields($post_id))
-                                ->mapWithKeys(function ($value, $key) {
-                                    return [
-                                        str_replace('api_data_', '', $key) => $value,
-                                    ];
-                                })
-                                ->merge(
-                                    [
-                                        'latitude'  => get_post_meta($post_id, 'ms_location_latitude', true),
-                                        'longitude' => get_post_meta($post_id, 'ms_location_longitude', true),
-                                    ]
-                                )
-                                ->filter()
-                                ->toArray()
-                        ];
-                    }
-                    return [0 => false];
-                })
-                ->filter()
-                ->unique();
-
-            $total_items = $this->trialLocations
-                ->count();
-
-            // Fetch, filter and sanitize the locations' data
-            $data_grabbed = self::locationGeocode($this->trialLocations, $existing_locations);
-                // Map through each location and create or update the location post
-            $data_grabbed
-                ->each(function ($location, $index) use ($location_ids, $nct_id, $total_items) {
+            for ($iteration = 1; $iteration <= $total_pages; $iteration++) {
+                // Our callback to get the next page
+                if ($iteration !== 1) {
+                    $locations_array = self::locationsQuery($iteration);
+                } else {
+                    // Our setup to show that the import has executed
                     $this->updatePosition(
-                        "Import Locations",
+                        "All Locations Import",
                         [
-                            'position'     => $index,
-                            'total_import' => $total_items,
-                            'helper'       => "Importing Locations for $nct_id",
+                            'helper' => "Importing $total_locations Locations",
                         ]
                     );
-
-                    $location_data = collect($location);
-                    if ($location_data->filter()->isNotEmpty()) {
-                        $location_post_id = intval($this->dbFetchPostId('meta_value', $location['id']));
-                        $latitude         = $location_data->get('latitude');
-                        $longitude        = $location_data->get('longitude');
-                        $language         = $location_data->get('location_language');
-                        $status           = $location_data->get('recruiting_status');
-                        $location_data
-                            ->forget(
+                }
+                // Our loop through the returned locations to get the new Google Data
+                collect($locations_array['locations'])
+                    ->each(function ($post_id) use (&$post_count, $total_locations) {
+                        set_time_limit(1800);
+                        ini_set('max_execution_time', '1800');
+                        $post_count++;
+                        $this
+                            ->updatePosition(
+                                'All Single Locations',
                                 [
-                                    'latitude',
-                                    'longitude',
-                                    'location_language',
-                                    'recruiting_status'
+                                    'position' => $post_count,
+                                    'total_count' => $total_locations,
                                 ]
                             );
 
-                        // Set up the post data
-                        $location_args = collect(
-                            wp_parse_args(
-                                $this->parsePostArgs(
-                                    [
-                                        'title' => $location_data->get('post_title'),
-                                        'slug'  => $location_data->get('facility'),
-                                    ]
-                                ),
-                                $this->locationPostDefault
-                            )
-                        );
+                        $gm_geocoder_data = self::locationPostSetup($post_id);
 
-                        if ($location_post_id === 0) {
-                            $location_post_id = wp_insert_post(
-                                $location_args
-                                    ->toArray(),
-                                "Failed to create location post."
-                            );
-                        } else {
-                            $location_args
-                                ->put('ID', $location_post_id);
-                            $location_args
-                                ->forget(['post_title', 'post_name']);
-                            wp_update_post(
-                                $location_args
-                                    ->toArray(),
-                                "Failed to update post."
-                            );
+                        // If we error, we'll need to capture that error
+                        if ($gm_geocoder_data->isEmpty()) {
+                            $this
+                                ->errorLog
+                                ->error("Unable to get lat/lng for location ID: $post_id");
                         }
-
-                        /**
-                         * Update the ACF Fields for this location, and set the latitude and longitude grabbed to the custom meta field
-                         */
-                        if ($location_post_id) {
-                            update_post_meta($location_post_id, 'ms_location_latitude', $latitude);
-                            update_post_meta($location_post_id, 'ms_location_longitude', $longitude);
-
-                            $acf_fields = $this->locationFields;
-                            $acf_fields
-                                ->map(function ($field) use ($location_data, $location_post_id) {
-                                    if (Str::contains($field['name'], 'api')) {
-                                        $data_name = $field['data_name'] ?? '';
-                                        return $this->updateACF($field['name'], $location_data->get($data_name), $location_post_id);
-                                    }
-                                    return false;
-                                });
-
-                            collect(
-                                [
-                                    'location_nctid'  => $nct_id,
-                                    'location_status' => $status,
-                                    'trial_language'  => explode(';', $language),
-                                ]
-                            )
-                                ->each(function ($terms, $taxonomy) use ($location_post_id) {
-                                    return wp_set_object_terms($location_post_id, $terms, $taxonomy, true);
-                                });
-                        }
-                        $location_ids->push($location_post_id);
-                    }
-                });
+                    });
+            }
         }
 
-        return $location_ids;
+        // Clear position
+        $this->clearPosition();
+
+        ini_restore('post_max_size');
+        ini_restore('upload_max_filesize');
+        ini_restore('max_execution_time');
+
+        return rest_ensure_response(true);
     }
-
-    /**
-     * Grabs the geocode location data from Google Maps, but only if the location doesn't
-     * exist in the first place
-     *
-     * @param Collection $arr_data           The array data imported
-     * @param Collection $existing_locations The existing locations
-     *
-     * @return Collection
-     */
-    protected function locationGeocode(Collection $arr_data, Collection $existing_locations)
-    :Collection
-    {
-        set_time_limit(1800);
-        ini_set('max_execution_time', '1800');
-        return $arr_data
-            ->map(function ($location) use ($existing_locations) {
-                // Grab and filter the facility
-                $facility = $this->filterParenthesis($location['facility'] ?? '');
-                // Check if the location is already imported, so we don't grab the lat/lng again
-                $data_grabbed = $existing_locations
-                    ->filter(function ($location) use ($facility) {
-                        if (($location['latitude'] ?? false)) {
-                            return $location['facility'] === $facility;
-                        }
-                        return false;
-                    });
-
-                if (!isset($location['location_language'])) {
-                    $location_language             = $this->mapLanguage($location['country']);
-                    $location['location_language'] = $location_language->isNotEmpty() ? $location_language->implode(';') : "All";
-                }
-
-                if ($data_grabbed->isEmpty()) {
-                    $gm_geocoder_data = $this->getFullLocation(
-                        collect(
-                            [
-                                $facility,
-                                $location['city'] ?? '',
-                                $location['state'] ?? '',
-                                $location['zip'] ?? ($location['zipcode'] ?? ''),
-                                $location['country'] ?? '',
-                            ]
-                        )
-                            ->filter()
-                            ->toArray()
-                    );
-
-                    /**
-                     * If a location isn't located by its facility name,
-                     * use the city, state, zip and country to get a lat/lng
-                     */
-                    if (is_wp_error($gm_geocoder_data)) {
-                        $gm_geocoder_data = $this->getFullLocation(
-                            collect(
-                                [
-                                    $location['city'] ?? '',
-                                    $location['state'] ?? '',
-                                    $location['zip'] ?? ($location['zipcode'] ?? ''),
-                                    $location['country'] ?? '',
-                                ]
-                            )
-                                ->filter()
-                                ->toArray()
-                        );
-                    }
-
-                    /**
-                     * If the geolocation was successful, then return the data as an array
-                     */
-                    if ($gm_geocoder_data->isNotEmpty()) {
-                        // Sets the location_language field data so that the trials can be filtered by language
-                        $location_language = $this->mapLanguage($location['country'] ?? '');
-                        // $gm_geocoder_data = $gm_geocoder_data
-                        return $gm_geocoder_data
-                            // Use default grabbed City/State from API, otherwise default to what google grabbed
-                            ->put('city', $location['city'] ?? ($gm_geocoder_data->city ?? ''))
-                            ->put('country', $location['country'] ?? ($gm_geocoder_data->country ?? ''))
-                            // Add facility, recruiting status and phone number to the collection
-                            ->put('facility', $facility)
-                            ->put('id', $location['id'] ?? '')
-                            ->put(
-                                'location_language',
-                                $location_language->isNotEmpty()
-                                    ? $location_language->implode(';')
-                                    : "All"
-                            )
-                            ->put('phone', ($location['phone'] ?? ''))
-                            ->put('post_title', ($location['post_title'] ?? ''))
-                            ->put('recruiting_status', ($location['recruiting_status'] ?? ''))
-                            ->put('state', $location['state'] ?? ($gm_geocoder_data->city ?? ''))
-                            ->toArray();
-
-                        // return $gm_geocoder_data
-                        //     ->toArray();
-                    }
-
-                    $this
-                        ->errorLog
-                        ->error(
-                            "Unable to get geocode for $this->nctId;\r\n",
-                            (array) $gm_geocoder_data->errors
-                        );
-
-                    return $gm_geocoder_data;
-                }
-
-                return $location;
-            })
-            ->filter();
-    }
-    //endregion
 
     /**
      * A public accessible logger setup
@@ -1273,162 +732,5 @@ class MSApiScraper
         int    $logger_type = Logger::ERROR
     ) {
         return $this->initLogger($name, $file_name, $file_path, $logger_type);
-    }
-
-    /**
-     * Trial not to import
-     *
-     * @param int    $post_id
-     * @param string $title
-     * @param string $nct_id
-     * @param string $msg
-     *
-     * @return Collection
-     */
-    protected function doNotImportTrial(int $post_id = 0, string $title = '', string $nct_id = '', string $msg = '')
-    :Collection
-    {
-        return collect(
-            [
-                'ID'      => $post_id,
-                'NAME'    => $title,
-                'NCTID'   => $nct_id,
-                'MESSAGE' => $msg,
-            ]
-        );
-    }
-
-    /**
-     * Method that setups and sends out the email after the import has been run
-     *
-     * @param Collection $studies_imported A Collection of studies that were imported
-     * @param int        $num_not_imported The number of studies not imported as they're filtered out
-     */
-    protected function emailSetup(Collection $studies_imported, int $num_not_imported = 0)
-    {
-        /**
-         * Merck Email Client
-         */
-        if ($this->sendTo->filter()->isEmpty()) {
-            $this->sendTo = collect($this->acfOptionField('api_logger_email_to'));
-        }
-
-        if ($this->sendTo->filter()->isNotEmpty()) {
-
-            /**
-             * Check if AIO is installed and setup
-             */
-            $login_url = wp_login_url();
-            global $aio_wp_security;
-            if ($aio_wp_security && $aio_wp_security->configs->get_value('aiowps_enable_rename_login_page') === '1') {
-                $home_url  = trailingslashit(home_url()) . (!get_option('permalink_structure') ? '?' : '');
-                $login_url = "$home_url{$aio_wp_security->configs->get_value('aiowps_login_page_slug')}";
-            }
-
-            /**
-             * A list of array fields for the MailJet Email Client
-             */
-            $email_args = [
-                'TemplateLanguage' => true,
-                'TemplateID'       => (int) ($this->acfOptionField('api_email_template_id') ?? 0),
-                'Variables'        => [
-                    'timestamp' => $this->nowTime
-                        ->format("l F j, Y h:i A"),
-                    'trials'    => '',
-                    'wplogin'   => $login_url,
-                ],
-            ];
-
-            /**
-             * Adds the Trails' data to Variables
-             */
-            if ($studies_imported->isNotEmpty()) {
-                $new_posts     = collect();
-                $trashed_posts = collect();
-                $updated_posts = collect();
-
-                $studies_imported
-                    ->map(function ($study) use ($new_posts, $trashed_posts, $updated_posts) {
-                        $status = $study
-                                ->get('POST_STATUS') ?? '';
-                        if (is_string($status)) {
-                            switch (strtolower($status)) {
-                                case "draft":
-                                case "pending":
-                                    $new_posts
-                                        ->push($study);
-                                    break;
-                                case "trash":
-                                    $trashed_posts
-                                        ->push($study);
-                                    break;
-                                case "publish":
-                                    $updated_posts
-                                        ->push($study);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        return $study;
-                    });
-
-                $total_found      = sprintf('<li>Total Found: %s</li>', $studies_imported->count());
-                $new_posts        = sprintf('<li>New Trials: %s</li>', $new_posts->count());
-                $trashed_posts    = sprintf('<li>Removed Trials: %s</li>', $trashed_posts->count());
-                $num_not_imported = sprintf('<li>Trials Not Scraped: %s</li>', $num_not_imported ?? 0);
-                $updated_posts    = sprintf('<li>Updated Trials: %s</li>', $updated_posts->count());
-
-                $email_args['Variables']['trials'] = sprintf(
-                    '<ul>%s</ul>',
-                    $total_found . $new_posts . $trashed_posts . $num_not_imported . $updated_posts
-                );
-            }
-
-            // Email notification on completion
-            return (new MSMailer())
-                ->mailer($this->sendTo, $email_args);
-        }
-
-        return false;
-    }
-
-    /**
-     * Quick adjustment call to setting up the map and implode for a Collection
-     *
-     * @param Collection $collection Collection
-     * @param string     $operator
-     *
-     * @return string
-     */
-    protected function mapImplode(Collection $collection, string $operator = "OR")
-    :string
-    {
-        return $collection
-            ->map(function ($location) {
-                return "\"$location\"";
-            })
-            ->implode(" $operator ");
-    }
-
-    /**
-     * Maps through the location data and returns a filtered collection
-     *
-     * @param string $country The country to search and map for
-     *
-     * @return Collection
-     */
-    protected function mapLanguage(string $country)
-    :Collection
-    {
-        return $this->countryMappedLanguages
-            ->map(function ($location) use ($country) {
-                // $location['country'] is a Collection
-                if (is_int($location['country']->search($country, true))) {
-                    return $location['language'];
-                }
-                return false;
-            })
-            ->filter();
     }
 }

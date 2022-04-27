@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Merck_Scraper\frontend;
+namespace Merck_Scraper\Frontend;
 
 use Merck_Scraper\Traits\MSApiTrait;
 use Merck_Scraper\Traits\MSGoogleMaps;
@@ -30,9 +30,15 @@ class MSFrontEndAPI
 
     private string $taxName;
 
+    /**
+     * @var string|mixed The Google Maps API key from the Database
+     */
+    private string $gmApiKey;
+
     public function __construct()
     {
         $this->taxName = $this->acfOptionField('category_type') ?: 'conditions';
+        $this->gmApiKey = $this->acfOptionField('google_maps_server_side_api_key');
     }
 
     public function registerEndpoint()

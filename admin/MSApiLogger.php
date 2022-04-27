@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Merck_Scraper\admin;
+namespace Merck_Scraper\Admin;
 
 use Merck_Scraper\Traits\MSApiTrait;
 use WP_Error;
@@ -15,7 +15,7 @@ use WP_REST_Server;
  * Registers the rest api for the scraper
  *
  * @package    Merck_Scraper
- * @subpackage Merck_Scraper/admin
+ * @subpackage Merck_Scraper/Admin
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
 class MSApiLogger
@@ -141,7 +141,7 @@ class MSApiLogger
     }
 
     /**
-     * Grabs a list of the directories from the MERCK_SCRAPER_LOG_DIR to change which logs show in the admin
+     * Grabs a list of the directories from the MERCK_SCRAPER_LOG_DIR to change which logs show in the Admin
      *
      * @return WP_Error|WP_HTTP_Response|WP_REST_Response
      */
@@ -193,7 +193,7 @@ class MSApiLogger
     }
 
     /**
-     * Method that returns the content from a log file from the wp-admin
+     * Method that returns the content from a log file from the wp-Admin
      *
      * @param WP_REST_Request $request
      *

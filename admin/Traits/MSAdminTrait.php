@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Merck_Scraper\Traits;
+namespace Merck_Scraper\Admin\Traits;
 
 use Illuminate\Support\Str;
 
