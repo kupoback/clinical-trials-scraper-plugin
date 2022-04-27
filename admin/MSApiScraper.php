@@ -574,7 +574,12 @@ class MSApiScraper
                 ->info("Imported {$studies_imported->count()} Studies", $studies_imported->toArray());
         }
 
-        $this->emailSetup($studies_imported, $num_not_imported);
+        /**
+         * Send the email only if it was run by the weekly call
+         */
+        if (!$nct_id_field) {
+            $this->emailSetup($studies_imported, $num_not_imported);
+        }
 
         // Restore the max_execution_time
         ini_restore('post_max_size');
@@ -977,11 +982,11 @@ class MSApiScraper
                         });
                 }
             }
+            //endregion
 
             if ($contact_module->get('locations') && $contact_module->get('import')) {
                 $this->trialLocations = $contact_module->get('locations');
             }
-            //endregion
         }
 
         $return->put('ID', $post_id);
@@ -1042,8 +1047,9 @@ class MSApiScraper
                 ->count();
 
             // Fetch, filter and sanitize the locations' data
-            self::locationGeocode($this->trialLocations, $existing_locations)
+            $data_grabbed = self::locationGeocode($this->trialLocations, $existing_locations);
                 // Map through each location and create or update the location post
+            $data_grabbed
                 ->each(function ($location, $index) use ($location_ids, $nct_id, $total_items) {
                     $this->updatePosition(
                         "Import Locations",
@@ -1207,30 +1213,31 @@ class MSApiScraper
                     /**
                      * If the geolocation was successful, then return the data as an array
                      */
-                    if (!is_wp_error($gm_geocoder_data)) {
-                        $gm_geocoder_data
+                    if ($gm_geocoder_data->isNotEmpty()) {
+                        // Sets the location_language field data so that the trials can be filtered by language
+                        $location_language = $this->mapLanguage($location['country'] ?? '');
+                        // $gm_geocoder_data = $gm_geocoder_data
+                        return $gm_geocoder_data
                             // Use default grabbed City/State from API, otherwise default to what google grabbed
                             ->put('city', $location['city'] ?? ($gm_geocoder_data->city ?? ''))
                             ->put('country', $location['country'] ?? ($gm_geocoder_data->country ?? ''))
                             // Add facility, recruiting status and phone number to the collection
                             ->put('facility', $facility)
                             ->put('id', $location['id'] ?? '')
+                            ->put(
+                                'location_language',
+                                $location_language->isNotEmpty()
+                                    ? $location_language->implode(';')
+                                    : "All"
+                            )
                             ->put('phone', ($location['phone'] ?? ''))
                             ->put('post_title', ($location['post_title'] ?? ''))
                             ->put('recruiting_status', ($location['recruiting_status'] ?? ''))
-                            ->put('state', $location['state'] ?? ($gm_geocoder_data->city ?? ''));
-
-                        // Sets the location_language field data so that the trials can be filtered by language
-                        $location_language = $this->mapLanguage($gm_geocoder_data->get('country'));
-                        $gm_geocoder_data->put(
-                            'location_language',
-                            $location_language->isNotEmpty()
-                                ? $location_language->implode(';')
-                                : "All"
-                        );
-
-                        return $gm_geocoder_data
+                            ->put('state', $location['state'] ?? ($gm_geocoder_data->city ?? ''))
                             ->toArray();
+
+                        // return $gm_geocoder_data
+                        //     ->toArray();
                     }
 
                     $this
