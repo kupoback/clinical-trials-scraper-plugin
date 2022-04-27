@@ -82,7 +82,7 @@ class MSAdmin
         if (is_admin() && (in_array(get_current_screen()->id, $this->screens) || in_array(get_current_screen()->id, $this->optsScreens))) {
             wp_enqueue_style(
                 $this->pluginName,
-                plugin_dir_url(__FILE__) . 'dist/merck-scraper-Admin.css',
+                plugin_dir_url(__FILE__) . 'dist/merck-scraper-admin.css',
                 [],
                 $this->version
             );
@@ -104,7 +104,7 @@ class MSAdmin
         if (is_admin() && in_array($current_screen, $this->screens)) {
             wp_enqueue_script(
                 $js_script_name,
-                plugin_dir_url(__FILE__) . "dist/merck-scraper-Admin.js",
+                plugin_dir_url(__FILE__) . "dist/merck-scraper-admin.js",
                 [],
                 $this->version,
                 true
