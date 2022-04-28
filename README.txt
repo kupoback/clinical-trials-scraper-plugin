@@ -5,7 +5,7 @@ Tags:
 Requires at least: 5.9.0
 Tested up to: 5.9.2
 Requires PHP: 7.4
-Stable tag: 1.0.7.11
+Stable tag: 1.0.7.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,12 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 == Description ==
 
 == Changelog ==
+
+= 1.0.7.12 =
+
+Reverted ->get_param to array check which caused cron event to fail
+
+Refined the Get Locations Sync to just pull in locations missing lat/lng
 
 = 1.0.7.11 =
 

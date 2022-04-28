@@ -39,7 +39,11 @@
                 <hr>
                 <p class="h5 mt-4 mb-3"
                    v-text="`Trigger Import`" />
-                <p v-if="importRunning" class="helper-text" v-text="`Import running, please wait.`" />
+                <p v-if="importRunning"
+                   class="helper-text"
+                   v-text="`Import running, please wait.`" />
+                <p>The "Import All Trials and Locations" button will import all Trials from clinical trials, as well as their locations.
+                   The "Import Locations" button will import Locations with missing latitude and longitudes.</p>
                 <Button v-if="!importRunning && !locImportRunning"
                         btn-class="merck-scraper-import__button-group__btn-all"
                         btn-id="scraper-import"
@@ -50,7 +54,7 @@
                 <Button v-if="!locImportRunning && !importRunning"
                         btn-class="merck-scraper-import__button-group__btn-locations"
                         btn-id="scraper-import"
-                        title="Import All Locations"
+                        title="Import Locations Coords"
                         :disabled="locImportRunning"
                         type="info"
                         :emit-event="executeLocationsImport" />

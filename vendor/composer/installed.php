@@ -1,11 +1,11 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'cb1bf889a8563d2b57c0ac40d363f1bc9b071293',
+        'reference' => '28f023af894aa1a0d792f9c9d98fd2955fba7de2',
         'name' => 'mak/merck-scraper',
         'dev' => true,
     ),
@@ -161,12 +161,12 @@
             'dev_requirement' => false,
         ),
         'mak/merck-scraper' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'cb1bf889a8563d2b57c0ac40d363f1bc9b071293',
+            'reference' => '28f023af894aa1a0d792f9c9d98fd2955fba7de2',
             'dev_requirement' => false,
         ),
         'mockery/mockery' => array(
@@ -370,7 +370,7 @@
             'type' => 'metapackage',
             'install_path' => NULL,
             'aliases' => array(),
-            'reference' => 'e5e096c731d21614b952983804581389eb2a484f',
+            'reference' => '576d0458fe9635731c50be2ed74febec4edc08d8',
             'dev_requirement' => true,
         ),
         'squizlabs/php_codesniffer' => array(
@@ -419,12 +419,12 @@
             'dev_requirement' => false,
         ),
         'symfony/translation' => array(
-            'pretty_version' => 'v5.4.7',
-            'version' => '5.4.7.0',
+            'pretty_version' => 'v5.4.8',
+            'version' => '5.4.8.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/translation',
             'aliases' => array(),
-            'reference' => 'e1eb790575202ee3ac2659f55b93b05853726f8e',
+            'reference' => 'f5c0f6d1f20993b2606f3a5f36b1dc8c1899170b',
             'dev_requirement' => false,
         ),
         'symfony/translation-contracts' => array(

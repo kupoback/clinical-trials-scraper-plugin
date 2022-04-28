@@ -316,13 +316,13 @@ class MSApiScraper
     {
         // Callback to the frontend to let them know we're starting the import
         $this->updatePosition("Starting Import");
-        set_time_limit(600);
+        set_time_limit(1800);
         $init_memory_limit = ini_get("memory_limit");
         ini_set('memory_limit', '4096M');
         ini_set('post_max_size', '2048M');
 
-        $nct_id_field     = $request->get_param('nctidField') ?? false;
-        $manual_call      = $request->get_param('manualCall') ?? '';
+        $nct_id_field     = $request['nctidField'] ?? false;
+        $manual_call      = $request['manualCall'] ?? '';
         $num_not_imported = 0;
         $starting_rank    = $this->acfOptionField('min_import_rank') ?: 1;
         // $max_rank         = 5;
@@ -680,6 +680,15 @@ class MSApiScraper
                 }
                 // Our loop through the returned locations to get the new Google Data
                 collect($locations_array['locations'])
+                    ->filter(function ($post_id) use (&$total_locations) {
+                        $latitude = get_post_meta($post_id, 'ms_location_latitude', true);
+                        $longitude = get_post_meta($post_id, 'ms_location_longitude', true);
+                        // If there's a lat/lng, decrease the total importing by 1
+                        if ($latitude && $longitude) {
+                            $total_locations--;
+                        }
+                        return !$latitude && !$longitude;
+                    })
                     ->each(function ($post_id) use (&$post_count, $total_locations) {
                         set_time_limit(1800);
                         ini_set('max_execution_time', '1800');
