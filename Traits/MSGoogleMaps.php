@@ -207,10 +207,10 @@ trait MSGoogleMaps
                 } else {
                     $this
                         ->errorLog
-                        ->error("Error getting location", $body_res);
+                        ->error("Error getting location", (array) $body_res);
                     return new WP_Error(
                         $response->getStatusCode(),
-                        "Unable to get location." . PHP_EOL . ($body_res ?? '')
+                        "Unable to get location."
                     );
                 }
             }
