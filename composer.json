@@ -13,7 +13,8 @@
         "php-http/message": "^1.12",
         "geocoder-php/google-maps-provider": "^4.6",
 	    "ext-json": "*",
-	    "vlucas/phpdotenv": "^3.0"
+	    "vlucas/phpdotenv": "^3.0",
+        "geocoder-php/geo-plugin-provider": "^4.2"
     },
 	"require-dev": {
 		"squizlabs/php_codesniffer": "^3.5",
