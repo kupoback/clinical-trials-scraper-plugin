@@ -2,8 +2,8 @@
 Contributors: Nick Makris
 Donate link: https://cliquestudios.com
 Tags:
-Requires at least: 5.8.0
-Tested up to: 5.8.1
+Requires at least: 6.0.0
+Tested up to: 6.0.2
 Requires PHP: 7.4
 Stable tag: 1.5
 License: GPLv2 or later
@@ -14,6 +14,14 @@ This plugin is used to scrape data from clinicaltrials.gov website.
 == Description ==
 
 == Changelog ==
+
+= 1.6 =
+
+Updated the packages in composer.json to be php 8.0.0 compatible
+
+Updated illuminate/support to use version 8.x
+
+Updated composer to use composer 2.0
 
 = 1.5 =
 

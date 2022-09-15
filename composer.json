@@ -1,28 +1,32 @@
 {
-    "name": "mak/merck-scraper",
-    "require": {
-	    "php": ">=7.4",
-	    "illuminate/support": "^5.6",
-	    "guzzlehttp/guzzle": "^7.3",
-	    "mailjet/mailjet-apiv3-php": "^1.5",
-	    "monolog/monolog": "^2.3",
-	    "10quality/wp-query-builder": "^1.0",
-        "nesbot/carbon": "^2.31",
-        "php-http/guzzle7-adapter": "^1.0",
-        "geocoder-php/free-geoip-provider": "^4.4",
-        "php-http/message": "^1.12",
-        "geocoder-php/google-maps-provider": "^4.6",
-	    "ext-json": "*",
-	    "vlucas/phpdotenv": "^3.0",
-        "geocoder-php/geo-plugin-provider": "^4.2"
-    },
+	"name": "mak/merck-scraper",
+	"require": {
+		"php": "^8.0.0|^7.4",
+		"illuminate/support": "^8.82",
+		"guzzlehttp/guzzle": "^7.3",
+		"mailjet/mailjet-apiv3-php": "^1.5",
+		"monolog/monolog": "^2.3",
+		"10quality/wp-query-builder": "^1.0",
+		"nesbot/carbon": "^2.31",
+		"php-http/guzzle7-adapter": "^1.0",
+		"geocoder-php/free-geoip-provider": "^4.4",
+		"php-http/message": "^1.12",
+		"geocoder-php/google-maps-provider": "^4.6",
+		"ext-json": "*",
+		"vlucas/phpdotenv": "^5.3",
+		"geocoder-php/geo-plugin-provider": "^4.2"
+	},
 	"require-dev": {
 		"squizlabs/php_codesniffer": "^3.5",
-	    "roave/security-advisories": "dev-master"
+		"roave/security-advisories": "dev-master"
 	},
 	"config": {
 		"optimize-autoloader": true,
-		"preferred-install": "dist"
+		"preferred-install": "dist",
+		"allow-plugins": {
+			"composer/installers": true,
+			"roots/wordpress-core-installer": true
+		}
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,
@@ -37,7 +41,7 @@
 			"phpcs"
 		],
 		"compress": [
-			"zip -r merck-scraper.zip ./ -x './node_modules/*' './.git/*' './yarn.lock' && mv merck-scraper.zip ../"
+			"zip -r merck-scraper.zip ./ -x './.idea/*' './node_modules/*' './.git/*' './yarn.lock' && mv merck-scraper.zip ../"
 		]
 	},
 	"autoload": {

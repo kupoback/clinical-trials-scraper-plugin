@@ -28,11 +28,11 @@ use Merck_Scraper\Traits\MSAcfTrait;
  * Plugin Name:       Merck Scrapper
  * Plugin URI:        #
  * Description:       This plugin is used to scrape data from clinicaltrials.gov website
- * Version:           1.5
+ * Version:           1.6
  * Author:            Clique Studios
  * Author URI:        https://cliquestudios.com
- * Requires at least: 5.8.1
- * Tested up to:      5.8.1
+ * Requires at least: 6.0.0
+ * Tested up to:      6.0.2
  * Requires PHP:      7.4
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -53,7 +53,7 @@ require plugin_dir_path(__FILE__) . 'vendor/autoload.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('MERCK_SCRAPER_VERSION', '1.5');
+define('MERCK_SCRAPER_VERSION', '1.6');
 
 /**
  * This constant is used to save the logs to a specific directory
