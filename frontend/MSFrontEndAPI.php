@@ -1,8 +1,8 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Merck_Scraper\frontend;
+namespace Merck_Scraper\Frontend;
 
 use Merck_Scraper\Traits\MSApiTrait;
 use Merck_Scraper\Traits\MSGoogleMaps;
@@ -30,9 +30,15 @@ class MSFrontEndAPI
 
     private string $taxName;
 
+    /**
+     * @var string|mixed The Google Maps API key from the Database
+     */
+    private string $gmApiKey;
+
     public function __construct()
     {
-        $this->taxName = self::acfOptionField('category_type') ?: 'conditions';
+        $this->taxName = $this->acfOptionField('category_type') ?: 'conditions';
+        $this->gmApiKey = $this->acfOptionField('google_maps_server_side_api_key');
     }
 
     public function registerEndpoint()
@@ -40,7 +46,7 @@ class MSFrontEndAPI
         /**
          * Registers the endpoint to grab the Lat/Lng from Google Maps
          */
-        self::registerRoute(
+        $this->registerRoute(
             'get-geolocation',
             WP_REST_Server::READABLE,
             [$this, 'getGeolocation'],
@@ -65,7 +71,7 @@ class MSFrontEndAPI
         /**
          * Serves the data for Antidote to grab data from
          */
-        self::registerRoute(
+        $this->registerRoute(
             'trials',
             WP_REST_Server::READABLE,
             [$this, 'getTrials'],
@@ -99,7 +105,7 @@ class MSFrontEndAPI
                             $location['zipcode'] ?: '',
                             $location['country'] ?: '',
                         ];
-                        return rest_ensure_response(self::getLatLng($get_location));
+                        return rest_ensure_response($this->getLatLng($get_location));
                     })
             );
         }
@@ -120,7 +126,7 @@ class MSFrontEndAPI
             [
                 'post_type' => 'trials',
                 'posts_per_page' => -1,
-                'post_status' => self::acfOptionField('post_status'),
+                'post_status' => $this->acfOptionField('post_status'),
                 'fields' => 'ids',
             ]
         );
@@ -136,12 +142,12 @@ class MSFrontEndAPI
                             'nct_id' => get_field('api_data_nct_id', $trial),
                             'categories' => (!is_wp_error($categories) && count($categories) > 0) ?
                                 collect($categories)
-                                    ->map(function ($category) {
-                                        return [
-                                            'name' => $category->name,
-                                            'slug' => $category->slug,
-                                        ];
-                                    }) : []
+                                ->map(function ($category) {
+                                    return [
+                                        'name' => $category->name,
+                                        'slug' => $category->slug,
+                                    ];
+                                }) : []
                         ];
                     })
             );

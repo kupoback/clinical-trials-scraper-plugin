@@ -1,14 +1,13 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Merck_Scraper\Helper;
 
-use Error;
 use Illuminate\Support\Collection;
 use Mailjet\Resources;
+use Merck_Scraper\Admin\Traits\MSEmailTrait;
 use Merck_Scraper\Traits\MSAcfTrait;
-use Merck_Scraper\Traits\MSEmailTrait;
 use Merck_Scraper\Traits\MSLoggerTrait;
 use Monolog\Logger;
 use WP_Error;
@@ -37,24 +36,24 @@ class MSMailer
         }
 
         // Set up the Email logger
-        $email_logger = self::initLogger(
+        $email_logger = $this->initLogger(
             'email-log',
             'email',
             MERCK_SCRAPER_LOG_DIR . '/email/log',
             Logger::API
         );
 
-        $error_logger = self::initLogger(
+        $error_logger = $this->initLogger(
             'email-error',
             'email-error',
             MERCK_SCRAPER_LOG_DIR . '/email/error',
             Logger::API,
         );
 
-        $email_from      = self::acfOptionField('email_from');
-        $email_from_name = self::acfOptionField('email_from_name');
+        $email_from      = $this->acfOptionField('email_from');
+        $email_from_name = $this->acfOptionField('email_from_name');
 
-        $mailjet = self::mailerClient();
+        $mailjet = $this->mailerClient();
 
         // Quit if the mailerClient fails to set up
         if (is_wp_error($mailjet)) {

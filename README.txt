@@ -1,58 +1,159 @@
-=== Plugin Name ===
+=== Merck Scraper - WPML ===
 Contributors: Nick Makris
 Donate link: https://cliquestudios.com
 Tags:
-Requires at least: 6.0.0
+Requires at least: 5.9.0
 Tested up to: 6.0.2
 Requires PHP: 7.4
-Stable tag: 1.5
+Stable tag: 1.0.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-This plugin is used to scrape data from clinicaltrials.gov website.
+This plugin is used to scrape data from clinicaltrials.gov website with WPML integrations.
 
 == Description ==
 
 == Changelog ==
 
-= 1.6 =
+= 1.0.9 =
 
-Updated the packages in composer.json to be php 8.0.0 compatible
+This is a fork of the WPML version for use of MCT specifically
 
-Updated illuminate/support to use version 8.x
+= 1.0.8 =
 
-Updated composer to use composer 2.0
+Updated illuminate/support to 8.x for more Collection availability and support on filtering and eliminating conflicts with Sage 9 theme
 
-= 1.5 =
+= 1.0.7.12 =
 
-Replaced the old FreeGeoIP with GeoPlugin as the former went Freemium
+Reverted ->get_param to array check which caused cron event to fail
 
-Created a new frontend method to just return CountryName and CountryCode
+Refined the Get Locations Sync to just pull in locations missing lat/lng
 
-= 1.4.1 =
+= 1.0.7.11 =
 
-Fixed issue with Log file contents outside of API not getting called
+Fix for admin CSS and JS not loading
 
+= 1.0.7.10 =
 
-= 1.4 =
+Added a manual call to from the admin, so that emails aren't sent out when ever the scraper is ran manually
 
-Fixed issues with the MSAPIScraper not fully incorporating the countries on import, failing due to string comparisons. Fixed this to lowercase adjust these.
+Increased to Geolocate Callback time to 150ms
 
-Fixed issues with the MSAPIScraper not fully incorporating the status' on import, failing due to string comparisons. Fixed this to lowercase adjust these.
+Code cleanup and organization
 
-Addressed how http and email logs are captured, separating them in their own directories for success and errors.
+Trimed the import of the Facility name to remove ending spaces
 
-Address the FE Vue scripts to reflect the log changes.
+Fixed the location data bug that was occurring on import
 
-Addressed issue where the file log wouldn't get deleted upon request due to glob error. Passed path as param instead.
+Adjusted to merge the initial grabbed data and override the existing location data, but retaining the existing lat/lng, which before was being removed entirely
 
-= 1.3.3 =
+Updated package dependencies
 
-Removed error logs
+Added a button to the API page to get all imported locations' data in case any are missing
 
-Uncommented the ACF locations and the emailer scripts in MSAPIScraper
+Added method to handle getting locations' data from Google Maps
 
-= 1.3.2 =
+= 1.0.7.9 =
+
+Fixes to locations not all being pulled in
+
+Added omission of email from manual calls
+
+= 1.0.7.8 =
+
+Removed Trial Settings to be theme dependent
+
+= 1.0.7.7 =
+
+Removed duplicate Trial Email fields
+
+= 1.0.7.6 =
+
+Added global fields for no ages and max ages.
+
+= 1.0.7.5 =
+
+Fixed issue with the trial locations causing an error if not set and skipped.
+
+Reworked the import logic for study protocols to parse the BriefTitle instead of the SecondaryIds as they won't always be populated.
+
+= 1.0.7.4 =
+
+Fixed issue if Mailer has no Send To addresses
+
+Added in mapping for the Trial's Sponsor Protocol Secondary ID to match with ACF field in Settings
+
+= 1.0.7.3 =
+
+Adjusted Trial Settings for breadcrumbs fallback
+
+= 1.0.7.2 =
+
+Changed import process to use the countries to allow or omit to filter out the locations imported instead of limiting the trials
+
+Changed import delay from Google API from 200 to 150
+
+Increase locations import execution time to 30min to prevent hangups
+
+Removed no active locations ACF field
+
+= 1.0.7.1 =
+
+Fixed issue with locations import not skipping
+
+= 1.0.7 =
+
+Added new Locations Post type
+
+Added new Location NCTID Taxonomy for Locations PT
+
+Added new Location Language Taxonomy for Locations PT
+
+Added in new meta-box with Vue element to fetch the location's Latitude/Longitude from the post itself and save the returned data
+
+Added new Locations ACF for trial data and override
+
+Added in before_delete_post hook to remove the NCT ID from the locations' term list, OR delete the location entirely if it only exists to one Trial
+
+= 1.0.6.6 =
+
+Added field for Single Trial Settings for directions.
+
+Code cleanup in MSGoogleMaps
+
+Changed the way location languages are grabbed by going about using ->implode() instead of ->first()
+
+= 1.0.6.5 =
+
+Adjustments to how the location is parsed and assigns the language
+
+Semi-colon separated the locations as before was just using the first item
+
+= 1.0.6.4 =
+
+Minor tweak to the import logic for the locations, checking if the lat/lng is set for a location
+
+= 1.0.6.3 =
+
+Fixed issue in ApiLog.vue for file undefined causing the inability to delete the files.
+
+= 1.0.6.2 =
+
+Added in integration for proper language mapping and taxonomy terms based on the locations countries
+
+Adjusted a few pieces of integrations to optimize code and use as little memory as possible
+
+Fixed issue with locations parsing after grabbing API data, removing countries not to import
+
+Minor tweaks to the geocode to skip entries that already have a lat/lng entered to save on API calls
+
+= 1.0.6.1 =
+
+Adjustment to the Post Type method to allow for rewrites array
+
+Working on the scraper to allow for languages.
+
+= 1.0.6 =
 
 Fixed some logic in the import to handle the conditions and locations better
 
@@ -62,189 +163,30 @@ Edited the default conditions in ACF
 
 Adjusted the MSHelper Textarea to Array to omit some lines of code that was breaking the return formatting for space cased words
 
-= 1.3.1 =
+= 1.0.5 =
 
 Fix to customizer screen being inaccessible
 
-= 1.3.0 =
-
-Added vlucas/phpdotenv version ^3.0 for compatibility of illuminate
-
-= 1.2.0 =
-
-Added in a field for collecting allowed conditions.
-
-Cleaned up some methods.
-
-Adjusted some spelling errors.
-
-= 1.1.8.1 =
-
-Added a default if no location found to use city, state, zip and country to get the location for a trial spot
-
-= 1.1.8 =
-
-Added filter for Location Facility title to omit parenthesis which were causing google to be unable to locate area
-
-Added in adjustment to use API location info when returning the location, then deferring to Google's location data, then empty string for content.
-
-= 1.1.7.5 =
-
-Variable Text fix
-
-= 1.1.7.4 =
-
-Fixed issue with emailer not sending out the final data
-
-= 1.1.7.3 =
-
-Added padding 0 to container-fluid for the admin option pages
-
-Uncommented the MailJet integration
-
-= 1.1.7.2 =
-
-Adjustment to the API call to use keywords as Condition omissions.
-
-= 1.1.7.1 =
-
-Added in commented out code to update the post title
-
-= 1.1.7 =
-
-Added Protocol Number to import and removed study results from ACF since it's not being mapped anywhere
-
-Added regex for the BriefTitle to remove items in parentheses.
-
-= 1.1.6 =
-
-Added new Trial Age taxonomy
-
-Setup taxonomy with min and max age ranges
-
-Hooked up the taxonomy terms and parsing of the min and max age of the trial, and setting the trial with the right term
-
-= 1.1.5.7 =
-
-Fixed another styling issue hiding fields completely.
-
-= 1.1.5.6 =
-
-Removed return type of update_acf_field as it was returning an int instead of a bool
-
-= 1.1.5.5 =
-
-Another minor tweak to CSS rule
-
-= 1.1.5.4 =
-
-Fixed styling issue stopping a user from unpublishing a Trials post.
-
-= 1.1.5.3 =
-
-Removed auto-draft from the Antidote API options
-
-= 1.1.5.2 =
-
-Removed message from Frontend Antidote API
-
-= 1.1.5.1 =
-
-Fix to default values on Merck Scraper Settings
-
-= 1.1.5 =
-
-Added Endpoint for Antidote to grab trials from
-
-Added ACF Fields for the endpoint. Can select which taxonomy for the categories array, and select the post status types to return
-
-Moved the Trial Scraper API call query params to ACF to better control the query.
-
-Ran into issue where the scraper wasn't running, and it was due to fields being depreciated in the Clinical Trials API.
-
-Refactoring code and some tidying up of methods.
-
-= 1.1.4.2 =
-
-Upped the progress timeout from 3 mins to 5 mins
-
-= 1.1.4.1 =
-
-Another adjustment to the encoding of strings
-
-= 1.1.4 =
-
-Fixed by encoding the strings sent out for getting the lat/lng of a location
-
-= 1.1.3 =
-
-Fixed conditional in the MSAPIScraper file
-
-Updated Guzzle version
-
-= 1.1.2.3 =
-
-Fixed issue with return on MSUserLocation
-
-= 1.1.2.2 =
-
-Removed error_log in MSUserLocation
-
-= 1.1.2.1 =
-
-Added missing composer update dependency
-
-= 1.1.2 =
-
-Added Google Maps provider for Geocoder.
-
-Updated ACF name for Google Sever Side API from Geocoder API key
-
-= 1.1.1 =
-
-Fixed issue where phone was not being mapped
-
-Updated composer packages
-
-= 1.1.0 =
-
-Added IP lookup using Geocoder composer package with free-geoip provider. Added frontend class for a return of the zipcode and coordinates, full locations, and first location.
-
-Class allows dev to use an alternative service provider other than free-geoip, but must provide an array with the provider or providers they wish to use
-
-= 1.0.10.1 =
-
-Trying to debug the Google Import not fully finishing on server, compared to local. Increased max execution times
-
-= 1.0.10 =
-
-Hadded new Google Geocode API Key field in settings due to it needing a key that is not domain locked.
-
-= 1.0.9 =
-
-Changed Trial Category to Thereaputic Area
-
-= 1.0.8 =
-
-Added import for phone numbers
-
-= 1.0.7 =
-
-Added Options field for base url for the Clinical Trials show page and added to import
-
-= 1.0.6 =
-
-Adjusted Import to not override the `post_title` or `post_content` on imported trials
-Adjusted ACF to have a field for the brief title, and brief summary
-
-= 1.0.5 =
-
-CSS fix to ACF not closing boxes
-
 = 1.0.4 =
 
-Added trial_drugs taxonomy and mapped the drugs there for front-end querying
+Removed has_archive allowance in post type declaration
+
+= 1.0.3 =
+
+Moved Trial Settings to be theme dependent
+
+= 1.0.2 =
+
+Added ACF Trial Settings registration in the plugin
+
+= 1.0.1 =
+
+Added conditional checking for WPML install
+
+Updated ACF groups to use WPML translation options
+
+Added phpdotenv for symfony
 
 = 1.0.0 =
 
-Initial build of the plugin. Scrapes the clinicaltrials.gov website for trials that are related to Merck
+Forked from Merck Scraper for WPML integration

@@ -1,16 +1,17 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Merck_Scraper\admin;
+namespace Merck_Scraper\Admin;
 
-use Merck_Scraper\Traits\MSAdminTrait;
+use Illuminate\Support\Collection;
+use Merck_Scraper\Admin\Traits\MSAdminTrait;
 
 /**
  * Registers the custom taxonomy for the custom post type
  *
  * @package    Merck_Scraper
- * @subpackage Merck_Scraper/admin
+ * @subpackage Merck_Scraper/Admin
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
 class MSCustomTax
@@ -25,32 +26,62 @@ class MSCustomTax
      */
     public function registerTaxonomy()
     {
-        $tax_array = [];
+        self::loopTaxonomy(
+            collect(
+                [
+                    // Trial Category Taxonomy
+                    'trial_ta' => $this->taxonomyArray("Therapeutic Area", "Therapeutic Area", 'trial-ta'),
+                    // Study Keyword Taxonomy
+                    'study_keyword' => $this->taxonomyArray("Study Keyword", "Study Keywords", 'study-keyword'),
+                    // Trial Studies Taxonomy
+                    'conditions' => $this->taxonomyArray("Condition", "Conditions", 'condition'),
+                    // Trial Status Taxonomy
+                    'trial_status' => $this->taxonomyArray("Trial Status", "Trial Status", 'trial-status'),
+                    // Trial Drugs Taxonomy
+                    'trial_drugs' => $this->taxonomyArray("Trial Drug", "Trial Drugs", 'trial-drugs', false),
+                    // Trial Age Taxonomy
+                    'trial_age' => $this->taxonomyArray("Trial Age", "Trial Ages", 'trial-age'),
+                ]
+            ),
+            ["trials"]
+        );
 
-        // Trial Category Taxonomy
-        $tax_array["trial_ta"] = self::taxonomyArray("Therapeutic Area", "Therapeutic Area", 'trial-ta');
+        self::loopTaxonomy(
+            collect(
+                [
+                    // Location NCTID Taxonomy
+                    'location_nctid' => $this->taxonomyArray("NCTID", "NCTIDs", 'location-nctid'),
+                    // Location Status Taxonomy
+                    'location_status' => $this->taxonomyArray("Status", "Status", 'location-status'),
+                ]
+            ),
+            ['locations'],
+        );
 
-        // Recruiting Taxonomy
-        // $tax_array["recruiting"] = self::taxonomyArray("Recruiting Type", "Recruiting Types", 'recruiting');
+        self::loopTaxonomy(
+            collect(
+                [
+                    // Trial Language Taxonomy
+                    'trial_language' => $this->taxonomyArray("Language", "Languages", 'trial-language'),
+                ]
+            ),
+            ['trials', 'locations']
+        );
+    }
 
-        // Study Keyword Taxonomy
-        $tax_array["study_keyword"] = self::taxonomyArray("Study Keyword", "Study Keywords", 'study-keyword');
-
-        // Trial Studies Taxonomy
-        $tax_array["conditions"] = self::taxonomyArray("Condition", "Conditions", 'condition');
-
-        // Trial Status
-        $tax_array["trial_status"] = self::taxonomyArray("Trial Status", "Trial Status", 'trial-status');
-
-        // Trial Drugs
-        $tax_array["trial_drugs"] = self::taxonomyArray("Trial Drug", "Trial Drugs", 'trial-drugs', false);
-
-        // Trial Age
-        $tax_array["trial_age"] = self::taxonomyArray("Trial Age", "Trial Ages", 'trial-age');
-
-        // Loops through each tax array item and registers them.
-        foreach ($tax_array as $taxonomy => $tax_args) {
-            register_taxonomy($taxonomy, ["trials"], $tax_args);
-        }
+    /**
+     * Loops through a collection of taxonomies to register
+     *
+     * @param Collection $tax_collection The Collection of Taxonomies to register
+     * @param array      $post_types     An array of post types to register this to.
+     *
+     * @return void
+     */
+    private function loopTaxonomy(Collection $tax_collection, array $post_types = [])
+    {
+        $tax_collection
+            ->each(function ($tax_args, $taxonomy) use ($post_types) {
+                register_taxonomy($taxonomy, $post_types, $tax_args);
+            });
     }
 }

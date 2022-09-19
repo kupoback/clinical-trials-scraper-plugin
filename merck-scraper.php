@@ -6,32 +6,31 @@ namespace Merck_Scraper;
 
 use Exception;
 use Illuminate\Support\Carbon;
-use Merck_Scraper\admin\MSAPIScraper;
-use Merck_Scraper\includes\MSMainClass;
-use Merck_Scraper\includes\MSActivator;
-use Merck_Scraper\includes\MSDeactivator;
-use Merck_Scraper\Traits\MSAcfTrait;
+use Merck_Scraper\Admin\MSApiScraper;
+use Merck_Scraper\Includes\MSMainClass;
+use Merck_Scraper\Includes\MSActivator;
+use Merck_Scraper\Includes\MSDeactivator;
 
 /**
  * The plugin bootstrap file
  *
  * This file is read by WordPress to generate the plugin information in the plugin
- * admin area. This file also includes all of the dependencies used by the plugin,
+ * Admin area. This file also includes all the dependencies used by the plugin,
  * registers the activation and deactivation functions, and defines a function
- * that starts the plugin.
+ * that starts the plugin. This comes coupled with WPML and used for MCT
  *
  * @link              https://cliquestudios.com
  * @since             1.0.0
  * @package           Merck_Scraper
  *
  * @wordpress-plugin
- * Plugin Name:       Merck Scrapper
+ * Plugin Name:       Merck Scrapper - MCT
  * Plugin URI:        #
- * Description:       This plugin is used to scrape data from clinicaltrials.gov website
- * Version:           1.6
+ * Description:       This plugin is used to scrape data from clinicaltrials.gov website. This is a fork for WPML and MCT specifically.
+ * Version:           1.0.9
  * Author:            Clique Studios
  * Author URI:        https://cliquestudios.com
- * Requires at least: 6.0.0
+ * Requires at least: 5.8.0
  * Tested up to:      6.0.2
  * Requires PHP:      7.4
  * License:           GPL-2.0+
@@ -46,21 +45,20 @@ if (!defined('WPINC')) {
 }
 
 require plugin_dir_path(__FILE__) . 'vendor/autoload.php';
-// require plugin_dir_path(__FILE__) . 'build/vendor/autoload.php';
 
 /**
  * Currently plugin version.
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('MERCK_SCRAPER_VERSION', '1.6');
+define('MERCK_SCRAPER_VERSION', '1.0.8');
 
 /**
  * This constant is used to save the logs to a specific directory
  */
 define("MERCK_SCRAPER_LOG_DIR", WP_CONTENT_DIR . '/ms-logs');
 
-define("MERCK_SCRAPER_API_LOG_DIR", MERCK_SCRAPER_LOG_DIR . "/api");
+define("MERCK_SCRAPER_API_LOG_DIR", WP_CONTENT_DIR . "/ms-logs/api");
 
 /**
  * The code that runs during plugin activation.
@@ -79,28 +77,43 @@ register_deactivation_hook(__FILE__, function () {
 });
 
 /**
- * This checks if ACF is activated, and warns the user that it's required to function properly
+ * This checks if ACF and SitePress are activated, and warns the user that it's required to function properly
  */
-if (!class_exists('ACF')) {
+if (!class_exists('ACF') || !class_exists('SitePress')) {
     add_action('admin_notices', function () {
-        if (!class_exists('ACF')) {
-            printf(
-                '<div class="error"><h3>%s</h3><p>%s</p><p>%s</p></div>',
-                __('Warning', 'merck-scraper'),
+        function printError($plugin_name)
+        :string
+        {
+            return sprintf(
+                '<div class="error"><h3>%s</h3>%s%s%s</div>',
+                __('Error', 'merck-scraper'),
                 sprintf(
-                    __('The plugin %s requires Advanced Custom Fields to be installed.', 'merck-scraper'),
-                    '<strong>Merck Scraper</strong>'
+                    __("The plugin %s requires $plugin_name to be installed.", 'merck-scraper'),
+                    '<strong>Merck Scraper - WPML</strong>'
                 ),
                 sprintf(
+                    '<p>%s</p>',
                     __(
-                        'Please install or activate Advanced Custom Fields and try again.',
+                        "Please install or activate $plugin_name and try again.",
                         'merck-scraper'
                     )
-                )
+                ),
+                $plugin_name === 'WordPress Multi-language' ?
+                    sprintf(
+                        '<p>%s</p>',
+                        __("Consider using the other version of Merck Scraper plugin, which doesn't rely on WPML", 'merck-scraper'),
+                    )
+                    : '',
             );
         }
-    },
-               20);
+
+        if (!class_exists('ACF')) {
+            printf('%s', printError('Advanced Custom Fields'));
+        }
+        if (!class_exists('SitePress')) {
+            printf('%s', printError('WordPress Multi-language'));
+        }
+    }, 20);
     MSDeactivator::deactivate();
 }
 
@@ -115,6 +128,7 @@ if (!class_exists('ACF')) {
  */
 function run_ms()
 {
+    !is_dir(MERCK_SCRAPER_LOG_DIR) ? mkdir(MERCK_SCRAPER_LOG_DIR) : null;
     $plugin = new MSMainClass();
     $plugin->executePlugin();
 }
@@ -125,14 +139,14 @@ run_ms();
  * This is the cron job setup function
  */
 add_action('ms_govt_scrape_cron', function () {
-    $scaper_class = new MSAPIScraper();
+    $scraper_class = new MSApiScraper();
 
-    $logger = $scaper_class->setLogger('cron-job', 'cron', MERCK_SCRAPER_LOG_DIR . '/cron');
+    $logger = $scraper_class->setLogger('cron-job', 'cron', MERCK_SCRAPER_LOG_DIR . '/cron');
 
     try {
-        $scaper_class->apiImport();
+        $scraper_class->apiImport();
     } catch (Exception $exception) {
-        $logger->error(__("Erorr executing the cron job", 'merck-scraper'), $exception->getTrace());
+        $logger->error(__("Error executing the cron job", 'merck-scraper'), $exception->getTrace());
     }
 });
 

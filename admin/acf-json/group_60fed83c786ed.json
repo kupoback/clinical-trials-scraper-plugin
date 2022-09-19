@@ -112,7 +112,7 @@
             "label": "Clinical Trials API Location Search",
             "name": "clinical_trials_api_location_search",
             "type": "textarea",
-            "instructions": "Add country name here on each line and separate with semi-colons.",
+            "instructions": "These are countries to import. If importing all countries, but needing to omit a few, use the field below.<br \/>\r\nAdd country name here on each line and separate with semi-colons.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -120,11 +120,94 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "United States;",
             "placeholder": "",
             "maxlength": "",
             "rows": "",
             "new_lines": ""
+        },
+        {
+            "key": "field_620297931ce87",
+            "label": "Clinical Trials API Omit Location Search",
+            "name": "clinical_trials_api_omit_location_search",
+            "type": "textarea",
+            "instructions": "These are countries that should not be imported.<br \/>\r\nAdd country name here on each line and separate with semi-colons.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "wpml_cf_preferences": 0,
+            "default_value": "United States;",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": "",
+            "new_lines": ""
+        },
+        {
+            "key": "field_6202e0adc8335",
+            "label": "Clinical Trials Language Locations",
+            "name": "clinical_trials_api_language_locations",
+            "type": "repeater",
+            "instructions": "<p>Enter in the language and countries associated to this language.<\/p>\r\n<p>For the language, use the full name spelling of the language. This is how a country will be flagged for listing purposes on the front end of the website.<\/p>",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "wpml_cf_preferences": 1,
+            "collapsed": "field_6202e0c2c8336",
+            "min": 0,
+            "max": 0,
+            "layout": "block",
+            "button_label": "Add Language Map",
+            "sub_fields": [
+                {
+                    "key": "field_6202e0c2c8336",
+                    "label": "Language",
+                    "name": "language",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "wpml_cf_preferences": 1,
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                },
+                {
+                    "key": "field_6202e0c6c8337",
+                    "label": "Countries",
+                    "name": "countries",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "maxlength": "",
+                    "rows": 4,
+                    "new_lines": "",
+                    "wpml_cf_preferences": 1
+                }
+            ]
         },
         {
             "key": "field_617accc3db86e",
@@ -144,6 +227,26 @@
             "prepend": "",
             "append": "",
             "maxlength": ""
+        },
+        {
+            "key": "field_6238bf00c23f7",
+            "label": "Clinical Trials API Study Protocol Filter",
+            "name": "clinical_trials_api_study_protocol_filter",
+            "type": "textarea",
+            "instructions": "These are study protocol words to search for.<br \/>\r\nAdd each protocol word here on each line and separate with semi-colons.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "wpml_cf_preferences": 1,
+            "default_value": "keylynk;\r\nkeynote;\r\nkeyvibe;\r\nleap;\r\nlitespark;\r\nlynk;\r\nhopskip;",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": 4,
+            "new_lines": ""
         },
         {
             "key": "field_611e6d493a1bd",
@@ -566,7 +669,7 @@
     "instruction_placement": "label",
     "hide_on_screen": "",
     "active": true,
-    "description": "Option Settings for the Merck Scraper Plugin",
+    "description": "Option Settings for the Merck Scraper Plugin. Do not translate anything in here, as these are used for the API import only.",
     "show_in_rest": 0,
-    "modified": 1642182405
+    "modified": 1647886308
 }

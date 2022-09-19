@@ -1,8 +1,8 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Merck_Scraper\admin;
+namespace Merck_Scraper\Admin;
 
 use Merck_Scraper\Traits\MSApiTrait;
 use WP_Error;
@@ -15,7 +15,7 @@ use WP_REST_Server;
  * Registers the rest api for the scraper
  *
  * @package    Merck_Scraper
- * @subpackage Merck_Scraper/admin
+ * @subpackage Merck_Scraper/Admin
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
 class MSApiLogger
@@ -55,13 +55,13 @@ class MSApiLogger
     public function registerEndpoint()
     {
         // Returns the API Position
-        self::registerRoute('api-position', WP_REST_Server::READABLE, [$this, 'apiPosition']);
-        self::registerRoute('api-clear-position', WP_REST_Server::READABLE, [$this, 'apiClearPosition']);
+        $this->registerRoute('api-position', WP_REST_Server::READABLE, [$this, 'apiPosition']);
+        $this->registerRoute('api-clear-position', WP_REST_Server::READABLE, [$this, 'apiClearPosition']);
         // Returns all the directories in the MERCK_SCRAPER_LOG_DIR
-        self::registerRoute('api-directories', WP_REST_Server::READABLE, [$this, 'getLogDirs']);
+        $this->registerRoute('api-directories', WP_REST_Server::READABLE, [$this, 'getLogDirs']);
 
         // Returns all the log files
-        self::registerRoute(
+        $this->registerRoute(
             'api-log',
             WP_REST_Server::READABLE,
             [$this, 'apiLogger'],
@@ -76,7 +76,7 @@ class MSApiLogger
             ]
         );
         // Returns a log file
-        self::registerRoute(
+        $this->registerRoute(
             'api-get-log-file',
             WP_REST_Server::CREATABLE,
             [$this, 'apiGetLogFile'],
@@ -98,7 +98,7 @@ class MSApiLogger
         );
 
         // Deletes a specific file
-        self::registerRoute(
+        $this->registerRoute(
             'api-delete-file',
             WP_REST_Server::CREATABLE,
             [$this, 'apiDeleteFile'],
@@ -111,11 +111,11 @@ class MSApiLogger
                     },
                 ],
                 'filePath' => [
-                    'required' => true,
+                    'required'          => true,
                     'validate_callback' => function ($param) {
                         return is_string($param);
                     },
-                ]
+                ],
             ]
         );
     }
@@ -127,7 +127,7 @@ class MSApiLogger
      */
     public function apiPosition()
     {
-        return rest_ensure_response(self::importPosition());
+        return rest_ensure_response($this->importPosition());
     }
 
     /**
@@ -135,14 +135,13 @@ class MSApiLogger
      *
      * @return WP_REST_Request
      */
-    public function apiClearPosition()
-    :WP_REST_Request
+    public function apiClearPosition(): WP_REST_Request
     {
-        return rest_ensure_request(self::clearPosition());
+        return rest_ensure_request($this->clearPosition());
     }
 
     /**
-     * Grabs a list of the directories from the MERCK_SCRAPER_LOG_DIR to change which logs show in the admin
+     * Grabs a list of the directories from the MERCK_SCRAPER_LOG_DIR to change which logs show in the Admin
      *
      * @return WP_Error|WP_HTTP_Response|WP_REST_Response
      */
@@ -159,7 +158,7 @@ class MSApiLogger
                         'dirValue' => $directory,
                     ];
                 })
-            ->values()
+                ->values()
         );
     }
 
@@ -175,11 +174,11 @@ class MSApiLogger
         $dir_type = $request->get_param('dirType');
 
         if ($dir_type === 'api') {
-            $log_files = self::getFileNames($this->apiLogDir);
-            $err_files = self::getFileNames($this->apiErrDir);
+            $log_files = $this->getFileNames($this->apiLogDir);
+            $err_files = $this->getFileNames($this->apiErrDir);
         } else {
-            $log_files = self::getFileNames(MERCK_SCRAPER_LOG_DIR . "/$dir_type/log");
-            $err_files = self::getFileNames(MERCK_SCRAPER_LOG_DIR . "/$dir_type/error");
+            $log_files = $this->getFileNames(MERCK_SCRAPER_LOG_DIR . "/$dir_type/log");
+            $err_files = $this->getFileNames(MERCK_SCRAPER_LOG_DIR . "/$dir_type/error");
         }
 
         if ($log_files) {
@@ -194,7 +193,7 @@ class MSApiLogger
     }
 
     /**
-     * Method that returns the content from a log file from the wp-admin
+     * Method that returns the content from a log file from the wp-Admin
      *
      * @param WP_REST_Request $request
      *
@@ -209,16 +208,19 @@ class MSApiLogger
         if ($file_name && $file_type) {
             if ($dir_type === 'api') {
                 $file_dir = $file_type === 'success'
-                    ? $this->apiLogDir :
-                    ($file_type === 'err' ? $this->apiErrDir : null);
+                    ? $this->apiLogDir : ($file_type === 'err' ? $this->apiErrDir : null);
             } else {
-                $file_type === 'err' ? $file_type = 'error' : null;
-                $file_type === 'success' ? $file_type = 'log' : null;
+                if ($file_type === 'err') {
+                    $file_type = 'error';
+                } elseif ($file_type === 'success') {
+                    $file_type = 'log';
+                }
+
                 $file_dir = MERCK_SCRAPER_LOG_DIR . "/$dir_type/$file_type";
             }
 
             if (!is_null($file_dir)) {
-                return rest_ensure_response(self::getFileContents($file_name, $file_dir));
+                return rest_ensure_response($this->getFileContents($file_name, $file_dir));
             } else {
                 return rest_ensure_response(
                     new WP_Error(

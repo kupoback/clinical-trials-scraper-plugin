@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Merck_Scraper\Traits;
+namespace Merck_Scraper\Admin\Traits;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -21,24 +21,17 @@ trait MSApiField
     /**
      * Parses the IdentificationModule object field, returning the Post Title, NCTID, and Official Title field
      *
-     * @param object $id_module The IdentificationModule object from the gov't API data
+     * @param object $id_module The IdentificationModule object from the govt API data
      *
      * @return Collection
      */
     protected function parseId(object $id_module)
     :Collection
     {
-        // $protocol_id  = collect();
         $other_ids = collect($id_module->SecondaryIdInfoList->SecondaryIdInfo ?? []);
-        if ($other_ids->isNotEmpty()) {
-            // $protocol_id = $other_ids
-            //     ->filter(function ($second_id) use ($org_study_id) {
-            //         return str_contains(($second_id->SecondaryId ?? ''), $org_study_id);
-            //     })
-            //     ->map(function ($second_id) {
-            //         return $second_id->SecondaryId;
-            //     });
+        $study_protocol = collect();
 
+        if ($other_ids->isNotEmpty()) {
             $other_ids = $other_ids
                 ->map(function ($second_id) {
                     return $second_id->SecondaryId ?? '';
@@ -46,11 +39,44 @@ trait MSApiField
                 ->filter();
         }
 
-        $base_url = self::acfOptionField('clinical_trials_show_page');
+        $base_url = $this->acfOptionField('clinical_trials_show_page');
 
         $title = '';
         if ($id_module->BriefTitle !== null) {
-            $title = self::filterParenthesis($id_module->BriefTitle);
+            $title          = $this->filterParenthesis($id_module->BriefTitle);
+            $study_keywords = self::extractParenthesis($id_module->BriefTitle);
+            if (!empty($study_keywords)) {
+                $study_protocol = collect($study_keywords)
+                    ->map(function ($keywords) {
+                        $keywords = explode('/', $keywords);
+                        if (!empty($keywords)) {
+                            return collect($keywords)
+                                ->filter(function ($keyword) {
+                                    $id = Str::lower(
+                                        preg_replace(
+                                            "/[^[:alpha:]]/u",
+                                            '',
+                                            $keyword
+                                        )
+                                    );
+                                    return $this->protocolNames->search($id);
+                                })
+                                ->map(function ($keyword) {
+                                    return Str::title(
+                                        preg_replace(
+                                            "/[^[:alnum:]]/u",
+                                            ' ',
+                                            $keyword
+                                        )
+                                    );
+                                })
+                                ->first();
+                        }
+                        return false;
+                    })
+                    ->filter()
+                    ->values();
+            }
         }
 
         return collect(
@@ -64,6 +90,8 @@ trait MSApiField
                 'study_keyword'  => $id_module
                         ->OrgStudyIdInfo
                         ->OrgStudyId ?? '',
+                'study_protocol' => $study_protocol
+                    ->first(),
             ]
         );
     }
@@ -127,16 +155,14 @@ trait MSApiField
     :Collection
     {
         return collect(
-            [
-
-            ]
+            []
         );
     }
 
     /**
      * Parses the Description Module, returning the Brief Summary as post content
      *
-     * @param $description_module
+     * @param object $description_module
      *
      * @return Collection
      */
@@ -163,12 +189,8 @@ trait MSApiField
     {
         return collect(
             [
-                'conditions' => $condition_module
-                        ->ConditionList
-                        ->Condition ?? [],
-                'keywords'   => $condition_module
-                        ->KeywordList
-                        ->Keyword ?? [],
+                'conditions' => $this->standardizeArrayWords($condition_module->ConditionList->Condition ?? []),
+                'keywords'   => $this->standardizeArrayWords($condition_module->KeywordList->Keyword ?? []),
             ]
         );
     }
@@ -328,26 +350,32 @@ trait MSApiField
     /**
      * Parses the Contacts Locations Module, returning a collection for the Location field
      *
-     * @param object $location_module   The location array data grabbed
+     * @param object $location_module The location array data grabbed
+     * @param object $trial_status    The status of the trial
      *
      * @return Collection
      */
-    protected function parseLocation(object $location_module)
+    protected function parseLocation(object $location_module, object $trial_status)
     :Collection
     {
-        $status = $this->trialStatus
+        $import_trial         = true;
+        $allowed_status       = $this->trialStatus
             ->toArray();
-        $country_names = $this->trialLocations
-            ->toArray();
+        $allowed_countries    = $this->allowedTrialLocations;
+        $disallowed_countries = $this->disallowedTrialLocations;
         /**
          * Map through all the locations, and set them up for import. During this time
          * we will be getting the latitude and longitude from Google Maps
          */
         $locations = collect($location_module->LocationList->Location ?? []);
         if ($locations->isNotEmpty()) {
-            $locations = $locations
-                ->map(function ($location) use ($country_names, $status) {
+            $trial_status = $trial_status->OverallStatus ?? '';
+            $locations    = $locations
+                ->map(function ($location) use ($allowed_countries, $allowed_status, $disallowed_countries, $trial_status) {
                     $location_status = $location->LocationStatus ?? '';
+                    $country         = $location->LocationCountry ?? '';
+                    $has_status      = false;
+                    $in_array        = false;
 
                     /**
                      * Grab the phone number for the contact
@@ -357,26 +385,52 @@ trait MSApiField
                         $phone = $contact_list->LocationContact[0]->LocationContactPhone ?? '';
                     }
 
-                    if (in_array(Str::lower($location->LocationCountry), $country_names)
-                        && in_array(Str::lower($location_status), $status)) {
+                    if ($allowed_countries->isNotEmpty()) {
+                        $in_array = $allowed_countries->search(Str::lower($country));
+                    } elseif ($disallowed_countries->isNotEmpty()) {
+                        $in_array = $disallowed_countries->search(Str::lower($country));
+                    }
+
+                    if (in_array(Str::lower($location_status), $allowed_status) || $trial_status) {
+                        $has_status = true;
+                    }
+
+                    $languages = $this->mapLanguage($country);
+
+                    if (is_bool($in_array) && $has_status) {
                         return [
                             'city'              => $location->LocationCity ?? '',
-                            'country'           => $location->LocationCountry ?? '',
-                            'facility'          => self::filterParenthesis($location->LocationFacility ?? ''),
-                            'recruiting_status' => $location_status,
+                            'country'           => $country,
+                            'facility'          => trim($this->filterParenthesis($location->LocationFacility ?? '')),
+                            'id'                => Str::camel(sanitize_title($location->LocationFacility ?? '')),
+                            'phone'             => $phone ?? '',
+                            'post_title'        => strtr(
+                                $location->LocationFacility ?? '',
+                                [
+                                    '( ' => '(',
+                                    ' )' => ')',
+                                ]
+                            ),
+                            'location_language' => $languages->isNotEmpty() ? $languages->implode(';') : "All",
+                            'recruiting_status' => $location_status ?: $trial_status,
                             'state'             => $location->LocationState ?? '',
                             'zip'               => $location->LocationZip ?? '',
-                            'phone'             => $phone ?? '',
                         ];
                     }
                     return false;
                 })
-                ->filter();
+                ->filter()
+                ->values();
+
+            if ($locations->isEmpty()) {
+                $import_trial = false;
+            }
         }
 
         return collect(
             [
                 'locations' => $locations,
+                'import'    => $import_trial,
             ]
         );
     }
@@ -392,16 +446,14 @@ trait MSApiField
     :Collection
     {
         return collect(
-            [
-
-            ]
+            []
         );
     }
 
     /**
      * Sets up the array needed to create or update a post
      *
-     * @param array $post_args The post args to setup for an wp_insert_post or wp_create_post
+     * @param array $post_args The post args to set up for a wp_insert_post or wp_create_post
      *
      * @return array
      */
@@ -409,10 +461,10 @@ trait MSApiField
     :array
     {
         return [
-            'post_title'   => $post_args['title'],
-            'post_name'    => sanitize_title($post_args['slug']),
-            'post_content' => $post_args['content'],
-            'post_excerpt' => $post_args['content'] ? Helper::generateExcerpt($post_args['content'], 31) : '',
+            'post_title'   => $post_args['title'] ?? '',
+            'post_name'    => sanitize_title($post_args['slug'] ?? ($post_args['title'] ?? '')),
+            'post_content' => $post_args['content'] ?? '',
+            'post_excerpt' => isset($post_args['content']) ? Helper::generateExcerpt($post_args['content'], 31) : '',
         ];
     }
 
@@ -446,7 +498,20 @@ trait MSApiField
      */
     protected function filterParenthesis(string $text)
     {
-        return preg_replace('#\([^)]+\)#i', '', strval($text));
+        return preg_replace('#\([^)]+\)#i', '', $text);
+    }
+
+    /**
+     * Quick filter to extract only the items in parentheses
+     *
+     * @param string $text
+     *
+     * @return array|false|int
+     */
+    protected function extractParenthesis(string $text)
+    {
+        preg_match_all('#\((.*?)\)#', $text, $parenthesis_text);
+        return $parenthesis_text[1] ?? [];
     }
 
     /**
@@ -456,7 +521,7 @@ trait MSApiField
      * @param mixed  $field_data The data to save
      * @param int    $post_id    The post ID to save to
      *
-     * @return bool|int
+     * @return bool
      */
     protected function updateACF(string $field_name, $field_data, int $post_id)
     {
@@ -464,55 +529,91 @@ trait MSApiField
     }
 
     /**
-     * Maps through the Trials Field group and parses the data for importing
+     * Maps through the ACF group ID to use for import
      *
-     * @return Collection|mixed
+     * @param string $acf_field The ACF Group ID
+     *
+     * @return Collection
      */
-    protected function trialsFieldGroup()
+    protected function getFieldGroup(string $acf_field)
+    :Collection
     {
-        $fields = collect(
-            acf_get_fields('group_60fae8b82087d')
-        );
+        $fields = collect(acf_get_fields($acf_field));
 
-        $ignored_fields = ['tab', 'message'];
+        return $fields->isNotEmpty() ? self::mapAcfGroup($fields) : collect();
+    }
 
-        if ($fields->isNotEmpty()) {
-            return $fields
-                ->filter(function ($field) use ($ignored_fields) {
-                    return $field['type'] && !in_array($field['type'], $ignored_fields);
-                })
-                ->map(function ($field) use ($ignored_fields) {
-                    $field_name = $field['name'] ?? '';
-                    $field_arr  = [
-                        'data_name'     => str_replace('api_data_', '', $field_name),
-                        'default_value' => $field['default_value'] ?? false,
-                        'key'           => $field['key'] ?? false,
-                        'name'          => $field_name ?: false,
-                        'type'          => $field['type'] ?? false,
-                    ];
+    /**
+     * This function will take a single item array and loop through it, removing any parenthesis
+     * and return the capitalization of each first word
+     *
+     * @param array $collection
+     *
+     * @return array
+     */
+    protected function standardizeArrayWords(array $collection)
+    :array
+    {
+        return collect($collection)
+            ->filter()
+            ->map(function ($keyword) {
+                if ($keyword) {
+                    return ucwords($this->filterParenthesis($keyword));
+                }
+                return false;
+            })
+            ->filter()
+            ->toArray();
+    }
 
-                    $sub_fields = $field['sub_fields'] ?? false;
-                    if ($sub_fields) {
-                        $field_arr['sub_fields'] = collect($sub_fields)
-                            ->map(function ($sub_field) use ($ignored_fields) {
-                                if ($sub_field['type'] && !in_array($sub_field['type'], $ignored_fields)) {
-                                    return [
-                                        'default_value' => $sub_field['default_value'] ?? false,
-                                        'key'           => $sub_field['key'] ?? false,
-                                        'name'          => $sub_field['name'] ?? false,
-                                        'type'          => $sub_field['type'],
-                                    ];
-                                }
-                                return false;
-                            })
-                            ->filter()
-                            ->values();
-                    }
-                    return $field_arr;
-                })
-                ->values();
-        }
+    /**
+     * Maps through a Collection of ACF fields provided, ignoring any defined ones.
+     *
+     * @param Collection $fields         A collection of the ACF Group ID
+     * @param array      $ignored_fields Any field types to ignore. Defaults are tab and message
+     *
+     * @return Collection
+     */
+    protected function mapAcfGroup(Collection $fields, array $ignored_fields = [])
+    :Collection
+    {
+        $default_ignore = ['tab', 'message'];
 
-        return collect([]);
+        $ignored_fields = wp_parse_args($ignored_fields, $default_ignore);
+
+        return $fields
+            ->filter(function ($field) use ($ignored_fields) {
+                return $field['type'] && !in_array($field['type'], $ignored_fields);
+            })
+            ->map(function ($field) use ($ignored_fields) {
+                $field_name = $field['name'] ?? '';
+                $field_arr  = [
+                    'data_name'     => str_replace('api_data_', '', $field_name),
+                    'default_value' => $field['default_value'] ?? false,
+                    'key'           => $field['key'] ?? false,
+                    'name'          => $field_name ?: false,
+                    'type'          => $field['type'] ?? false,
+                ];
+
+                $sub_fields = $field['sub_fields'] ?? false;
+                if ($sub_fields) {
+                    $field_arr['sub_fields'] = collect($sub_fields)
+                        ->map(function ($sub_field) use ($ignored_fields) {
+                            if ($sub_field['type'] && !in_array($sub_field['type'], $ignored_fields)) {
+                                return [
+                                    'default_value' => $sub_field['default_value'] ?? false,
+                                    'key'           => $sub_field['key'] ?? false,
+                                    'name'          => $sub_field['name'] ?? false,
+                                    'type'          => $sub_field['type'],
+                                ];
+                            }
+                            return false;
+                        })
+                        ->filter()
+                        ->values();
+                }
+                return $field_arr;
+            })
+            ->values();
     }
 }

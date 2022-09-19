@@ -15,6 +15,7 @@
                 "class": "full message-title header-title",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "message": "",
             "new_lines": "wpautop",
             "esc_html": 0
@@ -32,6 +33,7 @@
                 "class": "full no-label",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "message": "The Post Title and Post Content are automatically pulled from the API, and pre-populated. However, once the trial is imported, the title and content can be overwritten without fear of the API deleting that content.",
             "new_lines": "wpautop",
             "esc_html": 0
@@ -49,6 +51,7 @@
                 "class": "full",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -68,6 +71,7 @@
                 "class": "full",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -84,9 +88,10 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-third",
+                "class": "one-quarter",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -103,9 +108,10 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-third",
+                "class": "one-quarter",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -122,9 +128,30 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-third",
+                "class": "one-quarter",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_6238be99f242f",
+            "label": "Study Protocol",
+            "name": "api_data_study_protocol",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "one-quarter",
+                "id": ""
+            },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -144,6 +171,7 @@
                 "class": "full",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "maxlength": "",
@@ -163,6 +191,7 @@
                 "class": "one-half",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "return_format": "array"
         },
         {
@@ -178,6 +207,7 @@
                 "class": "one-half",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": ""
         },
@@ -194,6 +224,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -213,6 +244,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -234,6 +266,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -255,6 +288,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "maxlength": "",
@@ -274,6 +308,7 @@
                 "class": "full message-title header-title",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "message": "",
             "new_lines": "wpautop",
             "esc_html": 0
@@ -291,6 +326,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -310,6 +346,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -329,6 +366,7 @@
                 "class": "one-third",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -348,6 +386,7 @@
                 "class": "full message-title header-title",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "message": "",
             "new_lines": "wpautop",
             "esc_html": 0
@@ -365,6 +404,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "collapsed": "",
             "min": 0,
             "max": 0,
@@ -384,6 +424,7 @@
                         "class": "one-half",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -403,6 +444,7 @@
                         "class": "one-half",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -424,6 +466,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 3,
             "collapsed": "",
             "min": 0,
             "max": 0,
@@ -443,6 +486,7 @@
                         "class": "",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 3,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -452,10 +496,10 @@
             ]
         },
         {
-            "key": "field_611a91b08b082",
-            "label": "Locations",
-            "name": "api_data_locations",
-            "type": "repeater",
+            "key": "field_622114414451d",
+            "label": "Location IDs",
+            "name": "api_data_location_ids",
+            "type": "text",
             "instructions": "",
             "required": 0,
             "conditional_logic": 0,
@@ -464,207 +508,12 @@
                 "class": "",
                 "id": ""
             },
-            "collapsed": "field_611a91c18b083",
-            "min": 0,
-            "max": 0,
-            "layout": "block",
-            "button_label": "Add Location",
-            "sub_fields": [
-                {
-                    "key": "field_611a91c18b083",
-                    "label": "Facility",
-                    "name": "facility",
-                    "type": "text",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "one-third",
-                        "id": ""
-                    },
-                    "default_value": "",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "maxlength": ""
-                },
-                {
-                    "key": "field_611a91ca8b084",
-                    "label": "Recruiting Status",
-                    "name": "recruiting_status",
-                    "type": "text",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "one-third",
-                        "id": ""
-                    },
-                    "default_value": "",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "maxlength": ""
-                },
-                {
-                    "key": "field_615c734be3174",
-                    "label": "Phone",
-                    "name": "phone",
-                    "type": "text",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "one-third",
-                        "id": ""
-                    },
-                    "default_value": "",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "maxlength": ""
-                },
-                {
-                    "key": "field_612d42b9e845e",
-                    "label": "Street",
-                    "name": "street",
-                    "type": "text",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "",
-                        "id": ""
-                    },
-                    "default_value": "",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "maxlength": ""
-                },
-                {
-                    "key": "field_611a91d78b085",
-                    "label": "City",
-                    "name": "city",
-                    "type": "text",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "one-third",
-                        "id": ""
-                    },
-                    "default_value": "",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "maxlength": ""
-                },
-                {
-                    "key": "field_611a91e88b086",
-                    "label": "State",
-                    "name": "state",
-                    "type": "text",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "one-third",
-                        "id": ""
-                    },
-                    "default_value": "",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "maxlength": ""
-                },
-                {
-                    "key": "field_611a91ef8b087",
-                    "label": "Zipcode",
-                    "name": "zipcode",
-                    "type": "text",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "one-third",
-                        "id": ""
-                    },
-                    "default_value": "",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "maxlength": ""
-                },
-                {
-                    "key": "field_611a91f68b088",
-                    "label": "Country",
-                    "name": "country",
-                    "type": "text",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "one-third",
-                        "id": ""
-                    },
-                    "default_value": "",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "maxlength": ""
-                },
-                {
-                    "key": "field_612d26c3e0258",
-                    "label": "Latitude",
-                    "name": "latitude",
-                    "type": "number",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "one-third",
-                        "id": ""
-                    },
-                    "default_value": "",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "min": "",
-                    "max": "",
-                    "step": ""
-                },
-                {
-                    "key": "field_612d26cbe0259",
-                    "label": "Longitude",
-                    "name": "longitude",
-                    "type": "number",
-                    "instructions": "",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "one-third",
-                        "id": ""
-                    },
-                    "default_value": "",
-                    "placeholder": "",
-                    "prepend": "",
-                    "append": "",
-                    "min": "",
-                    "max": "",
-                    "step": ""
-                }
-            ]
+            "wpml_cf_preferences": 0,
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
         }
     ],
     "location": [
@@ -685,5 +534,5 @@
     "active": true,
     "description": "Default Fields that are mapped and imported from the Merck Scraper",
     "show_in_rest": 0,
-    "modified": 1637697419
+    "modified": 1647886040
 }

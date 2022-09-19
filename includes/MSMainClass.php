@@ -2,21 +2,22 @@
 
 declare(strict_types = 1);
 
-namespace Merck_Scraper\includes;
+namespace Merck_Scraper\Includes;
 
-use Merck_Scraper\admin\MSAdmin;
-use Merck_Scraper\admin\MSApiLogger;
-use Merck_Scraper\admin\MSAPIScraper;
-use Merck_Scraper\admin\MSCustomPT;
-use Merck_Scraper\admin\MSCustomTax;
-use Merck_Scraper\admin\MSOptionsPage;
-use Merck_Scraper\frontend\MSFrontEndAPI;
-use Merck_Scraper\frontend\MSPublic;
+use Merck_Scraper\Admin\MSAdmin;
+use Merck_Scraper\Admin\MSApiLogger;
+use Merck_Scraper\Admin\MSApiScraper;
+use Merck_Scraper\Admin\MSCustomPT;
+use Merck_Scraper\Admin\MSCustomTax;
+use Merck_Scraper\Admin\MSLocationMetaBox;
+use Merck_Scraper\Admin\MSOptionsPage;
+use Merck_Scraper\Frontend\MSFrontEndAPI;
+use Merck_Scraper\Frontend\MSPublic;
 
 /**
  * The core plugin class.
  *
- * This is used to define internationalization, admin-specific hooks, and
+ * This is used to define internationalization, Admin-specific hooks, and
  * frontend-facing site hooks.
  *
  * Also maintains the unique identifier of this plugin as well as the current
@@ -62,7 +63,7 @@ class MSMainClass
      * Define the core functionality of the plugin.
      *
      * Set the plugin name and the plugin version that can be used throughout the plugin.
-     * Load the dependencies, define the locale, and set the hooks for the admin area and
+     * Load the dependencies, define the locale, and set the hooks for the Admin area and
      * the frontend-facing side of the site.
      *
      * @since    1.0.0
@@ -89,7 +90,7 @@ class MSMainClass
      *
      * - Merck_Scraper_Loader. Orchestrates the hooks of the plugin.
      * - Merck_Scraper_i18n. Defines internationalization functionality.
-     * - Merck_Scraper_Admin. Defines all hooks for the admin area.
+     * - Merck_Scraper_Admin. Defines all hooks for the Admin area.
      * - Merck_Scraper_Public. Defines all hooks for the frontend side of the site.
      *
      * Create an instance of the loader which will be used to register the hooks
@@ -120,7 +121,7 @@ class MSMainClass
     }
 
     /**
-     * Register all of the hooks related to the admin area functionality
+     * Register all of the hooks related to the Admin area functionality
      * of the plugin.
      *
      * @since    1.0.0
@@ -147,10 +148,11 @@ class MSMainClass
          * including filters and searching for custom ACF field
          */
         $this->loader->addAction('pre_get_posts', $plugin_admin, 'trialsAdminQuery');
+        $this->loader->addAction('before_delete_post', $plugin_admin, 'removeTrialLocations', 99, 2);
         $this->loader->addFilter('manage_edit-trials_sortable_columns', $plugin_admin, 'filterCustomCol');
         $this->loader->addFilter('posts_join', $plugin_admin, 'trialsAdminJoin');
         $this->loader->addFilter('posts_where', $plugin_admin, 'trialsAdminWhere');
-        $this->loader->addFilter('posts_distinct', $plugin_admin, 'trialsAdminDistc');
+        $this->loader->addFilter('posts_distinct', $plugin_admin, 'trialsAdminDistinct');
 
         // ACF JSON related
         $this->loader->addAction('acf/update_field_group', $plugin_admin, 'saveACFJson', 1, 1);
@@ -176,9 +178,13 @@ class MSMainClass
         $this->loader->addAction('init', $admin_taxonomy, 'registerTaxonomy');
 
         // Registers the Scraper API
-        $scraper_api = new MSAPIScraper();
+        $scraper_api = new MSApiScraper();
         $this->loader->addAction('rest_api_init', $scraper_api, 'registerEndpoint');
         // $this->loader->addAction('init', $scraper_api, 'registerCronType');
+
+        $location_meta_box = new MSLocationMetaBox;
+        $this->loader->addAction('add_meta_boxes', $location_meta_box, 'addMetaBoxes');
+        // $this->loader->addAction('save_post', $location_meta_box, 'savePost');
     }
 
     /**

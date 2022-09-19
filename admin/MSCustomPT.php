@@ -2,15 +2,15 @@
 
 declare(strict_types = 1);
 
-namespace Merck_Scraper\admin;
+namespace Merck_Scraper\Admin;
 
-use Merck_Scraper\Traits\MSAdminTrait;
+use Merck_Scraper\Admin\Traits\MSAdminTrait;
 
 /**
  * Registers the custom post type for the plugin
  *
  * @package    Merck_Scraper
- * @subpackage Merck_Scraper/admin
+ * @subpackage Merck_Scraper/Admin
  * @author     Clique Studios <buildsomething@cliquestudios.com>
  */
 class MSCustomPT
@@ -20,20 +20,45 @@ class MSCustomPT
 
     /**
      * Registers all necessary post types
+     * @link WordPressDasicons https://developer.wordpress.org/resource/dashicons/
      */
     public function registerPostType()
     {
-        $post_args = [];
-
-        // CPT Trials
-        $post_args["trials"] = self::postTypeArray(
-            'Trial',
-            'dashicons-analytics',
-            __("This post type is used to store trials scraped from the gov't api.", 'merck-scraper')
-        );
-
-        foreach ($post_args as $post_type => $pt_args) {
-            register_post_type($post_type, $pt_args);
-        }
+        collect(
+            [
+                'trials' => $this->postTypeArray(
+                    'Trial',
+                    'dashicons-analytics',
+                    __("This post type is used to store trials scraped from the govt api.", 'merck-scraper'),
+                    'post',
+                    [
+                        'rewrite' => [
+                            'slug'       => 'trial',
+                            'with_front' => true,
+                            'pages'      => true,
+                            'feeds'      => true,
+                        ],
+                    ]
+                ),
+                'locations' => $this->postTypeArray(
+                    'Location',
+                    'dashicons-admin-site',
+                    __("This post type is used to store trial locations scraped from the govt api.", 'merck-scraper'),
+                    'post',
+                    [
+                        'rewrite' => [
+                            'slug'       => 'location',
+                            'with_front' => false,
+                            'pages'      => false,
+                            'feeds'      => false,
+                        ],
+                        'supports' => ['title', 'editor', 'revisions']
+                    ],
+                ),
+            ]
+        )
+            ->each(function ($pt_args, $post_type) {
+                register_post_type($post_type, $pt_args);
+            });
     }
 }

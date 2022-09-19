@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Merck_Scraper\Traits;
 
@@ -22,9 +22,7 @@ trait MSGoogleMaps
     use MSHttpCallback;
 
     /**
-     * The google maps API key
-     *
-     * @var string
+     * @var string The Google Maps API key
      */
     private string $apiKey = '';
 
@@ -38,22 +36,25 @@ trait MSGoogleMaps
     private string $googleApiUrl = 'https://maps.googleapis.com';
 
     /**
-     * The endpoint to get the geocode
-     *
-     * @var string $geoCodeEP
+     * @var string $geoCodeEP The endpoint to get the geocode
      */
     private string $geoCodeEP = '/maps/api/geocode/json';
 
     /**
-     * The error message for REST API
-     *
-     * @var array
+     * @var array The error message for REST API
      */
     private array $error;
 
+    /**
+     * Grabs the full locations' data from Google's Map API
+     *
+     * @param array $location
+     *
+     * @return Collection|mixed|WP_Error
+     */
     protected function getFullLocation(array $location = [])
     {
-        $gm_api_callback = self::googleMapsApiCB(
+        $gm_api_callback = $this->googleMapsApiCB(
             collect($location)
                 ->map(function ($location) {
                     return urlencode($location);
@@ -62,7 +63,7 @@ trait MSGoogleMaps
         );
 
         if (!is_wp_error($gm_api_callback)) {
-            $address = self::parseAddress(collect($gm_api_callback->address_components));
+            $address = $this->parseAddress(collect($gm_api_callback->address_components));
             if ($gm_api_callback->geometry->location ?? false) {
                 $address->put('latitude', $gm_api_callback->geometry->location->lat);
                 $address->put('longitude', $gm_api_callback->geometry->location->lng);
@@ -83,7 +84,7 @@ trait MSGoogleMaps
      */
     protected function getLatLng(array $location = [])
     {
-        $gm_api_callback = self::googleMapsApiCB(
+        $gm_api_callback = $this->googleMapsApiCB(
             collect($location)
                 ->implode('+')
         );
@@ -92,6 +93,7 @@ trait MSGoogleMaps
                 return $gm_api_callback->geometry->location ?? false;
             }
         }
+
         return $gm_api_callback;
     }
 
@@ -102,8 +104,7 @@ trait MSGoogleMaps
      *
      * @return Collection
      */
-    protected function parseAddress(Collection $address)
-    :Collection
+    protected function parseAddress(Collection $address): Collection
     {
         if ($address->isNotEmpty()) {
             $accepted_types = [
@@ -154,9 +155,9 @@ trait MSGoogleMaps
             $street_name   = $address->pull('route');
 
             if ($subpremise && $street_number && $street_name) {
-                $street_address = "{$subpremise} {$street_number} {$street_name}";
+                $street_address = "$subpremise $street_number $street_name";
             } elseif (!$subpremise && $street_number && $street_name) {
-                $street_address = "{$street_number} {$street_name}";
+                $street_address = "$street_number $street_name";
             } else {
                 $street_address = $street_name ?: '';
             }
@@ -176,20 +177,20 @@ trait MSGoogleMaps
      */
     protected function googleMapsApiCB(string $address)
     {
-        $geocode_api_key = self::acfOptionField('google_maps_server_side_api_key');
-
-        if ($geocode_api_key) {
-            $response = self::httpCallback(
+        set_time_limit(120);
+        ini_set('max_execution_time', '120');
+        if ($this->gmApiKey ?? false) {
+            $response = $this->httpCallback(
                 $this->googleApiUrl,
                 $this->geoCodeEP,
                 "GET",
                 [
                     'address' => $address,
-                    'key'     => $geocode_api_key,
+                    'key'     => $this->gmApiKey,
                 ],
                 [
                     'http_args' => [
-                        'delay' => 200,
+                        'delay' => 150,
                     ],
                     'guzzle'    => [
                         'verify' => true,
@@ -204,9 +205,12 @@ trait MSGoogleMaps
                 if ($body_res->status === 'OK' && !empty($body_res->results)) {
                     return $body_res->results[0];
                 } else {
+                    $this
+                        ->errorLog
+                        ->error("Error getting location", (array) $body_res);
                     return new WP_Error(
                         $response->getStatusCode(),
-                        "Unable to get location." . PHP_EOL . ($body_res->error_message ?? '')
+                        "Unable to get location."
                     );
                 }
             }

@@ -52,7 +52,7 @@ trait MSLoggerTrait
         $file_name = str_replace('.log', '', $file_name);
 
         // Setup our StreamHandler and set our formatter
-        $stream    = new StreamHandler("{$file_path}/{$file_name}.log", $logger_type);
+        $stream    = new StreamHandler("$file_path/$file_name.log", $logger_type);
         $stream->setFormatter($formatter);
 
         $logger = new Logger($name);

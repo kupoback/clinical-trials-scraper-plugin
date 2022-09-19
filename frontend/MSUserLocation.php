@@ -1,8 +1,8 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Merck_Scraper\frontend;
+namespace Merck_Scraper\Frontend;
 
 /**
  * Plugin Classes
@@ -13,11 +13,9 @@ use Geocoder\Collection;
 use Geocoder\Exception\Exception;
 use Geocoder\Provider\FreeGeoIp\FreeGeoIp;
 use Geocoder\Provider\Provider;
-use Geocoder\Provider\GeoPlugin\GeoPlugin;
 use Geocoder\ProviderAggregator;
 use Geocoder\Query\GeocodeQuery;
 use Http\Adapter\Guzzle7\Client;
-use Monolog\Logger;
 use WP_Error;
 
 /**
@@ -66,8 +64,6 @@ class MSUserLocation
      */
     private array $errReturn;
 
-    private Logger $logger;
-
     /**
      * MSUserLocation __construct
      *
@@ -75,7 +71,7 @@ class MSUserLocation
      * @param array{Provider} $provider     An array of service providers to override the FreeGeoIp used
      * @param string          $using_name   The service providers using name.
      */
-    public function __construct(string $userLocation = '', array $provider = [], string $using_name = 'geo_plugin')
+    public function __construct(string $userLocation = '', array $provider = [], string $using_name = 'free_geo_ip')
     {
         $this->userLocation = $userLocation;
         $this->noUserIp     = new Error("No user IP defined", 400);
@@ -85,7 +81,7 @@ class MSUserLocation
         if (!empty($provider)) {
             $this->provider = $provider;
         } else {
-            $this->provider = [new GeoPlugin(new Client())];
+            $this->provider = [new FreeGeoIp(new Client())];
         }
     }
 
@@ -103,7 +99,7 @@ class MSUserLocation
         $err_return              = $this->errReturn;
         $err_return['locations'] = [];
 
-        $results = self::geoQueryCallback();
+        $results = $this->geoQueryCallback();
 
         if (!$results->isEmpty() && !is_wp_error($results)) {
             return [
@@ -141,7 +137,7 @@ class MSUserLocation
         $err_return             = $this->errReturn;
         $err_return['location'] = [];
 
-        $results = self::geoQueryCallback();
+        $results = $this->geoQueryCallback();
 
         if (!$results->isEmpty() && !is_wp_error($results)) {
             $first_result = $results->first();
@@ -155,8 +151,7 @@ class MSUserLocation
                     'adminLvlFullname' => $first_result
                         ->getAdminLevels()
                         ->first()
-                        ->getName()
-                    ,
+                        ->getName(),
                     'coordinates'      => [
                         'lat' => $first_result
                             ->getCoordinates()
@@ -182,38 +177,6 @@ class MSUserLocation
     }
 
     /**
-     * Returns the Users Country based on their IP address
-     *
-     * @return array|Error|false
-     */
-    public function returnUserCountry()
-    {
-        if (!$this->userLocation) {
-            return $this->noUserIp;
-        }
-
-        $location = self::geoQueryCallback();
-
-        if (!is_wp_error($location)) {
-            return [
-                'err'      => false,
-                'location' => [
-                    'countryName' => $location
-                        ->first()
-                        ->getCountry()
-                        ->getName(),
-                    'countryCode'      => $location
-                        ->first()
-                        ->getCountry()
-                        ->getCode(),
-                ],
-            ];
-        }
-
-        return false;
-    }
-
-    /**
      * Grabs the users zipcode based on their IP
      *
      * @return array|bool[]|Error
@@ -230,7 +193,7 @@ class MSUserLocation
         $err_return['zipcode']     = false;
         $err_return['coordinates'] = false;
 
-        $results = self::geoQueryCallback();
+        $results = $this->geoQueryCallback();
 
         if (!$results->isEmpty() && !is_wp_error($results)) {
             $first_result = $results->first();
@@ -255,7 +218,11 @@ class MSUserLocation
     /**
      * Sets up the provider with Free Geo IP
      *
-     * @return Collection|WP_Error
+     * @param null|Provider $provider
+     * @param string        $provider_using_name
+     *
+     * @return Error|Collection|WP_Error
+     * @throws Exception
      */
     protected function geoQueryCallback()
     {
@@ -267,11 +234,10 @@ class MSUserLocation
                 ->using($this->usingName)
                 ->geocodeQuery(GeocodeQuery::create($this->userLocation));
         } catch (Exception $exception) {
-            $this->logger = self::initLogger('geolocate', 'iplookup', MERCK_SCRAPER_LOG_DIR . '/iplookup');
-            $this->logger
-                ->error(
-                    "Provider or Providers Using Name is incorrectly set or missing. {$exception->getMessage()}"
-                );
+            $logger = $this->initLogger('geolocate', 'iplookup', MERCK_SCRAPER_LOG_DIR . '/iplookup');
+            $logger->error(
+                "Provider or Providers Using Name is incorrectly set or missing. {$exception->getMessage()}"
+            );
 
             return new WP_Error(
                 401,
@@ -282,5 +248,4 @@ class MSUserLocation
             );
         }
     }
-
 }

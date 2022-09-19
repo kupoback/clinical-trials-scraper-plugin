@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Merck_Scraper\Traits;
 
@@ -51,10 +51,10 @@ trait MSApiTrait
         string $query_args = '',
         array  $args = []
     ) {
-        $rest_prefix = "{$this->apiNamespace}/{$this->apiVersion}";
+        $rest_prefix = "$this->apiNamespace/$this->apiVersion";
 
         if ($query_args) {
-            $route = "{$route}/{$query_args}";
+            $route = "$route/$query_args";
         }
 
         register_rest_route(
@@ -92,7 +92,7 @@ trait MSApiTrait
             if ($dir_contents->isNotEmpty()) {
                 return $dir_contents
                     ->map(function ($file) use ($folder_name) {
-                        $file_with_path = "{$folder_name}/{$file}";
+                        $file_with_path = "$folder_name/$file";
                         return [
                             // 'fileContent' => file_get_contents($file_with_path, true),
                             'id'       => pathinfo($file, PATHINFO_FILENAME),
@@ -101,7 +101,7 @@ trait MSApiTrait
                                 filemtime($file_with_path),
                                 'America/New_York'
                             )
-                                                ->format('F j, Y g:i A'),
+                                ->format('F j, Y g:i A'),
                             'fileName' => $file,
                         ];
                     });
@@ -133,9 +133,10 @@ trait MSApiTrait
 
         return new WP_Error(
             200,
-            ['message' =>
-                 __("Error getting file and or it's contents", 'sage'),
-             'fileContents' => ''
+            [
+                'message' =>
+                __("Error getting file and or it's contents", 'merck-scraper'),
+                'fileContents' => ''
             ]
         );
     }
@@ -150,7 +151,7 @@ trait MSApiTrait
     public function importPosition()
     {
         $response = get_option('merck_import_position');
-        $current_time = self::timeNowFormatted();
+        $current_time = $this->timeNowFormatted();
 
         $return = [
             'helper'     => null,
@@ -161,7 +162,7 @@ trait MSApiTrait
             'time'       => null,
         ];
 
-        if ($response && !empty($response)) {
+        if (!empty($response)) {
             // Get the time that the import was last updated
             $updated_time = $response['time'];
             if (is_object($updated_time)) {
@@ -198,7 +199,7 @@ trait MSApiTrait
                 'position'   => $args['position'] ?? 0,
                 'totalCount' => $args['total_count'] ?? 0,
                 'status'     => 200,
-                'time'       => self::timeNowFormatted(),
+                'time'       => $this->timeNowFormatted(),
                 // 'memoryUsage' => floor((memory_get_usage() / 1024) / 1024) . 'MB / ' . ini_get('memory_limit'),
             ]
         );
@@ -207,8 +208,7 @@ trait MSApiTrait
     /**
      * Resets the option of the current position
      */
-    private function clearPosition()
-    :bool
+    private function clearPosition(): bool
     {
         update_option('merck_import_position', '');
         return true;
@@ -219,8 +219,7 @@ trait MSApiTrait
      *
      * @return DateTime
      */
-    private function timeNowFormatted()
-    :DateTime
+    private function timeNowFormatted(): DateTime
     {
         return new DateTime();
     }

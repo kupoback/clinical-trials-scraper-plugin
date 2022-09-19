@@ -91,12 +91,12 @@
                 },
                 dirSelect: "default",
                 errFileContents: [],
-                errFileHeader: "Import Error Files",
+                errFileHeader: "",
                 gatheringContents: true,
                 gatheringFile: false,
                 logDirs: [],
                 logFileContents: [],
-                logFileHeader: "Import Log Files",
+                logFileHeader: "",
                 selectDisabled: false,
             };
         },
@@ -118,7 +118,7 @@
                 this.fetchSetup();
     
                 this.logFileHeader = `${dirType} Log Files`;
-                this.errFileHeader = `${dirType} Error Files`;
+                this.errFileHeader = `${dirType} Error Files`
                 
                 await this.getLogContents(false, dirType)
                           .finally(() => this.fetchComplete());
