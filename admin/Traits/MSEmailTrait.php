@@ -26,8 +26,11 @@ trait MSEmailTrait
      *
      * @param Collection $studies_imported A Collection of studies that were imported
      * @param int        $num_not_imported The number of studies not imported as they're filtered out
+     *
+     * @return WP_Error|bool|array
      */
     protected function emailSetup(Collection $studies_imported, int $num_not_imported = 0)
+    :WP_Error|bool|array
     {
         /**
          * Merck Email Client
@@ -73,29 +76,18 @@ trait MSEmailTrait
                 $studies_imported
                     ->map(function ($study) use ($new_posts, $trashed_posts, $updated_posts) {
                         $status = $study
-                                ->get('POST_STATUS') ?? '';
+                                ->get('POST_STATUS', false);
                         if (is_string($status)) {
-                            switch (strtolower($status)) {
-                                case "draft":
-                                case "pending":
-                                    $new_posts
-                                        ->push($study);
-                                    break;
-                                case "trash":
-                                    $trashed_posts
-                                        ->push($study);
-                                    break;
-                                case "publish":
-                                    $updated_posts
-                                        ->push($study);
-                                    break;
-                                default:
-                                    break;
-                            }
+                            match(strtolower($status)) {
+                                'draft', 'pending' => $new_posts->push($study),
+                                'trash' => $trashed_posts->push($study),
+                                'publish' => $updated_posts->push($study),
+                            };
                         }
                         return $study;
                     });
 
+                // Contents for the output body of the email
                 $total_found      = sprintf('<li>Total Found: %s</li>', $studies_imported->count());
                 $new_posts        = sprintf('<li>New Trials: %s</li>', $new_posts->count());
                 $trashed_posts    = sprintf('<li>Removed Trials: %s</li>', $trashed_posts->count());
@@ -116,13 +108,22 @@ trait MSEmailTrait
         return false;
     }
 
+    /**
+     * The setup for the Mailer client
+     *
+     * @return WP_Error|Client
+     */
     protected function mailerClient()
+    :WP_Error|Client
     {
         $api_key         = $this->acfOptionField('mailjet_api_key');
         $api_secret      = $this->acfOptionField('mailjet_api_secret_key');
 
         if (!$api_key || !$api_secret) {
-            return new WP_Error("Please check that the API Key or Secret Key are populated and/or valid", 400);
+            return new WP_Error(
+                400,
+                __("Please check that the API Key or Secret Key are populated and/or valid", 'merck-scraper')
+            );
         }
 
         return new Client(

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Merck_Scraper\Helper;
 
@@ -20,12 +20,13 @@ class MSHelper
      * Returns the excerpt if it exists or creates the excerpt
      * based on the $post_override or $post->post_content
      *
-     * @param string $post_override The content to truncate and clean to use for the excerpt
-     * @param int    $word_max      Pass an integer to override the word count
+     * @param  string  $post_content  The WordPress post content
+     * @param  int     $word_max      Pass an integer to override the word count
      *
      * @return string|WP_Error
      */
     public static function generateExcerpt(string $post_content, int $word_max = 25)
+    :WP_Error|string
     {
         if (!$post_content) {
             return new WP_Error(400, __("Please include the post content.", 'merck-scraper'));
@@ -41,11 +42,12 @@ class MSHelper
     /**
      * Strips out any text and returns an int value for the string
      *
-     * @param string $years
+     * @param  string  $years
      *
      * @return null|array|string|string[]
      */
     public static function stripYears(string $years)
+    :array|string|null
     {
         return preg_replace('/[^0-9]/', '', $years);
     }
@@ -54,7 +56,7 @@ class MSHelper
      * Converts the content in a textarea to strip out semi-colors, replacing them with \n's
      * then splitting the \n's into an array
      *
-     * @param string $field The ACF textarea string
+     * @param  string  $field  The ACF textarea string
      *
      * @return array
      */
@@ -64,8 +66,10 @@ class MSHelper
         if ($field) {
             $field = str_replace(';', '\n', $field);
             $field = explode('\n', $field);
+
             return array_map('trim', $field);
         }
+
         return [];
     }
 }

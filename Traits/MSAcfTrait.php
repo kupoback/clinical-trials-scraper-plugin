@@ -34,6 +34,7 @@ trait MSAcfTrait
      * @return mixed
      */
     protected function acfOptionField(string $field)
+    :mixed
     {
         return get_field($field, 'merck_settings') ?? '';
     }

@@ -26,6 +26,7 @@ class MSOptionsPage
      * A default ACF Options page
      */
     public function acfOptionsPage()
+    :void
     {
         acf_add_options_page(
             [
@@ -62,6 +63,7 @@ class MSOptionsPage
      * @return void
      */
     public function customOptsPage()
+    :void
     {
 
         /**
@@ -94,6 +96,7 @@ class MSOptionsPage
      * @return void
      */
     public function apiScraperPage()
+    :void
     {
         // Set class property
         $this->options = get_option('merck_import');
@@ -109,6 +112,7 @@ class MSOptionsPage
      * @return void
      */
     public function logsScraperPage()
+    :void
     {
         // Set class property
         $this->options = get_option('merck_import');

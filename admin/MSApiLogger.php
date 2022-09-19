@@ -53,9 +53,11 @@ class MSApiLogger
      * Method to register our API Endpoints
      */
     public function registerEndpoint()
+    :void
     {
         // Returns the API Position
         $this->registerRoute('api-position', WP_REST_Server::READABLE, [$this, 'apiPosition']);
+        // Clears the API options in the WP options table since the API failed
         $this->registerRoute('api-clear-position', WP_REST_Server::READABLE, [$this, 'apiClearPosition']);
         // Returns all the directories in the MERCK_SCRAPER_LOG_DIR
         $this->registerRoute('api-directories', WP_REST_Server::READABLE, [$this, 'getLogDirs']);
@@ -69,9 +71,7 @@ class MSApiLogger
             [
                 'dirType'     => [
                     'required'          => false,
-                    'validate_callback' => function ($param) {
-                        return is_string($param);
-                    },
+                    'validate_callback' => fn ($param) => is_string($param),
                 ],
             ]
         );
@@ -84,15 +84,11 @@ class MSApiLogger
             [
                 'file'     => [
                     'required'          => true,
-                    'validate_callback' => function ($param) {
-                        return is_string($param);
-                    },
+                    'validate_callback' => fn ($param) => is_string($param),
                 ],
                 'fileType' => [
                     'required'          => true,
-                    'validate_callback' => function ($param) {
-                        return is_string($param);
-                    },
+                    'validate_callback' => fn ($param) => is_string($param),
                 ],
             ]
         );
@@ -106,15 +102,11 @@ class MSApiLogger
             [
                 'file' => [
                     'required'          => true,
-                    'validate_callback' => function ($param) {
-                        return is_string($param);
-                    },
+                    'validate_callback' => fn ($param) => is_string($param),
                 ],
                 'filePath' => [
                     'required'          => true,
-                    'validate_callback' => function ($param) {
-                        return is_string($param);
-                    },
+                    'validate_callback' => fn ($param) => is_string($param),
                 ],
             ]
         );
@@ -126,6 +118,7 @@ class MSApiLogger
      * @return WP_Error|WP_HTTP_Response|WP_REST_Response
      */
     public function apiPosition()
+    :WP_Error|WP_REST_Response|WP_HTTP_Response
     {
         return rest_ensure_response($this->importPosition());
     }
@@ -146,18 +139,15 @@ class MSApiLogger
      * @return WP_Error|WP_HTTP_Response|WP_REST_Response
      */
     public function getLogDirs()
+    :WP_Error|WP_REST_Response|WP_HTTP_Response
     {
         return rest_ensure_response(
             collect(scandir(MERCK_SCRAPER_LOG_DIR))
-                ->filter(function ($directory) {
-                    return ($directory !== '.' && $directory !== '..');
-                })
-                ->map(function ($directory) {
-                    return [
-                        'dirLabel' => ucwords($directory),
-                        'dirValue' => $directory,
-                    ];
-                })
+                ->filter(fn ($directory) => ($directory !== '.' && $directory !== '..'))
+                ->map(fn ($directory) => [
+                    'dirLabel' => ucwords($directory),
+                    'dirValue' => $directory,
+                ])
                 ->values()
         );
     }
@@ -165,9 +155,12 @@ class MSApiLogger
     /**
      * This method grabs and returns the contents of the log files
      *
+     * @param  WP_REST_Request  $request
+     *
      * @return WP_Error|WP_HTTP_Response|WP_REST_Response
      */
     public function apiLogger(WP_REST_Request $request)
+    :WP_Error|WP_REST_Response|WP_HTTP_Response
     {
         $message = [];
 
@@ -200,6 +193,7 @@ class MSApiLogger
      * @return WP_Error|WP_HTTP_Response|WP_REST_Response
      */
     public function apiGetLogFile(WP_REST_Request $request)
+    :WP_Error|WP_REST_Response|WP_HTTP_Response
     {
         $file_name = $request['file'];
         $file_type = $request['fileType'];
@@ -208,13 +202,13 @@ class MSApiLogger
         if ($file_name && $file_type) {
             if ($dir_type === 'api') {
                 $file_dir = $file_type === 'success'
-                    ? $this->apiLogDir : ($file_type === 'err' ? $this->apiErrDir : null);
+                    ? $this->apiLogDir
+                    : ($file_type === 'err' ? $this->apiErrDir : null);
             } else {
-                if ($file_type === 'err') {
-                    $file_type = 'error';
-                } elseif ($file_type === 'success') {
-                    $file_type = 'log';
-                }
+                $file_type = match($file_type) {
+                    'err' => 'error',
+                    'success' => 'log',
+                };
 
                 $file_dir = MERCK_SCRAPER_LOG_DIR . "/$dir_type/$file_type";
             }
@@ -244,6 +238,7 @@ class MSApiLogger
      * @return WP_Error|WP_HTTP_Response|WP_REST_Response
      */
     public function apiDeleteFile(WP_REST_Request $request)
+    :WP_Error|WP_REST_Response|WP_HTTP_Response
     {
         $file_path = $request['filePath'] ?? '';
         $return = ['message' => __('File not deleted', 'merck-scraper'), 'status' => 404];

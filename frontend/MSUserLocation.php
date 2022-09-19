@@ -45,7 +45,7 @@ class MSUserLocation
     private string $userLocation;
 
     /**
-     * @var Provider|FreeGeoIp The provider used for getting the location
+     * @var array The provider used for getting the location
      */
     private array $provider;
 
@@ -55,9 +55,9 @@ class MSUserLocation
     private string $usingName;
 
     /**
-     * @var Error The error message when no user IP is provided
+     * @var WP_Error The error message when no user IP is provided
      */
-    private Error $noUserIp;
+    private WP_Error $noUserIp;
 
     /**
      * @var bool[] The basic return if locations cannot be grabbed
@@ -67,14 +67,14 @@ class MSUserLocation
     /**
      * MSUserLocation __construct
      *
-     * @param string          $userLocation The users location
-     * @param array{Provider} $provider     An array of service providers to override the FreeGeoIp used
-     * @param string          $using_name   The service providers using name.
+     * @param  string           $userLocation  The users location
+     * @param  array{Provider}  $provider      An array of service providers to override the FreeGeoIp used
+     * @param  string           $using_name    The service providers using name.
      */
     public function __construct(string $userLocation = '', array $provider = [], string $using_name = 'free_geo_ip')
     {
         $this->userLocation = $userLocation;
-        $this->noUserIp     = new Error("No user IP defined", 400);
+        $this->noUserIp     = new WP_Error(400, "No user IP defined");
         $this->usingName    = $using_name;
         $this->errReturn    = ['err' => true,];
 
@@ -88,9 +88,9 @@ class MSUserLocation
     /**
      * Grabs the full users location and returns the results
      *
-     * @throws Exception
      */
     public function getLocations()
+    :array|WP_Error
     {
         if (!$this->userLocation) {
             return $this->noUserIp;
@@ -125,22 +125,21 @@ class MSUserLocation
      *  timezone: Timezone based on the region
      * }
      *
-     * @return array|Error|void
+     * @return WP_Error|array
      * @throws Exception
      */
     public function getFirstLocation()
+    :WP_Error|array
     {
         if (!$this->userLocation) {
             return $this->noUserIp;
         }
 
-        $err_return             = $this->errReturn;
-        $err_return['location'] = [];
-
         $results = $this->geoQueryCallback();
 
         if (!$results->isEmpty() && !is_wp_error($results)) {
             $first_result = $results->first();
+
             return [
                 'err'      => false,
                 'location' => [
@@ -174,15 +173,17 @@ class MSUserLocation
                 ],
             ];
         }
+
+        return new WP_Error($results->get_error_code(), $results->get_error_message());
     }
 
     /**
      * Grabs the users zipcode based on their IP
      *
-     * @return array|bool[]|Error
-     * @throws Exception
+     * @return array|WP_Error|Error
      */
     public function getZipAndCoords()
+    :array|WP_Error|Error
     {
         if (!$this->userLocation) {
             return $this->noUserIp;
@@ -197,6 +198,7 @@ class MSUserLocation
 
         if (!$results->isEmpty() && !is_wp_error($results)) {
             $first_result = $results->first();
+
             return [
                 'err'         => false,
                 'zipcode'     => $first_result
@@ -218,13 +220,10 @@ class MSUserLocation
     /**
      * Sets up the provider with Free Geo IP
      *
-     * @param null|Provider $provider
-     * @param string        $provider_using_name
-     *
      * @return Error|Collection|WP_Error
-     * @throws Exception
      */
     protected function geoQueryCallback()
+    :WP_Error|Error|Collection
     {
         $geocoder = new ProviderAggregator();
         $geocoder->registerProviders($this->provider);
@@ -236,14 +235,14 @@ class MSUserLocation
         } catch (Exception $exception) {
             $logger = $this->initLogger('geolocate', 'iplookup', MERCK_SCRAPER_LOG_DIR . '/iplookup');
             $logger->error(
-                "Provider or Providers Using Name is incorrectly set or missing. {$exception->getMessage()}"
+                "Provider or Providers Using Name is incorrectly set or missing. {$exception->getMessage()}",
             );
 
             return new WP_Error(
                 401,
                 __(
                     "Provider or Providers Using Name is incorrectly set or missing. {$exception->getMessage()}",
-                    'merck-scraper'
+                    'merck-scraper',
                 ),
             );
         }

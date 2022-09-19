@@ -14,8 +14,8 @@ trait MSLocationTrait
     /**
      * This method parses through all the locations for the study just imported.
      *
-     * @param Collection $locations A collection of locations
-     * @param string     $nct_id    The NCT ID of the location
+     * @param  Collection  $locations  A collection of locations
+     * @param  string      $nct_id     The NCT ID of the location
      *
      * @return Collection
      * @throws Exception
@@ -35,21 +35,20 @@ trait MSLocationTrait
                     if ($post_id > 0) {
                         return [
                             $post_id => collect(get_fields($post_id))
-                                ->mapWithKeys(function ($value, $key) {
-                                    return [
-                                        str_replace('api_data_', '', $key) => $value,
-                                    ];
-                                })
+                                ->mapWithKeys(fn ($value, $key) => [
+                                    str_replace('api_data_', '', $key) => $value,
+                                ])
                                 ->merge(
                                     [
                                         'latitude'  => get_post_meta($post_id, 'ms_location_latitude', true),
                                         'longitude' => get_post_meta($post_id, 'ms_location_longitude', true),
-                                    ]
+                                    ],
                                 )
                                 ->filter()
-                                ->toArray()
+                                ->toArray(),
                         ];
                     }
+
                     return [0 => false];
                 })
                 ->filter()
@@ -60,94 +59,97 @@ trait MSLocationTrait
 
             // Fetch, filter and sanitize the locations' data
             self::locationGeocode($locations, $existing_locations)
-            // Map through each location and create or update the location post
+                // Map through each location and create or update the location post
                 ->each(function ($location, $index) use ($location_ids, $nct_id, $total_items) {
                     $position = $index + 1;
                     $this->updatePosition(
                         "Import Locations",
                         [
-                            'position'     => $position,
+                            'position'    => $position,
                             'total_count' => $total_items,
-                            'helper'       => "Importing Locations for $nct_id",
-                        ]
+                            'helper'      => "Importing Locations for $nct_id",
+                        ],
                     );
 
-                    $location_data = collect($location);
-                    if ($location_data->filter()->isNotEmpty()) {
-                        $location_post_id = intval($this->dbFetchPostId('meta_value', $location['id']));
-                        $latitude         = $location_data->get('latitude');
-                        $longitude        = $location_data->get('longitude');
-                        $language         = $location_data->get('location_language');
-                        $status           = $location_data->get('recruiting_status');
-                        $location_data
-                            ->forget(
-                                [
-                                    'latitude',
-                                    'longitude',
-                                    'location_language',
-                                    'recruiting_status'
-                                ]
-                            );
+                    if (!is_wp_error($location)) {
+                        $location_data = collect($location);
+                        if ($location_data->filter()
+                                          ->isNotEmpty()) {
+                            $location_post_id = intval($this->dbFetchPostId('meta_value', $location['id']));
+                            $latitude         = $location_data->get('latitude');
+                            $longitude        = $location_data->get('longitude');
+                            $language         = $location_data->get('location_language');
+                            $status           = $location_data->get('recruiting_status');
 
-                        // Set up the post data
-                        $location_args = collect(
-                            wp_parse_args(
-                                $this->parsePostArgs(
+                            $location_data
+                                ->forget(
                                     [
-                                        'title' => $location_data->get('post_title'),
-                                        'slug'  => $location_data->get('facility'),
-                                    ]
+                                        'latitude',
+                                        'longitude',
+                                        'location_language',
+                                        'recruiting_status',
+                                    ],
+                                );
+
+                            // Set up the post data
+                            $location_args = collect(
+                                wp_parse_args(
+                                    $this->parsePostArgs(
+                                        [
+                                            'title' => $location_data->get('post_title'),
+                                            'slug'  => $location_data->get('facility'),
+                                        ],
+                                    ),
+                                    $this->locationPostDefault,
                                 ),
-                                $this->locationPostDefault
-                            )
-                        );
-
-                        if ($location_post_id === 0) {
-                            $location_post_id = wp_insert_post(
-                                $location_args
-                                    ->toArray(),
-                                "Failed to create location post."
                             );
-                        } else {
-                            $location_args
-                                ->put('ID', $location_post_id);
-                            $location_args
-                                ->forget(['post_title', 'post_name']);
-                            wp_update_post(
+
+                            if ($location_post_id === 0) {
+                                $location_post_id = wp_insert_post(
+                                    $location_args
+                                        ->toArray(),
+                                    "Failed to create location post.",
+                                );
+                            } else {
                                 $location_args
-                                    ->toArray(),
-                                "Failed to update post."
-                            );
-                        }
+                                    ->put('ID', $location_post_id);
+                                $location_args
+                                    ->forget(['post_title', 'post_name']);
+                                wp_update_post(
+                                    $location_args
+                                        ->toArray(),
+                                    "Failed to update post.",
+                                );
+                            }
 
-                        /**
-                         * Update the ACF Fields for this location, and set the latitude and longitude grabbed to the custom meta field
-                         */
-                        if ($location_post_id) {
-                            $acf_fields = $this->locationFields;
-                            $acf_fields
-                                ->map(function ($field) use ($location_data, $location_post_id) {
-                                    if (Str::contains($field['name'], 'api')) {
-                                        $data_name = $field['data_name'] ?? '';
-                                        return $this->updateACF($field['name'], $location_data->get($data_name), $location_post_id);
-                                    }
-                                    return false;
-                                });
+                            /**
+                             * Update the ACF Fields for this location, and set the latitude and longitude grabbed to the custom meta field
+                             */
+                            if ($location_post_id) {
+                                $acf_fields = $this->locationFields;
+                                $acf_fields
+                                    ->map(fn ($field) => Str::contains($field['name'], 'api')
+                                        ? $this->updateACF(
+                                            $field['name'],
+                                            $location_data
+                                                ->get($field['data_name'] ?? ''),
+                                            $location_post_id,
+                                        )
+                                        : false);
 
-                            collect(
-                                [
-                                    'location_nctid'  => $nct_id,
-                                    'location_status' => $status,
-                                    'trial_language'  => explode(';', $language),
-                                ]
-                            )
-                                ->each(function ($terms, $taxonomy) use ($location_post_id) {
-                                    return wp_set_object_terms($location_post_id, $terms, $taxonomy, true);
-                                });
+                                collect(
+                                    [
+                                        'location_nctid'  => $nct_id,
+                                        'location_status' => $status,
+                                        'trial_language'  => explode(';', $language),
+                                    ],
+                                )
+                                    ->each(fn ($terms, $taxonomy) => wp_set_object_terms($location_post_id, $terms, $taxonomy, true));
 
-                            update_post_meta($location_post_id, 'ms_location_latitude', $latitude);
-                            update_post_meta($location_post_id, 'ms_location_longitude', $longitude);
-                            $location_ids->push($location_post_id);
+                                update_post_meta($location_post_id, 'ms_location_latitude', $latitude);
+                                update_post_meta($location_post_id, 'ms_location_longitude', $longitude);
+                                $location_ids->push($location_post_id);
+                            }
                         }
                     }
                 });
@@ -160,8 +162,8 @@ trait MSLocationTrait
      * Grabs the geocode location data from Google Maps, but only if the location doesn't
      * exist in the first place
      *
-     * @param Collection $arr_data           The array data imported
-     * @param Collection $existing_locations The existing locations
+     * @param  Collection  $arr_data            The array data imported
+     * @param  Collection  $existing_locations  The existing locations
      *
      * @return Collection
      */
@@ -170,22 +172,20 @@ trait MSLocationTrait
     {
         set_time_limit(1800);
         ini_set('max_execution_time', '1800');
+
         return $arr_data
             ->map(function ($location) use ($existing_locations) {
                 // Grab and filter the facility
                 $facility = trim($this->filterParenthesis($location['facility'] ?? ''));
                 // Check if the location is already imported, so we don't grab the lat/lng again
                 $data_grabbed = $existing_locations
-                    ->filter(function ($location) use ($facility) {
-                        if (($location['latitude'] ?? false)) {
-                            return $location['facility'] === $facility;
-                        }
-                        return false;
-                    });
+                    ->filter(fn ($location) => ($location['latitude'] ?? false) && $location['facility'] === $facility);
 
                 if (!isset($location['location_language'])) {
                     $location_language             = $this->mapLanguage($location['country']);
-                    $location['location_language'] = $location_language->isNotEmpty() ? $location_language->implode(';') : "All";
+                    $location['location_language'] = $location_language->isNotEmpty()
+                        ? $location_language->implode(';')
+                        : "All";
                 }
 
                 if ($data_grabbed->isEmpty()) {
@@ -197,10 +197,10 @@ trait MSLocationTrait
                                 $location['state'] ?? '',
                                 $location['zip'] ?? ($location['zipcode'] ?? ''),
                                 $location['country'] ?? '',
-                            ]
+                            ],
                         )
                             ->filter()
-                            ->toArray()
+                            ->toArray(),
                     );
 
                     /**
@@ -215,19 +215,20 @@ trait MSLocationTrait
                                     $location['state'] ?? '',
                                     $location['zip'] ?? ($location['zipcode'] ?? ''),
                                     $location['country'] ?? '',
-                                ]
+                                ],
                             )
                                 ->filter()
-                                ->toArray()
+                                ->toArray(),
                         );
                     }
 
                     /**
                      * If the geolocation was successful, then return the data as an array
                      */
-                    if ($gm_geocoder_data->isNotEmpty()) {
+                    if (!is_wp_error($gm_geocoder_data) && $gm_geocoder_data->isNotEmpty()) {
                         // Sets the location_language field data so that the trials can be filtered by language
                         $location_language = $this->mapLanguage($location['country'] ?? '');
+
                         // $gm_geocoder_data = $gm_geocoder_data
                         return $gm_geocoder_data
                             // Use default grabbed City/State from API, otherwise default to what google grabbed
@@ -240,7 +241,7 @@ trait MSLocationTrait
                                 'location_language',
                                 $location_language->isNotEmpty()
                                     ? $location_language->implode(';')
-                                    : "All"
+                                    : "All",
                             )
                             ->put('phone', ($location['phone'] ?? ''))
                             ->put('post_title', ($location['post_title'] ?? ''))
@@ -256,7 +257,7 @@ trait MSLocationTrait
                         ->errorLog
                         ->error(
                             "Unable to get geocode for $this->nctId;\r\n",
-                            (array) $gm_geocoder_data->errors
+                            (array) $gm_geocoder_data->errors,
                         );
 
                     return $gm_geocoder_data;
@@ -270,7 +271,7 @@ trait MSLocationTrait
     /**
      * A Locations query setup with pagination
      *
-     * @param int $paged The current page to return
+     * @param  int  $paged  The current page to return
      *
      * @return int[]|WP_Post[]
      */
@@ -279,10 +280,10 @@ trait MSLocationTrait
     {
         $locations = new WP_Query(
             [
-                'post_type' => 'locations',
+                'post_type'      => 'locations',
                 'posts_per_page' => 100,
-                'paged' => $paged,
-                'fields' => 'ids',
+                'paged'          => $paged,
+                'fields'         => 'ids',
             ]
         );
 
@@ -290,13 +291,14 @@ trait MSLocationTrait
             return [
                 'locations' => $locations->posts,
                 'max_pages' => $locations->max_num_pages,
-                'total' => $locations->found_posts,
+                'total'     => $locations->found_posts,
             ];
         }
+
         return [
             'locations' => [],
             'max_pages' => 0,
-            'total' => 0,
+            'total'     => 0,
         ];
     }
 
@@ -304,7 +306,7 @@ trait MSLocationTrait
      * This runs through the location and grabs all the necessary information
      * to update and import the locations' information, including lat/lng
      *
-     * @param int $post_id
+     * @param  int  $post_id
      *
      * @return Collection
      */
@@ -318,12 +320,12 @@ trait MSLocationTrait
                 'state',
                 'zipcode',
                 'country',
-            ]
+            ],
         )
-            ->mapWithKeys(function ($field) use ($post_id) {
-                $value = get_field("override_$field", $post_id) ?: get_field("api_data_$field", $post_id);
-                return [$field => $value];
-            });
+            ->mapWithKeys(fn ($field) => [
+                $field => get_field("override_$field", $post_id)
+                    ?: get_field("api_data_$field", $post_id)
+            ]);
 
         $gm_geocoder_data = $this->getFullLocation(
             collect(
@@ -333,30 +335,32 @@ trait MSLocationTrait
                     $location->get('state') ?? '',
                     $location->get('zip') ?? ($location->get('zipcode') ?? ''),
                     $location->get('country') ?? '',
-                ]
+                ],
             )
                 ->filter()
-                ->toArray()
+                ->toArray(),
         );
 
         if (!is_wp_error($gm_geocoder_data) && $gm_geocoder_data->get('latitude')) {
             update_post_meta($post_id, 'ms_location_latitude', $gm_geocoder_data->get('latitude'));
             update_post_meta($post_id, 'ms_location_longitude', $gm_geocoder_data->get('longitude'));
+
             return collect(
                 [
-                    'latitude' => $gm_geocoder_data->get('latitude'),
+                    'latitude'  => $gm_geocoder_data->get('latitude'),
                     'longitude' => $gm_geocoder_data->get('longitude'),
-                ]
+                ],
             );
         }
+
         return collect();
     }
 
     /**
      * Quick adjustment call to setting up the map and implode for a Collection
      *
-     * @param Collection $collection Collection
-     * @param string     $operator
+     * @param  Collection  $collection  Collection
+     * @param  string      $operator
      *
      * @return string
      */
@@ -364,16 +368,14 @@ trait MSLocationTrait
     :string
     {
         return $collection
-            ->map(function ($location) {
-                return "\"$location\"";
-            })
+            ->map(fn ($location) => "\"$location\"")
             ->implode(" $operator ");
     }
 
     /**
      * Maps through the location data and returns a filtered collection
      *
-     * @param string $country The country to search and map for
+     * @param  string  $country  The country to search and map for
      *
      * @return Collection
      */
@@ -381,13 +383,10 @@ trait MSLocationTrait
     :Collection
     {
         return $this->countryMappedLanguages
-            ->map(function ($location) use ($country) {
-                // $location['country'] is a Collection
-                if (is_int($location['country']->search($country, true))) {
-                    return $location['language'];
-                }
-                return false;
-            })
+            ->map(fn ($location) => is_int($location['country']->search($country, true))
+                ? $location['language']
+                : false
+            )
             ->filter();
     }
 }

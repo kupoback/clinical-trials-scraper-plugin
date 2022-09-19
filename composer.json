@@ -1,7 +1,7 @@
 {
     "name": "clique/merck-scraper",
     "require": {
-		"php": "^7.4|^8.0.0",
+		"php": "^8.0.0",
 		"composer/installers": "^2.0",
 		"ext-json": "*",
 		"10quality/wp-query-builder": "^1.0",

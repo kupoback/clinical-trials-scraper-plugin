@@ -29,6 +29,7 @@ class MSMailer
      * @link https://dev.mailjet.com/email/guides/send-api-v31/
      */
     public function mailer(Collection $send_to = null, array $extra_args = [])
+    :WP_Error|array
     {
         // $send_to is required and must be a Collection
         if (is_null($send_to) || $send_to->isEmpty()) {
@@ -63,7 +64,7 @@ class MSMailer
 
         $send_to = $send_to
             ->map(function ($send_to) {
-                $send_to = array_change_key_case($send_to, CASE_LOWER);
+                $send_to = array_change_key_case($send_to);
                 return [
                     'Email' => $send_to['email'],
                     'Name'  => $send_to['name'],

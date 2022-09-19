@@ -174,77 +174,15 @@ class MSApiScraper
      */
     public function __construct(array $email_params = [], string $apiLogDirectory = MERCK_SCRAPER_API_LOG_DIR)
     {
-        $this->gmApiKey = $this->acfOptionField('google_maps_server_side_api_key');
-
-        /**
-         * Collection of the allowed conditions
-         */
-        $this->allowedConditions = collect(
-            MSHelper::textareaToArr(
-                $this->acfStrOptionFld('allowed_conditions')
-            )
-        )
-            ->filter();
-
-        /**
-         * Our list of allowed Trial Locations
-         */
-        $this->allowedTrialLocations = collect(
-            MSHelper::textareaToArr(
-                $this->acfStrOptionFld('clinical_trials_api_location_search')
-            )
-        )
-            ->filter();
-
-        /**
-         * Collection of the disallowed conditions
-         */
-        $this->disallowedConditions = collect(
-            MSHelper::textareaToArr(
-                $this->acfStrOptionFld('disallowed_conditions')
-            )
-        )
-            ->filter();
-
-        /**
-         * Our list of disallowed Trial Locations
-         */
-        $this->disallowedTrialLocations = collect(
-            MSHelper::textareaToArr(
-                $this->acfStrOptionFld('clinical_trials_api_omit_location_search')
-            )
-        )
-            ->filter();
-
         /**
          * Now timestamp used to keep the log files in order
          */
         $this->nowTime = Carbon::now();
 
         /**
-         * Iterates through a textarea of the Study Protocol items
-         */
-        $this->protocolNames = collect(
-            MSHelper::textareaToArr(
-                $this->acfStrOptionFld('clinical_trials_api_study_protocol_filter')
-            )
-        )
-            ->filter();
-
-        /**
          * An array of people who the email notification should be sent out to
          */
         $this->sendTo = collect($email_params);
-
-        /**
-         * Iterates through the status and sanitizes them for comparison as well as query
-         */
-        $this->trialStatus = collect(
-            MSHelper::textareaToArr(
-                $this->acfStrOptionFld('clinical_trials_api_status_search')
-            )
-        )
-            ->filter();
 
         $timestamp      = $this->nowTime->timestamp;
         $this->errorLog = $this->initLogger("api-error", "error-$timestamp", "$apiLogDirectory/error");
@@ -255,6 +193,7 @@ class MSApiScraper
      * Method to register our API Endpoints
      */
     public function registerEndpoint()
+    :void
     {
         /**
          * Import Trials
@@ -313,7 +252,9 @@ class MSApiScraper
      * @throws Exception
      */
     public function apiImport(WP_REST_Request $request = null)
+    :WP_Error|WP_REST_Response|WP_HTTP_Response
     {
+        $this->setData();
         // Callback to the frontend to let them know we're starting the import
         $this->updatePosition("Starting Import");
         set_time_limit(1800);
@@ -328,23 +269,25 @@ class MSApiScraper
         // $max_rank         = 5;
         $max_rank         = $this->acfOptionField('max_import_rank') ?: 30;
 
-        /**
-         * Creates an array of languages, codes and the countries they should be associated to. This is
-         * used to split up the API calls and better map the data import.
-         */
-        $language_codes               = collect(apply_filters('wpml_active_languages', null))
-            ->mapWithKeys(function ($language) {
-                return [$language['translated_name'] => $language['code']];
-            });
-        $this->countryMappedLanguages = collect($this->acfOptionField('clinical_trials_api_language_locations'))
-            ->map(function ($country_language) use ($language_codes) {
-                return [
+        $this->countryMappedLanguages =  collect($this->acfOptionField('clinical_trials_api_language_locations'))
+            ->filter(fn ($location) => collect($location)->filter()->isNotEmpty());
+
+        if ($this->countryMappedLanguages->isNotEmpty()) {
+            /**
+             * Creates an array of languages, codes and the countries they should be associated to. This is
+             * used to split up the API calls and better map the data import.
+             */
+            $language_codes = collect(apply_filters('wpml_active_languages', null))
+                ->mapWithKeys(fn ($language) => [$language['translated_name'] => $language['code']]);
+
+            $this->countryMappedLanguages = $this->countryMappedLanguages
+                ->map(fn ($country_language) => [
                     'code'     => $language_codes->get($country_language['language']) ?? 'en',
                     'country'  => collect(MSHelper::textareaToArr($country_language["countries"] ?? ''))
                         ->filter(),
                     'language' => $country_language['language'] ?? '',
-                ];
-            });
+                ]);
+        }
 
         /**
          * If pulling in specific trial ID's, ignore the above
@@ -352,9 +295,7 @@ class MSApiScraper
         if ($nct_id_field) {
             $expression = collect(MSHelper::textareaToArr($nct_id_field))
                 ->filter()
-                ->map(function ($nct_id) {
-                    return "(AREA[NCTId]$nct_id)";
-                })
+                ->map(fn ($nct_id) => "(AREA[NCTId]$nct_id)")
                 ->implode(' OR ');
         } else {
             /**
@@ -500,9 +441,7 @@ class MSApiScraper
                 $trashed_posts = collect($this->dbArchivedPosts());
                 if ($trashed_posts->isNotEmpty()) {
                     $trashed_posts = $trashed_posts
-                        ->map(function ($post) {
-                            return $this->dbFetchNctId(intval($post->ID));
-                        });
+                        ->map(fn ($post) => $this->dbFetchNctId(intval($post->ID)));
                 }
 
                 /**
@@ -624,7 +563,9 @@ class MSApiScraper
      * @return WP_Error|WP_HTTP_Response|WP_REST_Response
      */
     public function geoLocate(WP_REST_Request $request)
+    :WP_Error|WP_REST_Response|WP_HTTP_Response
     {
+        $this->setData();
         $post_id = $request->get_param('id');
 
         $gm_geocoder_data = self::locationPostSetup($post_id);
@@ -647,6 +588,7 @@ class MSApiScraper
      * @return WP_Error|WP_HTTP_Response|WP_REST_Response
      */
     public function getTrialsLocations()
+    :WP_Error|WP_REST_Response|WP_HTTP_Response
     {
         set_time_limit(600);
         ini_set('memory_limit', '4096M');
@@ -739,7 +681,75 @@ class MSApiScraper
         string $file_name,
         string $file_path = MERCK_SCRAPER_LOG_DIR,
         int    $logger_type = Logger::ERROR
-    ) {
+    )
+    :Logger|bool
+    {
         return $this->initLogger($name, $file_name, $file_path, $logger_type);
+    }
+
+    public function setData()
+    :void
+    {
+        $this->gmApiKey = $this->acfOptionField('google_maps_server_side_api_key');
+
+        /**
+         * Collection of the allowed conditions
+         */
+        $this->allowedConditions = collect(
+            MSHelper::textareaToArr(
+                $this->acfStrOptionFld('allowed_conditions')
+            )
+        )
+            ->filter();
+
+        /**
+         * Our list of allowed Trial Locations
+         */
+        $this->allowedTrialLocations = collect(
+            MSHelper::textareaToArr(
+                $this->acfStrOptionFld('clinical_trials_api_location_search')
+            )
+        )
+            ->filter();
+
+        /**
+         * Collection of the disallowed conditions
+         */
+        $this->disallowedConditions = collect(
+            MSHelper::textareaToArr(
+                $this->acfStrOptionFld('disallowed_conditions')
+            )
+        )
+            ->filter();
+
+        /**
+         * Our list of disallowed Trial Locations
+         */
+        $this->disallowedTrialLocations = collect(
+            MSHelper::textareaToArr(
+                $this->acfStrOptionFld('clinical_trials_api_omit_location_search')
+            )
+        )
+            ->filter();
+
+        /**
+         * Iterates through a textarea of the Study Protocol items
+         */
+        $this->protocolNames = collect(
+            MSHelper::textareaToArr(
+                $this->acfStrOptionFld('clinical_trials_api_study_protocol_filter')
+            )
+        )
+            ->filter();
+
+        /**
+         * Iterates through the status and sanitizes them for comparison as well as query
+         */
+        $this->trialStatus = collect(
+            MSHelper::textareaToArr(
+                $this->acfStrOptionFld('clinical_trials_api_status_search')
+            )
+        )
+            ->filter();
     }
 }

@@ -33,9 +33,7 @@ trait MSApiField
 
         if ($other_ids->isNotEmpty()) {
             $other_ids = $other_ids
-                ->map(function ($second_id) {
-                    return $second_id->SecondaryId ?? '';
-                })
+                ->map(fn ($second_id) => $second_id->SecondaryId ?? '')
                 ->filter();
         }
 
@@ -51,25 +49,24 @@ trait MSApiField
                         $keywords = explode('/', $keywords);
                         if (!empty($keywords)) {
                             return collect($keywords)
-                                ->filter(function ($keyword) {
-                                    $id = Str::lower(
-                                        preg_replace(
-                                            "/[^[:alpha:]]/u",
-                                            '',
-                                            $keyword
-                                        )
-                                    );
-                                    return $this->protocolNames->search($id);
-                                })
-                                ->map(function ($keyword) {
-                                    return Str::title(
-                                        preg_replace(
-                                            "/[^[:alnum:]]/u",
-                                            ' ',
-                                            $keyword
-                                        )
-                                    );
-                                })
+                                ->filter(fn ($keyword) => $this
+                                    ->protocolNames
+                                    ->search(
+                                        Str::lower(
+                                            preg_replace(
+                                                "/[^[:alpha:]]/u",
+                                                '',
+                                                $keyword,
+                                            ),
+                                        ),
+                                    ))
+                                ->map(fn ($keyword) => Str::title(
+                                    preg_replace(
+                                        "/[^[:alnum:]]/u",
+                                        ' ',
+                                        $keyword
+                                    )
+                                ))
                                 ->first();
                         }
                         return false;
@@ -189,8 +186,10 @@ trait MSApiField
     {
         return collect(
             [
-                'conditions' => $this->standardizeArrayWords($condition_module->ConditionList->Condition ?? []),
-                'keywords'   => $this->standardizeArrayWords($condition_module->KeywordList->Keyword ?? []),
+                'conditions' => $this
+                    ->standardizeArrayWords($condition_module->ConditionList->Condition ?? []),
+                'keywords'   => $this
+                    ->standardizeArrayWords($condition_module->KeywordList->Keyword ?? []),
             ]
         );
     }
@@ -237,9 +236,7 @@ trait MSApiField
         return collect(
             [
                 'phase' => collect($design_module->PhaseList->Phase ?? [])
-                    ->map(function ($phase) {
-                        return ['phase' => $phase];
-                    }),
+                    ->map(fn ($phase) => ['phase' => $phase]),
                 // 'study_type'    => $design_module->StudyType,
                 // 'study_designs' => $study_design,
             ]
@@ -260,12 +257,10 @@ trait MSApiField
         $interventions    = $arms_module->InterventionList ?? [];
         if (is_object($interventions) && !empty($interventions->Intervention)) {
             $intervention_arr = collect($interventions->Intervention)
-                ->map(function ($arr_item) {
-                    return [
-                        'type' => $arr_item->InterventionType ?? '',
-                        'name' => $arr_item->InterventionName ?? '',
-                    ];
-                })
+                ->map(fn ($arr_item) => [
+                    'type' => $arr_item->InterventionType ?? '',
+                    'name' => $arr_item->InterventionName ?? '',
+                ])
                 ->filter();
         }
 
@@ -274,11 +269,12 @@ trait MSApiField
         return collect(
             [
                 'interventions' => $intervention_arr ?? [],
-                'drugs'         => $intervention_arr->isNotEmpty() ?
-                    $intervention_arr
-                        ->map(function ($arr_item) {
-                            return strtolower($arr_item['type']) === 'drug' ? $arr_item['name'] : false;
-                        })
+                'drugs' => $intervention_arr->isNotEmpty()
+                    ? $intervention_arr
+                        ->map(fn ($arr_item) => strtolower($arr_item['type']) === 'drug'
+                            ? $arr_item['name']
+                            : false,
+                        )
                         ->filter()
                     : collect(),
             ]
@@ -305,18 +301,12 @@ trait MSApiField
 
         if (!empty($primary_outcome)) {
             collect($primary_outcome)
-                ->map(function ($outcome) use ($outcomes) {
-                    $outcomes->push(['measure' => $outcome->PrimaryOutcomeMeasure]);
-                    return false;
-                });
+                ->each(fn ($outcome) => $outcomes->push(['measure' => $outcome->PrimaryOutcomeMeasure]));
         }
 
         if (!empty($second_outcome)) {
             collect($second_outcome)
-                ->map(function ($outcome) use ($outcomes) {
-                    $outcomes->push(['measure' => $outcome->SecondaryOutcomeMeasure]);
-                    return false;
-                });
+                ->each(fn ($outcome) => $outcomes->push(['measure' => $outcome->SecondaryOutcomeMeasure]));
         }
 
         unset($primary_outcome, $second_outcome);
@@ -341,8 +331,17 @@ trait MSApiField
         return collect(
             [
                 'gender'      => $eligibility_module->Gender ?? '',
-                'minimum_age' => intval(Helper::stripYears($eligibility_module->MinimumAge ?? '') ?: 0),
-                'maximum_age' => intval(Helper::stripYears($eligibility_module->MaximumAge ?? '') ?: 999),
+                'minimum_age' => intval(
+                    Helper::stripYears(
+                        $eligibility_module->MinimumAge ?? ''
+                    )
+                        ?:0 // Definitive minimum age
+                ),
+                'maximum_age' => intval(
+                    Helper::stripYears($eligibility_module->MaximumAge ?? ''
+                    )
+                        ?: 999 // Definitive maximum age
+                ),
             ]
         );
     }
@@ -395,7 +394,10 @@ trait MSApiField
                         $has_status = true;
                     }
 
-                    $languages = $this->mapLanguage($country);
+                    $languages = collect();
+                    if ($this->countryMappedLanguages->isNotEmpty()) {
+                        $languages = $this->mapLanguage($country);
+                    }
 
                     if (is_bool($in_array) && $has_status) {
                         return [
@@ -497,6 +499,7 @@ trait MSApiField
      * @return null|array|string|string[]
      */
     protected function filterParenthesis(string $text)
+    :array|string|null
     {
         return preg_replace('#\([^)]+\)#i', '', $text);
     }
@@ -509,6 +512,7 @@ trait MSApiField
      * @return array|false|int
      */
     protected function extractParenthesis(string $text)
+    :bool|int|array
     {
         preg_match_all('#\((.*?)\)#', $text, $parenthesis_text);
         return $parenthesis_text[1] ?? [];
@@ -521,9 +525,10 @@ trait MSApiField
      * @param mixed  $field_data The data to save
      * @param int    $post_id    The post ID to save to
      *
-     * @return bool
+     * @return bool|int
      */
-    protected function updateACF(string $field_name, $field_data, int $post_id)
+    protected function updateACF(string $field_name, mixed $field_data, int $post_id)
+    :bool|int
     {
         return update_field($field_name, $field_data, $post_id);
     }
@@ -582,9 +587,7 @@ trait MSApiField
         $ignored_fields = wp_parse_args($ignored_fields, $default_ignore);
 
         return $fields
-            ->filter(function ($field) use ($ignored_fields) {
-                return $field['type'] && !in_array($field['type'], $ignored_fields);
-            })
+            ->filter(fn ($field) => $field['type'] && !in_array($field['type'], $ignored_fields))
             ->map(function ($field) use ($ignored_fields) {
                 $field_name = $field['name'] ?? '';
                 $field_arr  = [
@@ -598,17 +601,14 @@ trait MSApiField
                 $sub_fields = $field['sub_fields'] ?? false;
                 if ($sub_fields) {
                     $field_arr['sub_fields'] = collect($sub_fields)
-                        ->map(function ($sub_field) use ($ignored_fields) {
-                            if ($sub_field['type'] && !in_array($sub_field['type'], $ignored_fields)) {
-                                return [
-                                    'default_value' => $sub_field['default_value'] ?? false,
-                                    'key'           => $sub_field['key'] ?? false,
-                                    'name'          => $sub_field['name'] ?? false,
-                                    'type'          => $sub_field['type'],
-                                ];
-                            }
-                            return false;
-                        })
+                        ->map(fn ($sub_field) => $sub_field['type'] && !in_array($sub_field['type'], $ignored_fields)
+                            ? [
+                                'default_value' => $sub_field['default_value'] ?? false,
+                                'key'           => $sub_field['key'] ?? false,
+                                'name'          => $sub_field['name'] ?? false,
+                                'type'          => $sub_field['type'],
+                            ]
+                            : false)
                         ->filter()
                         ->values();
                 }
