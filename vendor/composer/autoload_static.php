@@ -15,6 +15,7 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         'a1105708a18b76903365ca1c4aa61b02' => __DIR__ . '/..' . '/symfony/translation/Resources/functions.php',
         '9c67151ae59aff4788964ce8eb2a0f43' => __DIR__ . '/..' . '/clue/stream-filter/src/functions_include.php',
+        'a16312f9300fed4a097923eacb0ba814' => __DIR__ . '/..' . '/igorw/get-in/src/get_in.php',
         '60799491728b879e74601d83e38b2cad' => __DIR__ . '/..' . '/illuminate/collections/helpers.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '11298418fac2d36d6d38c7c3efc5b206' => __DIR__ . '/..' . '/10quality/wp-query-builder/src/Lib/functions.php',
@@ -73,6 +74,7 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
             'GuzzleHttp\\Promise\\' => 19,
             'GuzzleHttp\\' => 11,
             'Geocoder\\Provider\\GoogleMaps\\' => 29,
+            'Geocoder\\Provider\\GeoPlugin\\' => 28,
             'Geocoder\\Provider\\FreeGeoIp\\' => 28,
             'Geocoder\\Http\\' => 14,
             'Geocoder\\' => 9,
@@ -154,7 +156,7 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         ),
         'Merck_Scraper\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/../merck-scraper-wpml',
+            0 => __DIR__ . '/../..' . '/',
         ),
         'Illuminate\\Support\\' => 
         array (
@@ -202,6 +204,10 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         'Geocoder\\Provider\\GoogleMaps\\' => 
         array (
             0 => __DIR__ . '/..' . '/geocoder-php/google-maps-provider',
+        ),
+        'Geocoder\\Provider\\GeoPlugin\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/geocoder-php/geo-plugin-provider',
         ),
         'Geocoder\\Provider\\FreeGeoIp\\' => 
         array (
@@ -530,6 +536,7 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         'Geocoder\\ProviderAggregator' => __DIR__ . '/..' . '/willdurand/geocoder/ProviderAggregator.php',
         'Geocoder\\Provider\\AbstractProvider' => __DIR__ . '/..' . '/willdurand/geocoder/Provider/AbstractProvider.php',
         'Geocoder\\Provider\\FreeGeoIp\\FreeGeoIp' => __DIR__ . '/..' . '/geocoder-php/free-geoip-provider/FreeGeoIp.php',
+        'Geocoder\\Provider\\GeoPlugin\\GeoPlugin' => __DIR__ . '/..' . '/geocoder-php/geo-plugin-provider/GeoPlugin.php',
         'Geocoder\\Provider\\GoogleMaps\\GoogleMaps' => __DIR__ . '/..' . '/geocoder-php/google-maps-provider/GoogleMaps.php',
         'Geocoder\\Provider\\GoogleMaps\\Model\\GoogleAddress' => __DIR__ . '/..' . '/geocoder-php/google-maps-provider/Model/GoogleAddress.php',
         'Geocoder\\Provider\\Provider' => __DIR__ . '/..' . '/willdurand/geocoder/Provider/Provider.php',
@@ -924,6 +931,36 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         'Mailjet\\Request' => __DIR__ . '/..' . '/mailjet/mailjet-apiv3-php/src/Mailjet/Request.php',
         'Mailjet\\Resources' => __DIR__ . '/..' . '/mailjet/mailjet-apiv3-php/src/Mailjet/Resources.php',
         'Mailjet\\Response' => __DIR__ . '/..' . '/mailjet/mailjet-apiv3-php/src/Mailjet/Response.php',
+        'Merck_Scraper\\Admin\\MSAdmin' => __DIR__ . '/../..' . '/Admin/MSAdmin.php',
+        'Merck_Scraper\\Admin\\MSApiLogger' => __DIR__ . '/../..' . '/Admin/MSApiLogger.php',
+        'Merck_Scraper\\Admin\\MSApiScraper' => __DIR__ . '/../..' . '/Admin/MSApiScraper.php',
+        'Merck_Scraper\\Admin\\MSCustomPT' => __DIR__ . '/../..' . '/Admin/MSCustomPT.php',
+        'Merck_Scraper\\Admin\\MSCustomTax' => __DIR__ . '/../..' . '/Admin/MSCustomTax.php',
+        'Merck_Scraper\\Admin\\MSLocationMetaBox' => __DIR__ . '/../..' . '/Admin/MSLocationMetaBox.php',
+        'Merck_Scraper\\Admin\\MSMetaBox' => __DIR__ . '/../..' . '/Admin/MSMetaBox.php',
+        'Merck_Scraper\\Admin\\MSOptionsPage' => __DIR__ . '/../..' . '/Admin/MSOptionsPage.php',
+        'Merck_Scraper\\Admin\\Traits\\MSAdminTrait' => __DIR__ . '/../..' . '/Admin/Traits/MSAdminTrait.php',
+        'Merck_Scraper\\Admin\\Traits\\MSAdminTrial' => __DIR__ . '/../..' . '/Admin/Traits/MSAdminTrial.php',
+        'Merck_Scraper\\Admin\\Traits\\MSApiField' => __DIR__ . '/../..' . '/Admin/Traits/MSApiField.php',
+        'Merck_Scraper\\Admin\\Traits\\MSEmailTrait' => __DIR__ . '/../..' . '/Admin/Traits/MSEmailTrait.php',
+        'Merck_Scraper\\Admin\\Traits\\MSLocationTrait' => __DIR__ . '/../..' . '/Admin/Traits/MSLocationTrait.php',
+        'Merck_Scraper\\Frontend\\MSFrontEndAPI' => __DIR__ . '/../..' . '/Frontend/MSFrontEndAPI.php',
+        'Merck_Scraper\\Frontend\\MSPublic' => __DIR__ . '/../..' . '/Frontend/MSPublic.php',
+        'Merck_Scraper\\Frontend\\MSUserLocation' => __DIR__ . '/../..' . '/Frontend/MSUserLocation.php',
+        'Merck_Scraper\\Frontend\\Traits\\MSPublicTrait' => __DIR__ . '/../..' . '/Frontend/Traits/MSPublicTrait.php',
+        'Merck_Scraper\\Helper\\MSHelper' => __DIR__ . '/../..' . '/Helper/MSHelper.php',
+        'Merck_Scraper\\Helper\\MSMailer' => __DIR__ . '/../..' . '/Helper/MSMailer.php',
+        'Merck_Scraper\\Includes\\MSActivator' => __DIR__ . '/../..' . '/Includes/MSActivator.php',
+        'Merck_Scraper\\Includes\\MSDeactivator' => __DIR__ . '/../..' . '/Includes/MSDeactivator.php',
+        'Merck_Scraper\\Includes\\MSI18n' => __DIR__ . '/../..' . '/Includes/MSI18n.php',
+        'Merck_Scraper\\Includes\\MSLoader' => __DIR__ . '/../..' . '/Includes/MSLoader.php',
+        'Merck_Scraper\\Includes\\MSMainClass' => __DIR__ . '/../..' . '/Includes/MSMainClass.php',
+        'Merck_Scraper\\Traits\\MSAcfTrait' => __DIR__ . '/../..' . '/Traits/MSAcfTrait.php',
+        'Merck_Scraper\\Traits\\MSApiTrait' => __DIR__ . '/../..' . '/Traits/MSApiTrait.php',
+        'Merck_Scraper\\Traits\\MSDBCallbacks' => __DIR__ . '/../..' . '/Traits/MSDBCallbacks.php',
+        'Merck_Scraper\\Traits\\MSGoogleMaps' => __DIR__ . '/../..' . '/Traits/MSGoogleMaps.php',
+        'Merck_Scraper\\Traits\\MSHttpCallback' => __DIR__ . '/../..' . '/Traits/MSHttpCallback.php',
+        'Merck_Scraper\\Traits\\MSLoggerTrait' => __DIR__ . '/../..' . '/Traits/MSLoggerTrait.php',
         'Monolog\\Attribute\\AsMonologProcessor' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Attribute/AsMonologProcessor.php',
         'Monolog\\DateTimeImmutable' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/DateTimeImmutable.php',
         'Monolog\\ErrorHandler' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/ErrorHandler.php',
