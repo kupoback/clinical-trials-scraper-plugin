@@ -4,6 +4,8 @@ declare(strict_types = 1);
 
 namespace Merck_Scraper\Traits;
 
+use function get_field;
+
 /**
  * Acf Traits for the plugin
  *

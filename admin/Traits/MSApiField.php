@@ -360,8 +360,6 @@ trait MSApiField
         $import_trial         = true;
         $allowed_status       = $this->trialStatus
             ->toArray();
-        $allowed_countries    = $this->allowedTrialLocations;
-        $disallowed_countries = $this->disallowedTrialLocations;
         /**
          * Map through all the locations, and set them up for import. During this time
          * we will be getting the latitude and longitude from Google Maps
@@ -370,7 +368,7 @@ trait MSApiField
         if ($locations->isNotEmpty()) {
             $trial_status = $trial_status->OverallStatus ?? '';
             $locations    = $locations
-                ->map(function ($location) use ($allowed_countries, $allowed_status, $disallowed_countries, $trial_status) {
+                ->map(function ($location) use ($allowed_status, $trial_status) {
                     $location_status = $location->LocationStatus ?? '';
                     $country         = $location->LocationCountry ?? '';
                     $has_status      = false;
@@ -384,10 +382,10 @@ trait MSApiField
                         $phone = $contact_list->LocationContact[0]->LocationContactPhone ?? '';
                     }
 
-                    if ($allowed_countries->isNotEmpty()) {
-                        $in_array = $allowed_countries->search(Str::lower($country));
-                    } elseif ($disallowed_countries->isNotEmpty()) {
-                        $in_array = $disallowed_countries->search(Str::lower($country));
+                    if ($this->allowedTrialLocations->isNotEmpty()) {
+                        $in_array = $this->allowedTrialLocations->search(Str::lower($country));
+                    } elseif ($this->disallowedTrialLocations->isNotEmpty()) {
+                        $in_array = $this->disallowedTrialLocations->search(Str::lower($country));
                     }
 
                     if (in_array(Str::lower($location_status), $allowed_status) || $trial_status) {
@@ -399,7 +397,7 @@ trait MSApiField
                         $languages = $this->mapLanguage($country);
                     }
 
-                    if (is_bool($in_array) && $has_status) {
+                    if (is_int($in_array) && $has_status) {
                         return [
                             'city'              => $location->LocationCity ?? '',
                             'country'           => $country,
@@ -419,7 +417,7 @@ trait MSApiField
                             'zip'               => $location->LocationZip ?? '',
                         ];
                     }
-                    return false;
+                    return [];
                 })
                 ->filter()
                 ->values();

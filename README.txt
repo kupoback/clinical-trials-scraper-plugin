@@ -5,7 +5,7 @@ Tags:
 Requires at least: 5.9.0
 Tested up to: 6.0.2
 Requires PHP: 7.4
-Stable tag: 1.0.9.1
+Stable tag: 1.0.9.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,14 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 == Description ==
 
 == Changelog ==
+
+= 1.0.9.2 =
+
+Various code optimizations for the API import
+
+Adjusted a lot of the query returns and reintroduced the filtering by the location either omitted or included
+
+Adjusted the location mapping for a trial to filter out ones that don't exist in the allowed or disallowed filters
 
 = 1.0.9.1 =
 
@@ -39,7 +47,7 @@ Fix for admin CSS and JS not loading
 
 = 1.0.7.10 =
 
-Added a manual call to from the admin, so that emails aren't sent out when ever the scraper is ran manually
+Added a manual call to from the admin, so that emails aren't sent out when ever the scraper is run manually
 
 Increased to Geolocate Callback time to 150ms
 

@@ -27,7 +27,7 @@ use Merck_Scraper\Includes\MSDeactivator;
  * Plugin Name:       Merck Scrapper - MCT
  * Plugin URI:        #
  * Description:       This plugin is used to scrape data from clinicaltrials.gov website. This is a fork for WPML and MCT specifically.
- * Version:           1.0.9.1
+ * Version:           1.0.9.2
  * Author:            Clique Studios
  * Author URI:        https://cliquestudios.com
  * Requires at least: 5.8.0
@@ -51,7 +51,7 @@ require plugin_dir_path(__FILE__) . 'vendor/autoload.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('MERCK_SCRAPER_VERSION', '1.0.9.1');
+define('MERCK_SCRAPER_VERSION', '1.0.9.2');
 
 /**
  * This constant is used to save the logs to a specific directory

@@ -303,7 +303,7 @@ class MSApiScraper
              *
              * @uses Status OverallStatus of the Trial, Recruiting and Not yet recruiting
              * @uses Country The default country is the United States
-             * @uses Sponsor Searches for Merck Sharp & Dohme Corp as the sponsor
+             * @uses Sponsor Searches for Merck Sharp & Dohme as the sponsor
              */
             $expression = collect();
 
@@ -329,23 +329,23 @@ class MSApiScraper
                 );
             }
 
-            // Trial Location search
-            // if ($this->disallowedTrialLocations->isEmpty()) {
-            //     $location = $this->mapImplode($this->allowedTrialLocations);
-            //     $expression->push(
-            //         "( AREA[LocationCountry] $location )"
-            //     );
-            // } elseif ($this->disallowedTrialLocations->isNotEmpty()) {
-            //     $location = $this->mapImplode($this->disallowedTrialLocations);
-            //     $expression->push(
-            //         "( AREA[LocationCountry] NOT $location )"
-            //     );
-            // }
+            // Trial Location search            
+            if ($this->disallowedTrialLocations->isEmpty()) {
+                $location = $this->mapImplode($this->allowedTrialLocations);
+                $expression->push(
+                    "EXPAND[Concept] (AREA[LocationCountry] $location)"
+                );
+            } elseif ($this->disallowedTrialLocations->isNotEmpty()) {
+                $location = $this->mapImplode($this->disallowedTrialLocations);
+                $expression->push(
+                    "(AREA[LocationCountry] NOT $location)"
+                );
+            }
 
             // Trial sponsor search name
-            $sponsor_name = $this->acfOptionField('clinical_trials_api_sponsor_search') ?: "Merck Sharp &amp; Dohme Corp.";
+            $sponsor_name = $this->acfOptionField('clinical_trials_api_sponsor_search') ?: "Merck Sharp &amp; Dohme";
             $expression->push(
-                "( AREA[LeadSponsorName] \"$sponsor_name\" )"
+                "(AREA[LeadSponsorName] EXPAND[Concept] \"$sponsor_name\")"
             );
 
             // Expression builder
