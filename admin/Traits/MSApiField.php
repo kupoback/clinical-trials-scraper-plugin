@@ -519,13 +519,13 @@ trait MSApiField
     /**
      * Easier method to combine acf data updates
      *
-     * @param string $field_name The ACF field name
-     * @param mixed  $field_data The data to save
-     * @param int    $post_id    The post ID to save to
+     * @param  string      $field_name  The ACF field name
+     * @param  mixed       $field_data  The data to save
+     * @param  string|int  $post_id     The post ID to save to
      *
      * @return bool|int
      */
-    protected function updateACF(string $field_name, mixed $field_data, int $post_id)
+    protected function updateACF(string $field_name, mixed $field_data, string|int $post_id)
     :bool|int
     {
         return update_field($field_name, $field_data, $post_id);

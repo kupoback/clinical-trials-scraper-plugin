@@ -5,7 +5,7 @@ Tags:
 Requires at least: 5.9.0
 Tested up to: 6.0.2
 Requires PHP: 7.4
-Stable tag: 1.0.9.2
+Stable tag: 1.0.9.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,14 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 == Description ==
 
 == Changelog ==
+
+= 1.0.9.3 =
+
+Added new ability to enter in NCT ID's and a second portion of the import will process those
+
+Will remove the manually entered NCT ID's if they appear in the initial API response and save the remaining values
+
+Code cleanup and redundancy adjustment
 
 = 1.0.9.2 =
 

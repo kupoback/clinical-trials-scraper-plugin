@@ -160,8 +160,8 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         ),
         'Illuminate\\Support\\' => 
         array (
-            0 => __DIR__ . '/..' . '/illuminate/collections',
-            1 => __DIR__ . '/..' . '/illuminate/macroable',
+            0 => __DIR__ . '/..' . '/illuminate/macroable',
+            1 => __DIR__ . '/..' . '/illuminate/collections',
             2 => __DIR__ . '/..' . '/illuminate/support',
         ),
         'Illuminate\\Contracts\\' => 
@@ -916,6 +916,7 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         'Illuminate\\Support\\Testing\\Fakes\\PendingChainFake' => __DIR__ . '/..' . '/illuminate/support/Testing/Fakes/PendingChainFake.php',
         'Illuminate\\Support\\Testing\\Fakes\\PendingMailFake' => __DIR__ . '/..' . '/illuminate/support/Testing/Fakes/PendingMailFake.php',
         'Illuminate\\Support\\Testing\\Fakes\\QueueFake' => __DIR__ . '/..' . '/illuminate/support/Testing/Fakes/QueueFake.php',
+        'Illuminate\\Support\\Timebox' => __DIR__ . '/..' . '/illuminate/support/Timebox.php',
         'Illuminate\\Support\\Traits\\CapsuleManagerTrait' => __DIR__ . '/..' . '/illuminate/support/Traits/CapsuleManagerTrait.php',
         'Illuminate\\Support\\Traits\\Conditionable' => __DIR__ . '/..' . '/illuminate/support/Traits/Conditionable.php',
         'Illuminate\\Support\\Traits\\EnumeratesValues' => __DIR__ . '/..' . '/illuminate/collections/Traits/EnumeratesValues.php',
@@ -939,6 +940,7 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         'Merck_Scraper\\Admin\\MSLocationMetaBox' => __DIR__ . '/../..' . '/Admin/MSLocationMetaBox.php',
         'Merck_Scraper\\Admin\\MSMetaBox' => __DIR__ . '/../..' . '/Admin/MSMetaBox.php',
         'Merck_Scraper\\Admin\\MSOptionsPage' => __DIR__ . '/../..' . '/Admin/MSOptionsPage.php',
+        'Merck_Scraper\\Admin\\Traits\\MSAdminHttpTrait' => __DIR__ . '/../..' . '/Admin/Traits/MSAdminHttpTrait.php',
         'Merck_Scraper\\Admin\\Traits\\MSAdminTrait' => __DIR__ . '/../..' . '/Admin/Traits/MSAdminTrait.php',
         'Merck_Scraper\\Admin\\Traits\\MSAdminTrial' => __DIR__ . '/../..' . '/Admin/Traits/MSAdminTrial.php',
         'Merck_Scraper\\Admin\\Traits\\MSApiField' => __DIR__ . '/../..' . '/Admin/Traits/MSApiField.php',

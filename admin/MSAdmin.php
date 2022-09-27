@@ -188,9 +188,7 @@ class MSAdmin
         ];
 
         if (in_array($group['key'], $groups)) {
-            add_filter('acf/settings/save_json', function () {
-                return dirname(__FILE__) . '/acf-json';
-            });
+            add_filter('acf/settings/save_json', fn () => dirname(__FILE__) . '/acf-json');
         }
     }
 
@@ -376,12 +374,12 @@ class MSAdmin
      * Hook to either remove a location if it is attached to only one location, or
      * delete the NCT ID term from that location.
      *
-     * @param string|int $post_id  The post ID
-     * @param WP_Post    $post     The WP_Post Object
+     * @param  int|string  $post_id  The post ID
+     * @param WP_Post      $post     The WP_Post Object
      *
      * @return void
      */
-    public function removeTrialLocations($post_id, WP_Post $post)
+    public function removeTrialLocations(int|string $post_id, WP_Post $post)
     :void
     {
         if ('trials' === $post->post_type) {

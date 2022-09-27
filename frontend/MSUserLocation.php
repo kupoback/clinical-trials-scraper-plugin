@@ -11,7 +11,7 @@ namespace Merck_Scraper\Frontend;
 use Error;
 use Geocoder\Collection;
 use Geocoder\Exception\Exception;
-use Geocoder\Provider\FreeGeoIp\FreeGeoIp;
+use Geocoder\Provider\GeoPlugin\GeoPlugin;
 use Geocoder\Provider\Provider;
 use Geocoder\ProviderAggregator;
 use Geocoder\Query\GeocodeQuery;
@@ -81,7 +81,7 @@ class MSUserLocation
         if (!empty($provider)) {
             $this->provider = $provider;
         } else {
-            $this->provider = [new FreeGeoIp(new Client())];
+            $this->provider = [new GeoPlugin(new Client())];
         }
     }
 
@@ -175,6 +175,39 @@ class MSUserLocation
         }
 
         return new WP_Error($results->get_error_code(), $results->get_error_message());
+    }
+
+    /**
+     * Returns the Users Country based on their IP address
+     *
+     * @return WP_Error|bool|array|Error
+     */
+    public function returnUserCountry()
+    :WP_Error|bool|array|Error
+    {
+        if (!$this->userLocation) {
+            return $this->noUserIp;
+        }
+
+        $location = self::geoQueryCallback();
+
+        if (!is_wp_error($location)) {
+            return [
+                'err'      => false,
+                'location' => [
+                    'countryName' => $location
+                        ->first()
+                        ->getCountry()
+                        ->getName(),
+                    'countryCode'      => $location
+                        ->first()
+                        ->getCountry()
+                        ->getCode(),
+                ],
+            ];
+        }
+
+        return false;
     }
 
     /**

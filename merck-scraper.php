@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Merck_Scraper;
 
+use Carbon\CarbonInterface;
 use Exception;
 use Illuminate\Support\Carbon;
 use Merck_Scraper\Admin\MSApiScraper;
@@ -27,7 +28,7 @@ use Merck_Scraper\Includes\MSDeactivator;
  * Plugin Name:       Merck Scrapper - MCT
  * Plugin URI:        #
  * Description:       This plugin is used to scrape data from clinicaltrials.gov website. This is a fork for WPML and MCT specifically.
- * Version:           1.0.9.2
+ * Version:           1.0.9.3
  * Author:            Clique Studios
  * Author URI:        https://cliquestudios.com
  * Requires at least: 5.8.0
@@ -51,7 +52,7 @@ require plugin_dir_path(__FILE__) . 'vendor/autoload.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('MERCK_SCRAPER_VERSION', '1.0.9.2');
+define('MERCK_SCRAPER_VERSION', '1.0.9.3');
 
 /**
  * This constant is used to save the logs to a specific directory
@@ -127,6 +128,7 @@ if (!class_exists('ACF') || !class_exists('SitePress')) {
  * @since    1.0.0
  */
 function run_ms()
+:void
 {
     !is_dir(MERCK_SCRAPER_LOG_DIR) ? mkdir(MERCK_SCRAPER_LOG_DIR) : null;
     $plugin = new MSMainClass();
@@ -156,7 +158,7 @@ add_action('ms_govt_scrape_cron', function () {
 if (!wp_next_scheduled('ms_govt_scrape_cron')) {
     // Grab the next day, and set it up
     $next_thursday = Carbon::now('America/New_York')
-                           ->next(Carbon::THURSDAY);
+                           ->next(CarbonInterface::THURSDAY);
     wp_schedule_event(
         $next_thursday->timestamp,
         'thursday_api',

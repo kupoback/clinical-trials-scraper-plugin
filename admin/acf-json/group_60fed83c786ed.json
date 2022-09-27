@@ -15,6 +15,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "placement": "left",
             "endpoint": 0
         },
@@ -31,6 +32,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "https:\/\/clinicaltrials.gov",
             "placeholder": ""
         },
@@ -47,6 +49,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "https:\/\/clinicaltrials.gov\/ct2\/show\/",
             "placeholder": ""
         },
@@ -63,6 +66,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "",
             "placeholder": "",
             "maxlength": "",
@@ -82,6 +86,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "",
             "placeholder": "",
             "maxlength": "",
@@ -101,6 +106,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "Recruiting\r\nNot yet recruiting\r\nActive, not recruiting",
             "placeholder": "",
             "maxlength": "",
@@ -160,7 +166,7 @@
                 "class": "",
                 "id": ""
             },
-            "wpml_cf_preferences": 1,
+            "wpml_cf_preferences": 0,
             "collapsed": "field_6202e0c2c8336",
             "min": 0,
             "max": 0,
@@ -222,6 +228,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "Merck Sharp & Dohme Corp.",
             "placeholder": "",
             "prepend": "",
@@ -241,7 +248,7 @@
                 "class": "",
                 "id": ""
             },
-            "wpml_cf_preferences": 1,
+            "wpml_cf_preferences": 0,
             "default_value": "keylynk;\r\nkeynote;\r\nkeyvibe;\r\nleap;\r\nlitespark;\r\nlynk;\r\nhopskip;",
             "placeholder": "",
             "maxlength": "",
@@ -261,6 +268,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "message": "The Minimum Import Rank is the starting rank number to begin the import from.<br \/><br \/>\r\nThe Maximum Import Rank is the maximum number of items per API call to be made.<br \/><br \/>\r\n<b>Note<\/b>: The maximum number is 100, but to keep call times low, and preventing memory leaks, it's recommended to set a max to 30. The API has a loop in place to increase the minimum rank and maximum rank, depending on the number of results returned, and will adjust the API call to reflect this.",
             "new_lines": "wpautop",
             "esc_html": 0
@@ -278,6 +286,7 @@
                 "class": "one-half",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": 1,
             "placeholder": "",
             "prepend": "",
@@ -299,6 +308,7 @@
                 "class": "one-half",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": 30,
             "placeholder": "",
             "prepend": "",
@@ -306,6 +316,158 @@
             "min": 2,
             "max": 100,
             "step": 1
+        },
+        {
+            "key": "field_610414572226f",
+            "label": "Google Maps",
+            "name": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "wpml_cf_preferences": 0,
+            "placement": "top",
+            "endpoint": 0
+        },
+        {
+            "key": "field_6104147e22271",
+            "label": "Google Maps API Key",
+            "name": "google_maps_api_key",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "wpml_cf_preferences": 0,
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_615f1fbcff639",
+            "label": "Google Maps Server Side API Key",
+            "name": "google_maps_server_side_api_key",
+            "type": "text",
+            "instructions": "This key is used for server side API requests, and cannot be domain locked. Only IP locked.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "wpml_cf_preferences": 0,
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_6107fd597e53c",
+            "label": "Emailer",
+            "name": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "wpml_cf_preferences": 0,
+            "placement": "left",
+            "endpoint": 0
+        },
+        {
+            "key": "field_6107fd6d7e53d",
+            "label": "Mailjet API Key",
+            "name": "mailjet_api_key",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "one-half",
+                "id": ""
+            },
+            "wpml_cf_preferences": 0,
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_6107fd747e53e",
+            "label": "Mailjet API Secret Key",
+            "name": "mailjet_api_secret_key",
+            "type": "password",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "one-half",
+                "id": ""
+            },
+            "wpml_cf_preferences": 0,
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_6107fd817e53f",
+            "label": "Email From",
+            "name": "email_from",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "one-half",
+                "id": ""
+            },
+            "wpml_cf_preferences": 0,
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_6107fd877e540",
+            "label": "Email From Name",
+            "name": "email_from_name",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "one-half",
+                "id": ""
+            },
+            "wpml_cf_preferences": 0,
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
         },
         {
             "key": "field_6140c669e83e3",
@@ -320,6 +482,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "message": "These settings are used to setup the mailer when the Scraper is ran.",
             "new_lines": "wpautop",
             "esc_html": 0
@@ -337,6 +500,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "collapsed": "field_6140bac420802",
             "min": 0,
             "max": 0,
@@ -356,6 +520,7 @@
                         "class": "",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 0,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -374,6 +539,7 @@
                         "class": "",
                         "id": ""
                     },
+                    "wpml_cf_preferences": 0,
                     "default_value": "",
                     "placeholder": "",
                     "prepend": "",
@@ -395,6 +561,7 @@
                 "class": "one-quarter",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "message": "",
             "default_value": 0,
             "ui": 1,
@@ -422,6 +589,7 @@
                 "class": "three-quarters",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "default_value": "",
             "placeholder": "",
             "prepend": "",
@@ -429,150 +597,6 @@
             "min": "",
             "max": "",
             "step": ""
-        },
-        {
-            "key": "field_610414572226f",
-            "label": "Google Maps",
-            "name": "",
-            "type": "tab",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "placement": "top",
-            "endpoint": 0
-        },
-        {
-            "key": "field_6104147e22271",
-            "label": "Google Maps API Key",
-            "name": "google_maps_api_key",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        },
-        {
-            "key": "field_615f1fbcff639",
-            "label": "Google Maps Server Side API Key",
-            "name": "google_maps_server_side_api_key",
-            "type": "text",
-            "instructions": "This key is used for server side API requests, and cannot be domain locked. Only IP locked.",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        },
-        {
-            "key": "field_6107fd597e53c",
-            "label": "Emailer",
-            "name": "",
-            "type": "tab",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "placement": "left",
-            "endpoint": 0
-        },
-        {
-            "key": "field_6107fd6d7e53d",
-            "label": "Mailjet API Key",
-            "name": "mailjet_api_key",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "one-half",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        },
-        {
-            "key": "field_6107fd747e53e",
-            "label": "Mailjet API Secret Key",
-            "name": "mailjet_api_secret_key",
-            "type": "password",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "one-half",
-                "id": ""
-            },
-            "placeholder": "",
-            "prepend": "",
-            "append": ""
-        },
-        {
-            "key": "field_6107fd817e53f",
-            "label": "Email From",
-            "name": "email_from",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "one-half",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        },
-        {
-            "key": "field_6107fd877e540",
-            "label": "Email From Name",
-            "name": "email_from_name",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "one-half",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
         },
         {
             "key": "field_617ae637d659b",
@@ -587,6 +611,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "placement": "left",
             "endpoint": 0
         },
@@ -603,6 +628,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "choices": {
                 "conditions": "Conditions",
                 "trial_ta": "Therapeutic Area"
@@ -628,6 +654,7 @@
                 "class": "",
                 "id": ""
             },
+            "wpml_cf_preferences": 0,
             "choices": {
                 "all": "All",
                 "auto-draft": "Auto-Draft",
@@ -651,6 +678,43 @@
             "ajax": 1,
             "return_format": "value",
             "placeholder": ""
+        },
+        {
+            "key": "field_632b31aae2272",
+            "label": "NCT ID's",
+            "name": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "wpml_cf_preferences": 0,
+            "placement": "left",
+            "endpoint": 0
+        },
+        {
+            "key": "field_632b31c9e2273",
+            "label": "Additional NCT ID's",
+            "name": "additional_nct_ids",
+            "type": "textarea",
+            "instructions": "Enter in either one per line, or separated by semi-colons, a list of NCT ID's to include in the scraper that may not be picked up by the automation. This will trigger a second portion of the API to run, and fetch these trials.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "wpml_cf_preferences": 0,
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": "",
+            "new_lines": "br"
         }
     ],
     "location": [
@@ -671,5 +735,5 @@
     "active": true,
     "description": "Option Settings for the Merck Scraper Plugin. Do not translate anything in here, as these are used for the API import only.",
     "show_in_rest": 0,
-    "modified": 1647886308
+    "modified": 1663948615
 }

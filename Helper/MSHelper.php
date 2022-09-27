@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Merck_Scraper\Helper;
 
+use Illuminate\Support\Str;
 use WP_Error;
 
 /**
@@ -64,7 +65,8 @@ class MSHelper
     :array
     {
         if ($field) {
-            $field = str_replace(';', '\n', $field);
+            $field = Str::replace('<br />', ';', $field);
+            $field = Str::replace(';', '\n', $field);
             $field = explode('\n', $field);
 
             return array_map('trim', $field);
