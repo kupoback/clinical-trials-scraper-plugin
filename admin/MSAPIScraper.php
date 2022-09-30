@@ -591,7 +591,7 @@ class MSApiScraper
     )
     :Logger|bool
     {
-        self::initLogger($name, $file_name, $file_path, $logger_type);
+        return self::initLogger($name, $file_name, $file_path, $logger_type);
     }
 
     public function setData()
@@ -661,11 +661,15 @@ class MSApiScraper
     }
 
     /**
+     * Processes the Trial API calls and sets up the frontend position data, which allows
+     * for the plugin to iterate through the same API call multiple times in various portions
+     * of the code
+     *
      * @param  Response    $http_callback
      * @param  Collection  $trashed_posts
+     * @param  int         $total_found_override
      *
      * @return Collection|WP_Error
-     * @throws Exception
      */
     public function trialsProcessingLoop(Response $http_callback, Collection $trashed_posts, int $total_found_override = 0)
     :WP_Error|Collection
