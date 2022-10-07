@@ -2,135 +2,107 @@
 
 declare(strict_types=1);
 
-namespace Merck_Scraper\Admin\Traits;
+namespace Merck_Scraper\Helper;
 
 use Illuminate\Support\Collection;
-use Mailjet\Client;
-use Merck_Scraper\Helper\MSMailer;
+use Mailjet\Resources;
+use Merck_Scraper\Admin\Traits\MSEmailTrait;
 use Merck_Scraper\Traits\MSAcfTrait;
+use Merck_Scraper\Traits\MSLoggerTrait;
+use Monolog\Logger;
 use WP_Error;
 
-/**
- * Traits for MailJet integration
- *
- * @package    Merck_Scraper
- * @subpackage Merck_Scraper/Traits
- * @author     Clique Studios <buildsomething@cliquestudios.com>
- */
-trait MSEmailTrait
+class MSMailer
 {
+
+    use MSEmailTrait;
     use MSAcfTrait;
+    use MSLoggerTrait;
 
     /**
-     * Method that setups and sends out the email after the import has been run
+     * This is an email compiler
      *
-     * @param Collection $studies_imported A Collection of studies that were imported
-     * @param int        $num_not_imported The number of studies not imported as they're filtered out
+     * @param null|Collection $send_to
+     * @param array<array>    $extra_args
      *
-     * @return WP_Error|bool|array
+     * @return array|WP_Error
+     * @link https://dev.mailjet.com/email/guides/send-api-v31/
      */
-    protected function emailSetup(Collection $studies_imported, int $num_not_imported = 0)
-    :WP_Error|bool|array
+    public function mailer(Collection $send_to = null, array $extra_args = [])
+    :WP_Error|array
     {
-        /**
-         * Merck Email Client
-         */
-        if ($this->sendTo->filter()->isEmpty()) {
-            $this->sendTo = collect(self::acfOptionField('api_logger_email_to'));
+        // $send_to is required and must be a Collection
+        if (is_null($send_to) || $send_to->isEmpty()) {
+            return new WP_Error("An email address and Name are required for email submission", 400);
         }
 
-        if ($this->sendTo->filter()->isNotEmpty()) {
-
-            /**
-             * Check if AIO is installed and setup
-             */
-            $login_url = wp_login_url();
-            global $aio_wp_security;
-            if ($aio_wp_security && $aio_wp_security->configs->get_value('aiowps_enable_rename_login_page') === '1') {
-                $home_url  = trailingslashit(home_url()) . (!get_option('permalink_structure') ? '?' : '');
-                $login_url = "$home_url{$aio_wp_security->configs->get_value('aiowps_login_page_slug')}";
-            }
-
-            /**
-             * A list of array fields for the MailJet Email Client
-             */
-            $email_args = [
-                'TemplateLanguage' => true,
-                'TemplateID'       => (int) (self::acfOptionField('api_email_template_id') ?? 0),
-                'Variables'        => [
-                    'timestamp' => $this->nowTime
-                        ->format("l F j, Y h:i A"),
-                    'trials'    => '',
-                    'wplogin'   => $login_url,
-                ],
-            ];
-
-            /**
-             * Adds the Trails' data to Variables
-             */
-            if ($studies_imported->isNotEmpty()) {
-                $new_posts     = collect();
-                $trashed_posts = collect();
-                $updated_posts = collect();
-
-                $studies_imported
-                    ->map(function ($study) use ($new_posts, $trashed_posts, $updated_posts) {
-                        $status = $study
-                                ->get('POST_STATUS', false);
-                        if (is_string($status)) {
-                            match(strtolower($status)) {
-                                'draft', 'pending' => $new_posts->push($study),
-                                'trash' => $trashed_posts->push($study),
-                                'publish' => $updated_posts->push($study),
-                            };
-                        }
-                        return $study;
-                    });
-
-                // Contents for the output body of the email
-                $total_found      = sprintf('<li>Total Found: %s</li>', $studies_imported->count());
-                $new_posts        = sprintf('<li>New Trials: %s</li>', $new_posts->count());
-                $trashed_posts    = sprintf('<li>Removed Trials: %s</li>', $trashed_posts->count());
-                $num_not_imported = sprintf('<li>Trials Not Scraped: %s</li>', $num_not_imported ?? 0);
-                $updated_posts    = sprintf('<li>Updated Trials: %s</li>', $updated_posts->count());
-
-                $email_args['Variables']['trials'] = sprintf(
-                    '<ul>%s</ul>',
-                    $total_found . $new_posts . $trashed_posts . $num_not_imported . $updated_posts
-                );
-            }
-
-            // Email notification on completion
-            return (new MSMailer())
-                ->mailer($this->sendTo, $email_args);
-        }
-
-        return false;
-    }
-
-    /**
-     * The setup for the Mailer client
-     *
-     * @return WP_Error|Client
-     */
-    protected function mailerClient()
-    :WP_Error|Client
-    {
-        $api_key         = self::acfOptionField('mailjet_api_key');
-        $api_secret      = self::acfOptionField('mailjet_api_secret_key');
-
-        if (!$api_key || !$api_secret) {
-            return new WP_Error(
-                400,
-                __("Please check that the API Key or Secret Key are populated and/or valid", 'merck-scraper')
-            );
-        }
-
-        return new Client(
-            $api_key,
-            $api_secret,
-            true,
-            ['version' => 'v3.1',]
+        // Set up the Email logger
+        $email_logger = $this->initLogger(
+            'email-log',
+            'email',
+            MERCK_SCRAPER_LOG_DIR . '/email/log',
+            Logger::API
         );
+
+        $error_logger = $this->initLogger(
+            'email-error',
+            'email-error',
+            MERCK_SCRAPER_LOG_DIR . '/email/error',
+            Logger::API,
+        );
+
+        $email_from      = $this->acfOptionField('email_from');
+        $email_from_name = $this->acfOptionField('email_from_name');
+
+        $mailjet = $this->mailerClient();
+
+        // Quit if the mailerClient fails to set up
+        if (is_wp_error($mailjet)) {
+            $error_logger->error("Failed to setup Email Client", ['message' => $mailjet->get_error_message()]);
+            return new WP_Error("Failed to setup Email Client. {$mailjet->get_error_message()}");
+        }
+
+        $send_to = $send_to
+            ->map(function ($send_to) {
+                $send_to = array_change_key_case($send_to, CASE_LOWER);
+                return [
+                    'Email' => $send_to['email'],
+                    'Name'  => $send_to['name'],
+                ];
+            })
+            ->filter()
+            ->toArray();
+
+        $mailjet_body = [
+            'Messages' => [
+                [
+                    // The email address from
+                    'From' => [
+                        'Email' => $email_from,
+                        'Name'  => $email_from_name,
+                    ],
+                    // Who the emails being sent to
+                    'To'   => $send_to,
+                ],
+            ],
+        ];
+
+        if (!empty($extra_args)) {
+            // Anything else like Subject, HTMLPart, TextPart, Variables, Template ID
+            foreach ($extra_args as $key_name => $value) {
+                $mailjet_body['Messages'][0][$key_name] = $value;
+            }
+        }
+
+        $response  = $mailjet->post(Resources::$Email, ['body' => $mailjet_body]);
+        $resp_body = $response->getBody();
+
+        if ($response->success()) {
+            $email_logger->info("Email Sent", $resp_body['Messages'][0]['To'] ?? '');
+            return $resp_body;
+        } else {
+            $error_logger->error("Email Failed", $response->getBody());
+            return new WP_Error($response->getStatus() ?? 400, $resp_body);
+        }
     }
 }

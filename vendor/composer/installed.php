@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'clique/merck-scraper',
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
-        'reference' => '15666ad27c39f35a7e9b4f35d7d43c5e13444e4c',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
+        'reference' => '0d9b059525e6d926599143361475342b8e28e3a2',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -29,9 +29,9 @@
             'dev_requirement' => false,
         ),
         'clique/merck-scraper' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => '15666ad27c39f35a7e9b4f35d7d43c5e13444e4c',
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => '0d9b059525e6d926599143361475342b8e28e3a2',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

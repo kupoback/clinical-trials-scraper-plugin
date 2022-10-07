@@ -43,12 +43,12 @@
 			"phpcs"
 		],
 		"compress": [
-			"zip -r merck-scraper-mct.zip ./ -x './.idea/*' './node_modules/*' './.git/*' './yarn.lock' && mv merck-scraper-mct.zip ../"
+			"zip -r merck-scraper-wpml.zip ./ -x './.idea/*' './node_modules/*' './.git/*' './yarn.lock' && mv merck-scraper-wpml.zip ../"
 		]
 	},
 	"autoload": {
 		"psr-4": {
-			"Merck_Scraper\\": "../merck-scraper-mct"
+			"Merck_Scraper\\": "../merck-scraper-wpml"
 		}
 	}
 }
