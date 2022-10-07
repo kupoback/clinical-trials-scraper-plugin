@@ -10,7 +10,7 @@ trait MSAdminTrial
     /**
      * A separated loop to handle pagination of posts
      *
-     * @param Collection $studies
+     * @param  Collection  $studies
      *
      * @return Collection
      */
@@ -22,9 +22,9 @@ trait MSAdminTrial
             $this->updatePosition(
                 "Trials Found",
                 [
-                    'position'     => 1,
+                    'position'    => 1,
                     'total_count' => $this->totalFound,
-                ]
+                ],
             );
 
             return $studies
@@ -33,18 +33,18 @@ trait MSAdminTrial
                         collect(
                             collect($study)
                                 ->get('Study')
-                                ->ProtocolSection
+                                ->ProtocolSection,
                         ),
                         $study
                             ->Study
                             ->ProtocolSection
-                            ->Rank
+                            ->Rank,
                     );
 
                     if ($study_import->get('locations', false)) {
                         $location_ids = $this->locationsImport(
                             $study_import->get('locations'),
-                            $study_import->get('NCT_ID')
+                            $study_import->get('NCT_ID'),
                         );
                         $study_import = $study_import->forget('locations');
                         // Update the imported trial with the location IDs we just imported
@@ -54,37 +54,35 @@ trait MSAdminTrial
                         wp_set_object_terms(
                             $study_import->get('ID'),
                             $location_ids
-                                ->map(function ($id) {
-                                    return get_field('api_data_country', $id);
-                                })
+                                ->map(fn ($id) => get_field('api_data_country', $id))
                                 ->filter()
-                                ->map(function ($country) {
-                                    return $this->mapLanguage($country);
-                                })
+                                ->map(fn ($country) => $this->mapLanguage($country))
                                 ->flatten(1)
                                 ->values()
                                 ->filter()
                                 ->unique()
                                 ->toArray(),
-                            'trial_language'
+                            'trial_language',
                         );
                     }
 
                     return $study_import;
                 });
         }
+
         return collect();
     }
 
     /**
      * Setups the post creation or update based on the data imported.
      *
-     * @param object $field_data Data retrieved from the API
+     * @param  object  $field_data  Data retrieved from the API
      *
      * @return false|Collection
      * @throws Exception
      */
     protected function studyImport(object $field_data, int $position_index)
+    :bool|Collection
     {
         set_time_limit(600);
         ini_set('max_execution_time', '600');
@@ -94,15 +92,15 @@ trait MSAdminTrial
         $return = collect([]);
 
         //region Modules
-        $arms_module      = $this->parseArms($field_data->get('ArmsInterventionsModule'));
-        $condition_module = $this->parseCondition($field_data->get('ConditionsModule'));
-        $contact_module   = $this->parseLocation($field_data->get('ContactsLocationsModule'), $field_data->get('StatusModule'));
-        $desc_module      = $this->parseDescription($field_data->get('DescriptionModule'));
-        $design_module    = $this->parseDesign($field_data->get('DesignModule'));
-        $eligible_module  = $this->parseEligibility($field_data->get('EligibilityModule'));
-        $id_module        = $this->parseId($field_data->get('IdentificationModule'));
-        $status_module    = $this->parseStatus($field_data->get('StatusModule'));
-        $sponsor_module   = $this->parseSponsors($field_data->get('SponsorCollaboratorsModule'));
+        $arms_module      = $this->parseArms($field_data->get('ArmsInterventionsModule', null));
+        $condition_module = $this->parseCondition($field_data->get('ConditionsModule', null));
+        $contact_module   = $this->parseLocation($field_data->get('ContactsLocationsModule', null), $field_data->get('StatusModule', null));
+        $desc_module      = $this->parseDescription($field_data->get('DescriptionModule', null));
+        $design_module    = $this->parseDesign($field_data->get('DesignModule', null));
+        $eligible_module  = $this->parseEligibility($field_data->get('EligibilityModule', null));
+        $id_module        = $this->parseId($field_data->get('IdentificationModule', null));
+        $status_module    = $this->parseStatus($field_data->get('StatusModule', null));
+        $sponsor_module   = $this->parseSponsors($field_data->get('SponsorCollaboratorsModule', null));
         //endregion
 
         // Not currently used field mappings
@@ -110,18 +108,16 @@ trait MSAdminTrial
         // $outcome_module   = $this->parseOutcome($field_data->get('OutcomesModule'));
         // $ipd_module = $this->parseIDP($field_data->get('IPDSharingStatementModule'));
 
-        $this->nctId = $id_module->get('nct_id');
+        $this->nctId = $id_module->get('nct_id', '');
         $nct_id      = $this->nctId;
         // Grabs the post_id from the DB based on the NCT ID value
         $post_id = intval($this->dbFetchPostId('meta_value', $nct_id));
 
         // Default post status
         $do_not_import  = false;
-        $trial_status   = sanitize_title($status_module->get('trial_status'));
+        $trial_status   = sanitize_title($status_module->get('trial_status', ''));
         $allowed_status = $this->trialStatus
-            ->map(function ($status) {
-                return sanitize_title($status);
-            })
+            ->map(fn ($status) => sanitize_title($status))
             ->toArray();
 
         // Set up the post data
@@ -132,7 +128,7 @@ trait MSAdminTrial
                 'slug'    => $nct_id,
                 'content' => $desc_module
                     ->get('post_content'),
-            ]
+            ],
         );
 
         $post_args = collect(wp_parse_args($parse_args, $this->trialPostDefault));
@@ -150,29 +146,30 @@ trait MSAdminTrial
                     0,
                     $post_args->get('post_title'),
                     $nct_id,
-                    __('Did not create new trial post.', 'merck-scraper')
+                    __('Did not create new trial post.', 'merck-scraper'),
                 );
             }
 
             // All new trials are set to draft status
             $post_args
                 ->put('post_status', 'draft');
+
             // Set up the post for creation
-            $post_id                 = wp_insert_post(
+            $post_id = wp_insert_post(
                 $post_args
                     ->toArray(),
-                "Failed to create trial post."
+                "Failed to create trial post.",
             );
         } else {
             // Updating our post
             $post_args
                 ->put('ID', $post_id);
             $post_args
-                ->forget(['post_title', 'post_content',]);
+                ->forget(['post_title', 'post_content', 'post_name']);
             wp_update_post(
                 $post_args
                     ->toArray(),
-                "Failed to update post."
+                "Failed to update post.",
             );
         }
 
@@ -194,7 +191,7 @@ trait MSAdminTrial
                         'NCTID' => $nct_id,
                         'error' => $post_id
                             ->get_error_message(),
-                    ]
+                    ],
                 );
 
             return false;
@@ -219,22 +216,22 @@ trait MSAdminTrial
             //region Field Data Setup
             $field_data = collect([])
                 ->put('nct_id', $nct_id)
-                ->put('url', $id_module->get('url'))
-                ->put('brief_title', $id_module->get('brief_title'))
-                ->put('official_title', $id_module->get('official_title'))
-                ->put('trial_purpose', $desc_module->get('trial_purpose'))
-                ->put('study_keyword', $id_module->get('study_keyword'))
-                ->put('study_protocol', $id_module->get('study_protocol'))
-                ->put('start_date', $status_module->get('start_date'))
-                ->put('primary_completion_date', $status_module->get('primary_completion_date'))
-                ->put('completion_date', $status_module->get('completion_date'))
-                ->put('lead_sponsor_name', $sponsor_module->get('lead_sponsor_name'))
-                ->put('gender', $eligible_module->get('gender'))
-                ->put('minimum_age', $eligible_module->get('minimum_age'))
-                ->put('maximum_age', $eligible_module->get('maximum_age'))
-                ->put('other_ids', $id_module->get('other_ids'))
+                ->put('url', $id_module->get('url', ''))
+                ->put('brief_title', $id_module->get('brief_title', ''))
+                ->put('official_title', $id_module->get('official_title', ''))
+                ->put('trial_purpose', $desc_module->get('trial_purpose', ''))
+                ->put('study_keyword', $id_module->get('study_keyword', ''))
+                ->put('study_protocol', $id_module->get('study_protocol', ''))
+                ->put('start_date', $status_module->get('start_date', ''))
+                ->put('primary_completion_date', $status_module->get('primary_completion_date', ''))
+                ->put('completion_date', $status_module->get('completion_date', ''))
+                ->put('lead_sponsor_name', $sponsor_module->get('lead_sponsor_name', ''))
+                ->put('gender', $eligible_module->get('gender', ''))
+                ->put('minimum_age', $eligible_module->get('minimum_age', ''))
+                ->put('maximum_age', $eligible_module->get('maximum_age', ''))
+                ->put('other_ids', $id_module->get('other_ids', ''))
                 // ->put('interventions', $arms_module->get('interventions'))
-                ->put('phase', $design_module->get('phase'));
+                ->put('phase', $design_module->get('phase', ''));
             //endregion
 
             //region Field Data Import
@@ -253,6 +250,7 @@ trait MSAdminTrial
 
                             return $this->updateACF($field['name'], $arr_data, $post_id);
                         }
+
                         return false;
                     }
 
@@ -267,12 +265,14 @@ trait MSAdminTrial
                                 $field_data = $field_data
                                     ->get($data_name);
                             }
+
                             return $this->updateACF(
                                 $field['name'],
                                 $field_data,
-                                $post_id
+                                $post_id,
                             );
                         }
+
                         return false;
                     }
 
@@ -290,25 +290,24 @@ trait MSAdminTrial
                 ->put('conditions', $condition_module->get('conditions'))
                 ->put('trial_status', $status_module->get('trial_status'))
                 // ->put('trial_category', [])
-                ->each(function ($terms, $taxonomy) use ($post_id) {
-                    return wp_set_object_terms($post_id, $terms, $taxonomy);
-                });
+                ->each(fn ($terms, $taxonomy) => wp_set_object_terms($post_id, $terms, $taxonomy));
 
             /**
              * Set up the taxonomy terms for Trial Drugs
              */
-            if ($arms_module->get('drugs') && $arms_module->get('drugs')->isNotEmpty()) {
+            if ($arms_module->get('drugs')
+                && $arms_module->get('drugs')
+                               ->isNotEmpty()) {
                 collect()
                     ->put('trial_drugs', $arms_module->get('drugs'))
                     ->map(function ($terms, $taxonomy) use ($post_id) {
-                        $tax_terms = [];
                         if ($terms instanceof Collection) {
                             $tax_terms = $terms->toArray();
                         } elseif (is_object($terms)) {
                             $tax_terms = (array) $terms;
                         }
 
-                        wp_set_object_terms($post_id, $tax_terms, $taxonomy);
+                        wp_set_object_terms($post_id, $tax_terms ?? [], $taxonomy);
                     });
             }
 
@@ -342,6 +341,7 @@ trait MSAdminTrial
                                     ? []
                                     : wp_set_object_terms($post_id, $term['slug'], 'trial_age', true);
                             }
+
                             return [];
                         });
                 }
@@ -368,10 +368,10 @@ trait MSAdminTrial
     /**
      * Trial not to import
      *
-     * @param int    $post_id
-     * @param string $title
-     * @param string $nct_id
-     * @param string $msg
+     * @param  int     $post_id
+     * @param  string  $title
+     * @param  string  $nct_id
+     * @param  string  $msg
      *
      * @return Collection
      */
@@ -384,7 +384,7 @@ trait MSAdminTrial
                 'NAME'    => $title,
                 'NCTID'   => $nct_id,
                 'MESSAGE' => $msg,
-            ]
+            ],
         );
     }
 }

@@ -21,10 +21,10 @@ trait MSLoggerTrait
     /**
      * Sets up the Logger
      *
-     * @param string     $name      The logger name
-     * @param string|int $file_name The file name for the logger
-     * @param string     $file_path The path to place the file
-     * @param int        $logger_type The type of log file this is
+     * @param string       $name         The logger name
+     * @param  int|string  $file_name    The file name for the logger
+     * @param string       $file_path    The path to place the file
+     * @param int          $logger_type  The type of log file this is
      *
      * @return false|Logger
      * @link LineFormatter https://github.com/Seldaek/monolog/blob/main/doc/message-structure.md
@@ -32,11 +32,13 @@ trait MSLoggerTrait
      * @link Monolog https://github.com/Seldaek/monolog
      */
     protected function initLogger(
-        string $name,
-        $file_name,
-        string $file_path = MERCK_SCRAPER_LOG_DIR,
-        int $logger_type = Logger::ERROR
-    ) {
+        string     $name,
+        int|string $file_name,
+        string     $file_path = MERCK_SCRAPER_LOG_DIR,
+        int        $logger_type = Logger::ERROR
+    )
+    :Logger|bool
+    {
         if (!$name || !$file_name) {
             return false;
         }

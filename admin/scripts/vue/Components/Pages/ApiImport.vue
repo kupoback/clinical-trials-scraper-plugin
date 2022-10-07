@@ -20,8 +20,16 @@
                                 :position="importStatus.position"
                                 :total-count="importStatus.totalCount" />
                 <p v-if="importStatus.helper"
-                   class="merck-scraper-import__body__status-helper"
                    v-html="importStatus.helper" />
+               
+                <ImportProgress v-if="objNotEmpty(importStatus, 'subData') && importStatus.subData.hasOwnProperty('totalCount')"
+                                progress-class="col-6"
+                                :helper="importStatus.subData.helper"
+                                :position="importStatus.subData.position"
+                                :total-count="importStatus.subData.totalCount" />
+                <p v-if="objNotEmpty(importStatus, 'subData') && importStatus.subData.hasOwnProperty('helper')"
+                   class="merck-scraper-import__body__status-helper"
+                   v-html="importStatus.subData.helper" />
             </div>
             <div class="merck-scraper-import__button-group col-12">
                 <div class="row">
@@ -82,6 +90,7 @@
     import Button from "../blocks/Button.vue";
     import ImportProgress from "../blocks/ImportProgress.vue";
     import Layout from "../Layout/Layout.vue";
+    import mixins from "../../Util/mixins";
     
     export default {
         data() {
@@ -96,6 +105,7 @@
                 locImportRunning: false,
                 nctidField: null,
                 spinner: null,
+                subData: {},
                 timeout: 1000,
             };
         },
@@ -154,6 +164,7 @@
                 }, interval);
             }
         },
+        mixins: [mixins],
         components: {ImportProgress, Layout, Button},
         name: "ApiImport",
     };

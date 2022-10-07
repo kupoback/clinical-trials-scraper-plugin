@@ -48,18 +48,17 @@ trait MSGoogleMaps
     /**
      * Grabs the full locations' data from Google's Map API
      *
-     * @param array $location
+     * @param  array  $location
      *
      * @return Collection|mixed|WP_Error
      */
     protected function getFullLocation(array $location = [])
+    :mixed
     {
-        $gm_api_callback = $this->googleMapsApiCB(
+        $gm_api_callback = self::googleMapsApiCB(
             collect($location)
-                ->map(function ($location) {
-                    return urlencode($location);
-                })
-                ->implode('+')
+                ->map(fn ($location) => urlencode($location))
+                ->implode('+'),
         );
 
         if (!is_wp_error($gm_api_callback)) {
@@ -78,15 +77,16 @@ trait MSGoogleMaps
     /**
      * Grabs the lat/lng for a place based on the address
      *
-     * @param array $location
+     * @param  array  $location
      *
      * @return false|mixed|WP_Error
      */
     protected function getLatLng(array $location = [])
+    :mixed
     {
-        $gm_api_callback = $this->googleMapsApiCB(
+        $gm_api_callback = self::googleMapsApiCB(
             collect($location)
-                ->implode('+')
+                ->implode('+'),
         );
         if (!is_wp_error($gm_api_callback)) {
             if ($gm_api_callback->geometry ?? false) {
@@ -100,11 +100,12 @@ trait MSGoogleMaps
     /**
      * Parses the Google Maps API address_components
      *
-     * @param Collection $address
+     * @param  Collection  $address
      *
      * @return Collection
      */
-    protected function parseAddress(Collection $address): Collection
+    protected function parseAddress(Collection $address)
+    :Collection
     {
         if ($address->isNotEmpty()) {
             $accepted_types = [
@@ -116,36 +117,24 @@ trait MSGoogleMaps
                 'postal_code', // Zip Code
                 'country', // Country Name
             ];
-            $address        = $address
-                ->filter(function ($array) use ($accepted_types) {
-                    $types = collect($array->types)
-                        ->filter(function ($type) use ($accepted_types) {
-                            return in_array($type, $accepted_types);
-                        })
-                        ->filter()
-                        ->values();
-                    return $types->isNotEmpty();
-                })
+
+            $address = $address
+                ->filter(fn ($array) => collect($array->types)
+                    ->filter(fn ($type) => in_array($type, $accepted_types))
+                    ->filter()
+                    ->values()
+                    ->isNotEmpty())
                 ->mapWithKeys(function ($array) {
                     $types = collect($array->types)
-                        ->filter(function ($type) {
-                            return $type !== 'political';
-                        });
+                        ->filter(fn ($type) => $type !== 'political');
 
-                    $the_type = $types->first();
-                    switch ($the_type) {
-                        case "locality":
-                            $the_type = 'city';
-                            break;
-                        case "administrative_area_level_1":
-                            $the_type = 'state';
-                            break;
-                        case "postal_code":
-                            $the_type = 'zipcode';
-                            break;
-                        default:
-                            break;
-                    }
+                    $the_type = match ($types->first()) {
+                        'locality'                    => 'city',
+                        'administrative_area_level_1' => 'state',
+                        'postal_code'                 => 'zipcode',
+                        default                       => '',
+                    };
+
                     return [$the_type => $array->long_name];
                 })
                 ->filter();
@@ -165,17 +154,19 @@ trait MSGoogleMaps
 
             return $address->filter();
         }
+
         return collect();
     }
 
     /**
      * Makes an API call to Google Maps, and returns with the response or WP_Error
      *
-     * @param string $address
+     * @param  string  $address
      *
      * @return mixed|WP_Error
      */
     protected function googleMapsApiCB(string $address)
+    :mixed
     {
         set_time_limit(120);
         ini_set('max_execution_time', '120');
@@ -195,7 +186,7 @@ trait MSGoogleMaps
                     'guzzle'    => [
                         'verify' => true,
                     ],
-                ]
+                ],
             );
 
             if ($response->getStatusCode() == '200') {
@@ -208,6 +199,7 @@ trait MSGoogleMaps
                     $this
                         ->errorLog
                         ->error("Error getting location", (array) $body_res);
+
                     return new WP_Error(
                         $response->getStatusCode(),
                         "Unable to get location."

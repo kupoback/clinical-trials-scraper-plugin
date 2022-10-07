@@ -3,9 +3,9 @@ Contributors: Nick Makris
 Donate link: https://cliquestudios.com
 Tags:
 Requires at least: 5.9.0
-Tested up to: 5.9.2
+Tested up to: 6.0.2
 Requires PHP: 7.4
-Stable tag: 1.0.7.12
+Stable tag: 1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,44 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 == Description ==
 
 == Changelog ==
+
+= 1.1 =
+
+Fixed major logic issue with the API request from Clinical Trials due to the improper query string being dropped
+
+Added new progress bar for import to showcase the position of locations being imported without affecting the status of the trials being imported
+
+= 1.0.9.4 =
+
+Fixed logger return error for API Scraper
+
+= 1.0.9.3 =
+
+Added new ability to enter in NCT ID's and a second portion of the import will process those
+
+Will remove the manually entered NCT ID's if they appear in the initial API response and save the remaining values
+
+Code cleanup and redundancy adjustment
+
+= 1.0.9.2 =
+
+Various code optimizations for the API import
+
+Adjusted a lot of the query returns and reintroduced the filtering by the location either omitted or included
+
+Adjusted the location mapping for a trial to filter out ones that don't exist in the allowed or disallowed filters
+
+= 1.0.9.1 =
+
+Fix to composer.json PSR-4 path
+
+= 1.0.9 =
+
+This is a fork of the WPML version for use of MCT specifically
+
+= 1.0.8 =
+
+Updated illuminate/support to 8.x for more Collection availability and support on filtering and eliminating conflicts with Sage 9 theme
 
 = 1.0.7.12 =
 
@@ -27,7 +65,7 @@ Fix for admin CSS and JS not loading
 
 = 1.0.7.10 =
 
-Added a manual call to from the admin, so that emails aren't sent out when ever the scraper is ran manually
+Added a manual call to from the admin, so that emails aren't sent out when ever the scraper is run manually
 
 Increased to Geolocate Callback time to 150ms
 

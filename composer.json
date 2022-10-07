@@ -1,19 +1,21 @@
 {
-    "name": "mak/merck-scraper",
+    "name": "clique/merck-scraper",
     "require": {
-	    "php": ">=7.4",
-	    "ext-json": "*",
-	    "10quality/wp-query-builder": "^1.0",
-	    "guzzlehttp/guzzle": "^7.3",
-	    "geocoder-php/free-geoip-provider": "^4.4",
-	    "geocoder-php/google-maps-provider": "^4.6",
-	    "illuminate/support": "^5.6",
-	    "mailjet/mailjet-apiv3-php": "^1.5",
-	    "monolog/monolog": "^2.3",
-	    "nesbot/carbon": "^2.31",
-	    "php-http/guzzle7-adapter": "^1.0",
-	    "php-http/message": "^1.12",
-	    "vlucas/phpdotenv": "^3.0"
+		"php": "^8.0.0",
+		"composer/installers": "^2.0",
+		"ext-json": "*",
+		"10quality/wp-query-builder": "^1.0",
+		"geocoder-php/geo-plugin-provider": "^4.2",
+		"geocoder-php/free-geoip-provider": "^4.4",
+		"geocoder-php/google-maps-provider": "^4.7",
+		"guzzlehttp/guzzle": "^7.3",
+		"illuminate/support": "^8.82",
+		"mailjet/mailjet-apiv3-php": "^1.5",
+		"monolog/monolog": "^2.3",
+		"nesbot/carbon": "^2.31",
+		"php-http/guzzle7-adapter": "^1.0",
+		"php-http/message": "^1.12",
+		"vlucas/phpdotenv": "^3.0"
     },
 	"require-dev": {
 		"squizlabs/php_codesniffer": "^3.5",
@@ -21,7 +23,12 @@
 	},
 	"config": {
 		"optimize-autoloader": true,
-		"preferred-install": "dist"
+		"preferred-install": "dist",
+		"allow-plugins": {
+			"composer/installers": true,
+			"roots/wordpress-core-installer": true,
+			"kylekatarnls/update-helper": true
+		}
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,
@@ -36,12 +43,12 @@
 			"phpcs"
 		],
 		"compress": [
-			"zip -r merck-scraper-wpml.zip ./ -x './node_modules/*' './.git/*' './yarn.lock' && mv merck-scraper-wpml.zip ../"
+			"zip -r merck-scraper-mct.zip ./ -x './.idea/*' './node_modules/*' './.git/*' './yarn.lock' && mv merck-scraper-mct.zip ../"
 		]
 	},
 	"autoload": {
 		"psr-4": {
-			"Merck_Scraper\\": "../merck-scraper-wpml"
+			"Merck_Scraper\\": "../merck-scraper-mct"
 		}
 	}
 }

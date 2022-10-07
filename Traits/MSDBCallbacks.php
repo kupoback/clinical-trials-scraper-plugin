@@ -19,7 +19,7 @@ trait MSDBCallbacks
 {
 
     /**
-     * Creates a DB fetch to grab the post ID from the postmeta table based on
+     * Creates a DB fetch to grab the post ID from the post meta table based on
      * the $meta_key that's passed.
      *
      * If using ACF and the value is serialized, this will not work.
@@ -31,6 +31,7 @@ trait MSDBCallbacks
      * @throws Exception
      */
     protected function dbFetchPostId(string $db_col = '', string $value = '')
+    :mixed
     {
         if (!$db_col || !$value) {
             return new WP_Error(400, __("Did not include a meta_key or value with a valid value", "merck-scraper"));
@@ -45,9 +46,15 @@ trait MSDBCallbacks
     }
 
     /**
+     * Fetches the NCT ID from the Database based on the Post ID
+     *
+     * @param int $post_id The Post ID
+     *
+     * @return int|mixed|WP_Error
      * @throws Exception
      */
     protected function dbFetchNctId(int $post_id)
+    :mixed
     {
         if (!$post_id) {
             return new WP_Error(400, __("Did not pass a post_id", "merck-scraper"));
@@ -66,6 +73,9 @@ trait MSDBCallbacks
     }
 
     /**
+     * Returns a list of all posts that are marked as Archived
+     *
+     * @return array
      * @throws Exception
      */
     protected function dbArchivedPosts()

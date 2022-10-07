@@ -32,70 +32,13 @@ trait MSHttpCallback
     use MSAcfTrait;
 
     /**
-     * Basic HTTP callback setup
-     *
-     * @param string $endpoint_path
-     * @param string $request_type
-     * @param array  $query_args
-     * @param array  $http_args
-     * @param array  $guzzle_args
-     *
-     * @return ResponseInterface|WP_Error
-     */
-    protected function scraperHttpCB(string $endpoint_path, string $request_type = "GET", array $query_args = [], array $http_args = [], array $guzzle_args = [])
-    {
-        $base_uri = $this->acfOptionField('clinical_trials_api_base');
-
-        if ($base_uri) {
-            $handler_stack = HandlerStack::create(new CurlHandler());
-            $handler_stack->push(Middleware::retry($this->retryCall(), $this->retryDelay()));
-
-            $default_args = [
-                'base_uri' => $base_uri,
-                'handler'  => $handler_stack,
-            ];
-            $client_args  = wp_parse_args($guzzle_args, $default_args);
-
-            $guzzle_client = new Client($client_args);
-
-            try {
-                $query_args   = wp_parse_args($query_args, ['fmt' => 'JSON', 'min_rnk' => 1, 'max_rnk' => 10,]);
-                $request_args = wp_parse_args($http_args, ['query' => $query_args]);
-
-                $response = $guzzle_client->request(
-                    $request_type,
-                    $endpoint_path,
-                    $request_args,
-                );
-
-                if ($response->getStatusCode() === 200) {
-                    return $response;
-                }
-
-                return new WP_Error($response->getStatusCode(), $response->getBody()->getContents());
-            } catch (GuzzleException $exception) {
-                $this->httpErrLogger()
-                    ->error(
-                        "Unable to connect to API for $endpoint_path. Error: {$exception->getMessage()}"
-                    );
-                return new WP_Error($exception->getCode(), $exception->getMessage());
-            }
-        }
-
-        return new WP_Error(
-            400,
-            __("Error, unable to complete HTTP request. No base_uri set in Merck Scraper Options.", "merck-scraper")
-        );
-    }
-
-    /**
      * Basic HTTP callback for anything else needed on the site
      *
-     * @param string $api_base      The base URL we're calling to
-     * @param string $endpoint_path The endpoint relative to the $api_base
-     * @param string $request_type  The request type
-     * @param array  $query_args    Any query args passed to the endpoint
-     * @param array  $guzzle_args   Any additional args needed for the HTTP, either http_args or guzzle_args
+     * @param  string  $api_base       The base URL we're calling to
+     * @param  string  $endpoint_path  The endpoint relative to the $api_base
+     * @param  string  $request_type   The request type
+     * @param  array   $query_args     Any query args passed to the endpoint
+     * @param  array   $guzzle_args    Any additional args needed for the HTTP, either http_args or guzzle_args
      *
      * @return ResponseInterface|void|WP_Error
      */
@@ -103,9 +46,10 @@ trait MSHttpCallback
         string $api_base,
         string $endpoint_path,
         string $request_type = "GET",
-        array $query_args = [],
-        array $guzzle_args = []
-    ) {
+        array  $query_args = [],
+        array  $guzzle_args = [],
+    )
+    {
         if ($api_base) {
             $handler_stack = HandlerStack::create(new CurlHandler());
             $handler_stack->push(Middleware::retry($this->retryCall(), $this->retryDelay()));
@@ -133,12 +77,14 @@ trait MSHttpCallback
                     return $response;
                 }
 
-                return new WP_Error($response->getStatusCode(), $response->getBody()->getContents());
+                return new WP_Error($response->getStatusCode(), $response->getBody()
+                                                                         ->getContents());
             } catch (GuzzleException $exception) {
                 $this->httpErrLogger()
-                    ->error(
-                        "Unable to connect to API for $endpoint_path. Error: {$exception->getMessage()}"
-                    );
+                     ->error(
+                         "Unable to connect to API for $endpoint_path. Error: {$exception->getMessage()}",
+                     );
+
                 return new WP_Error($exception->getCode(), $exception->getMessage());
             }
         }
@@ -149,13 +95,14 @@ trait MSHttpCallback
      *
      * @return ClosureAlias
      */
-    private function retryCall(): ClosureAlias
+    private function retryCall()
+    :ClosureAlias
     {
         return function (
             $retries,
             Request $request,
             Response $response = null,
-            RequestException $exception = null
+            RequestException $exception = null,
         ) {
             // Limit the number of retries to 5
             if ($retries >= 5) {
@@ -164,17 +111,22 @@ trait MSHttpCallback
 
             // Retry connection exceptions
             if ($exception instanceof ConnectException) {
-                $this->httpErrLogger()->error("Error Connection: {$request->getUri()}");
+                $this
+                    ->httpErrLogger()
+                    ->error("Error Connection: {$request->getUri()}");
+
                 return true;
             }
 
             if ($response) {
                 // Retry on server errors
                 if ($response->getStatusCode() >= 500) {
-                    $this->httpErrLogger()
+                    $this
+                        ->httpErrLogger()
                         ->error(
-                            "Error status code: {$response->getStatusCode()} on url {$request->getUri()}"
+                            "Error status code: {$response->getStatusCode()} on url {$request->getUri()}",
                         );
+
                     return true;
                 }
             }
@@ -188,7 +140,8 @@ trait MSHttpCallback
      *
      * @return ClosureAlias
      */
-    private function retryDelay(): ClosureAlias
+    private function retryDelay()
+    :ClosureAlias
     {
         return function ($numberOfRetries) {
             return 1000 * $numberOfRetries;
@@ -201,7 +154,9 @@ trait MSHttpCallback
      * @return false|Logger
      */
     protected function httpErrLogger()
+    :Logger|bool
     {
-        return $this->initLogger("http-error", "http-error", MERCK_SCRAPER_LOG_DIR . "/http/error");
+        return $this
+            ->initLogger("http-error", "http-error", MERCK_SCRAPER_LOG_DIR . "/http/error");
     }
 }

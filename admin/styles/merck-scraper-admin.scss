@@ -6,15 +6,22 @@
 /**
  * Bootstrap defaults
  */
+@import "~bootstrap/scss/mixins/banner";
+@include bsBanner("");
 @import "~bootstrap/scss/functions";
 @import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/maps";
 @import "~bootstrap/scss/mixins";
-@import "~bootstrap/scss/helpers";
 @import "~bootstrap/scss/utilities";
+
 @import "~bootstrap/scss/root";
-@import "~bootstrap/scss/bootstrap-grid";
+@import "~bootstrap/scss/grid";
 @import "~bootstrap/scss/buttons";
 @import "~bootstrap/scss/transitions";
+@import "~bootstrap/scss/helpers";
+
+// Utilities
+@import "~bootstrap/scss/utilities/api";
 
 @import "settings/variables";
 @import "settings/mixins";

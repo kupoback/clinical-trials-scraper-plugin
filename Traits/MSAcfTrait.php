@@ -4,6 +4,9 @@ declare(strict_types = 1);
 
 namespace Merck_Scraper\Traits;
 
+use Illuminate\Support\Str;
+use function get_field;
+
 /**
  * Acf Traits for the plugin
  *
@@ -23,7 +26,7 @@ trait MSAcfTrait
     protected function acfStrOptionFld(string $field)
     :string
     {
-        return strtolower(get_field($field, 'merck_settings') ?? '');
+        return Str::lower(get_field($field, 'merck_settings') ?? '');
     }
 
     /**
@@ -34,6 +37,7 @@ trait MSAcfTrait
      * @return mixed
      */
     protected function acfOptionField(string $field)
+    :mixed
     {
         return get_field($field, 'merck_settings') ?? '';
     }

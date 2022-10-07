@@ -78,6 +78,7 @@ class MSAdmin
      * @since    1.0.0
      */
     public function enqueueStyles()
+    :void
     {
         if (is_admin() && (in_array(get_current_screen()->id, $this->screens) || in_array(get_current_screen()->id, $this->optsScreens))) {
             wp_enqueue_style(
@@ -95,6 +96,7 @@ class MSAdmin
      * @since    1.0.0
      */
     public function enqueueScripts()
+    :void
     {
         $current_screen  = get_current_screen()->id;
         $api_path        = "merck-scraper/v1";
@@ -175,6 +177,7 @@ class MSAdmin
      * @param array $group
      */
     public function saveACFJson(array $group)
+    :void
     {
         // list of field groups that should be saved to merck-scraper/Admin/acf-json
         $groups = [
@@ -185,9 +188,7 @@ class MSAdmin
         ];
 
         if (in_array($group['key'], $groups)) {
-            add_filter('acf/settings/save_json', function () {
-                return dirname(__FILE__) . '/acf-json';
-            });
+            add_filter('acf/settings/save_json', fn () => dirname(__FILE__) . '/acf-json');
         }
     }
 
@@ -256,6 +257,7 @@ class MSAdmin
      * @param int    $post_id    The post_id
      */
     public function showCustomCol(string $column_key, int $post_id)
+    :void
     {
         if ($column_key === 'nct_id') {
             printf(
@@ -285,6 +287,7 @@ class MSAdmin
      * @param $query
      */
     public function trialsAdminQuery($query)
+    :void
     {
         if ($query->get('post_type') === 'trials' && is_admin()) {
             if (!$query->is_main_query()) {
@@ -299,7 +302,8 @@ class MSAdmin
     }
 
     /**
-     * This adjusts the join query for the Trials Admin Search capability to look for the postmeta table
+     * This adjusts the join query for the Trials Admin
+     * Search capability to look for the post meta table
      *
      * @param string $join The join clause
      *
@@ -325,6 +329,7 @@ class MSAdmin
      * @return null|array|string|string[]
      */
     public function trialsAdminWhere(string $where)
+    :array|string|null
     {
         global $wpdb;
         if ($this->isTrialsAdmin()) {
@@ -369,12 +374,13 @@ class MSAdmin
      * Hook to either remove a location if it is attached to only one location, or
      * delete the NCT ID term from that location.
      *
-     * @param string|int $post_id  The post ID
-     * @param WP_Post    $post     The WP_Post Object
+     * @param  int|string  $post_id  The post ID
+     * @param WP_Post      $post     The WP_Post Object
      *
      * @return void
      */
-    public function removeTrialLocations($post_id, WP_Post $post)
+    public function removeTrialLocations(int|string $post_id, WP_Post $post)
+    :void
     {
         if ('trials' === $post->post_type) {
             $location_ids = get_field('api_data_location_ids', $post_id);
@@ -396,9 +402,7 @@ class MSAdmin
                              */
                             if ($terms->count() > 1) {
                                 $terms
-                                    ->filter(function ($term) use ($nct_id) {
-                                        return $term->name === $nct_id;
-                                    })
+                                    ->filter(fn ($term) =>  $term->name === $nct_id)
                                     ->each(function ($term) use ($post_id) {
                                         if ($term->term_id ?? false) {
                                             wp_remove_object_terms($post_id, $term->term_id, 'location_nctid');

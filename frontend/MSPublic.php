@@ -55,6 +55,7 @@ class MSPublic
      * @since    1.0.0
      */
     public function enqueueStyles()
+    :void
     {
         wp_enqueue_style(
             $this->pluginName,
@@ -71,6 +72,7 @@ class MSPublic
      * @since    1.0.0
      */
     public function enqueueScripts()
+    :void
     {
         wp_enqueue_script(
             $this->pluginName,

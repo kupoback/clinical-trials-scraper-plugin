@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Merck_Scraper\Admin\Traits;
 
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Merck_Scraper\Helper\MSHelper as Helper;
@@ -21,137 +22,162 @@ trait MSApiField
     /**
      * Parses the IdentificationModule object field, returning the Post Title, NCTID, and Official Title field
      *
-     * @param object $id_module The IdentificationModule object from the govt API data
+     * @param null|object $id_module The IdentificationModule object from the govt API data
      *
      * @return Collection
      */
-    protected function parseId(object $id_module)
+    protected function parseId(null|object $id_module)
     :Collection
     {
-        $other_ids = collect($id_module->SecondaryIdInfoList->SecondaryIdInfo ?? []);
-        $study_protocol = collect();
+        try {
+            $other_ids      = collect($id_module->SecondaryIdInfoList->SecondaryIdInfo ?? []);
+            $study_protocol = collect();
 
-        if ($other_ids->isNotEmpty()) {
-            $other_ids = $other_ids
-                ->map(function ($second_id) {
-                    return $second_id->SecondaryId ?? '';
-                })
-                ->filter();
-        }
+            if ($other_ids->isNotEmpty()) {
+                $other_ids = $other_ids
+                    ->map(fn ($second_id) => $second_id->SecondaryId ?? '')
+                    ->filter();
+            }
 
-        $base_url = $this->acfOptionField('clinical_trials_show_page');
+            $base_url = $this->acfOptionField('clinical_trials_show_page');
 
-        $title = '';
-        if ($id_module->BriefTitle !== null) {
-            $title          = $this->filterParenthesis($id_module->BriefTitle);
-            $study_keywords = self::extractParenthesis($id_module->BriefTitle);
-            if (!empty($study_keywords)) {
-                $study_protocol = collect($study_keywords)
-                    ->map(function ($keywords) {
-                        $keywords = explode('/', $keywords);
-                        if (!empty($keywords)) {
-                            return collect($keywords)
-                                ->filter(function ($keyword) {
-                                    $id = Str::lower(
-                                        preg_replace(
-                                            "/[^[:alpha:]]/u",
-                                            '',
-                                            $keyword
-                                        )
-                                    );
-                                    return $this->protocolNames->search($id);
-                                })
-                                ->map(function ($keyword) {
-                                    return Str::title(
+            $title = '';
+            if ($id_module->BriefTitle !== null) {
+                $title          = $this->filterParenthesis($id_module->BriefTitle);
+                $study_keywords = self::extractParenthesis($id_module->BriefTitle);
+                if (!empty($study_keywords)) {
+                    $study_protocol = collect($study_keywords)
+                        ->map(function ($keywords) {
+                            $keywords = explode('/', $keywords);
+                            if (!empty($keywords)) {
+                                return collect($keywords)
+                                    ->filter(fn ($keyword) => $this
+                                        ->protocolNames
+                                        ->search(
+                                            Str::lower(
+                                                preg_replace(
+                                                    "/[^[:alpha:]]/u",
+                                                    '',
+                                                    $keyword,
+                                                ),
+                                            ),
+                                        ))
+                                    ->map(fn ($keyword) => Str::title(
                                         preg_replace(
                                             "/[^[:alnum:]]/u",
                                             ' ',
-                                            $keyword
-                                        )
-                                    );
-                                })
-                                ->first();
-                        }
-                        return false;
-                    })
-                    ->filter()
-                    ->values();
+                                            $keyword,
+                                        ),
+                                    ))
+                                    ->first();
+                            }
+
+                            return false;
+                        })
+                        ->filter()
+                        ->values();
+                }
             }
+
+            return collect(
+                [
+                    'post_title'     => $title,
+                    'brief_title'    => $id_module->BriefTitle ?? '',
+                    'nct_id'         => $id_module->NCTId ?? '',
+                    'url'            => $base_url . $id_module->NCTId,
+                    'official_title' => $id_module->OfficialTitle ?? '',
+                    'other_ids'      => $other_ids,
+                    'study_keyword'  => $id_module
+                                            ->OrgStudyIdInfo
+                                            ->OrgStudyId ?? '',
+                    'study_protocol' => $study_protocol
+                        ->first(),
+                ],
+            );
+        } catch(Exception $exception) {
+            $this->returnException(
+                'id module',
+                $exception->getMessage()
+            );
         }
 
-        return collect(
-            [
-                'post_title'     => $title,
-                'brief_title'    => $id_module->BriefTitle ?? '',
-                'nct_id'         => $id_module->NCTId ?? '',
-                'url'            => $base_url . $id_module->NCTId,
-                'official_title' => $id_module->OfficialTitle ?? '',
-                'other_ids'      => $other_ids,
-                'study_keyword'  => $id_module
-                        ->OrgStudyIdInfo
-                        ->OrgStudyId ?? '',
-                'study_protocol' => $study_protocol
-                    ->first(),
-            ]
-        );
+        return collect();
     }
 
     /**
      * Parses the StatusModule object field, returning the Trial Status taxonomy term, Start Date,
      * Primary Completion Date, Completion Date, Study First Post Date, and Results First Post Date fields
      *
-     * @param object $status_module
+     * @param null|object $status_module
      *
      * @return Collection
      */
-    protected function parseStatus(object $status_module)
+    protected function parseStatus(null|object $status_module)
     :Collection
     {
-        return collect(
-            [
-                'trial_status'            => $status_module->OverallStatus,
-                'start_date'              => $status_module
-                        ->StartDateStruct
-                        ->StartDate ?? '',
-                'primary_completion_date' => $status_module
-                        ->PrimaryCompletionDateStruct
-                        ->PrimaryCompletionDate ?? '',
-                'completion_date'         => $status_module
-                        ->CompletionDateStruct
-                        ->CompletionDate ?? '',
-                // 'study_first_post_date'   => $status_module->StudyFirstPostDateStruct->CompletionDate ?? '',
-                // 'results_first_post_date' => $status_module->ResultsFirstPostDateStruct->ResultsFirstPostDate ?? '',
-            ]
-        );
+        try {
+            return collect(
+                [
+                    'trial_status'            => $status_module->OverallStatus,
+                    'start_date'              => $status_module
+                                                     ->StartDateStruct
+                                                     ->StartDate ?? '',
+                    'primary_completion_date' => $status_module
+                                                     ->PrimaryCompletionDateStruct
+                                                     ->PrimaryCompletionDate ?? '',
+                    'completion_date'         => $status_module
+                                                     ->CompletionDateStruct
+                                                     ->CompletionDate ?? '',
+                    // 'study_first_post_date'   => $status_module->StudyFirstPostDateStruct->CompletionDate ?? '',
+                    // 'results_first_post_date' => $status_module->ResultsFirstPostDateStruct->ResultsFirstPostDate ?? '',
+                ],
+            );
+        } catch(Exception $exception) {
+            $this->returnException(
+                'status module',
+                $exception->getMessage()
+            );
+        }
+
+        return collect();
     }
 
     /**
      * Parses the Sponsor Collaborators Module, returning the Lead Sponsor Name field
      *
-     * @param object $sponsor_module
+     * @param null|object $sponsor_module
      *
      * @return Collection
      */
-    protected function parseSponsors(object $sponsor_module)
+    protected function parseSponsors(null|object $sponsor_module)
     :Collection
     {
-        return collect(
-            [
-                'lead_sponsor_name' => $sponsor_module
-                        ->LeadSponsor
-                        ->LeadSponsorName ?? '',
-            ]
-        );
+        try {
+            return collect(
+                [
+                    'lead_sponsor_name' => $sponsor_module
+                                               ->LeadSponsor
+                                               ->LeadSponsorName ?? '',
+                ],
+            );
+        } catch(Exception $exception) {
+            $this->returnException(
+                'sponsor module',
+                $exception->getMessage()
+            );
+        }
+
+        return collect();
     }
 
     /**
      * Parses the Oversight Module, not currently used
      *
-     * @param object $oversight_module
+     * @param null|object $oversight_module
      *
      * @return Collection
      */
-    protected function parseOversight(object $oversight_module)
+    protected function parseOversight(null|object $oversight_module)
     :Collection
     {
         return collect(
@@ -162,277 +188,348 @@ trait MSApiField
     /**
      * Parses the Description Module, returning the Brief Summary as post content
      *
-     * @param object $description_module
+     * @param null|object $description_module
      *
      * @return Collection
      */
-    protected function parseDescription(object $description_module)
+    protected function parseDescription(null|object $description_module)
     :Collection
     {
-        return collect(
-            [
-                'post_content'  => $description_module->BriefSummary ?? '',
-                'trial_purpose' => $description_module->BriefSummary ?? '',
-            ]
-        );
+        try {
+            return collect(
+                [
+                    'post_content'  => $description_module->BriefSummary ?? '',
+                    'trial_purpose' => $description_module->BriefSummary ?? '',
+                ],
+            );
+        } catch(Exception $exception) {
+            $this->returnException(
+                'description module',
+                $exception->getMessage()
+            );
+        }
+
+        return collect();
     }
 
     /**
      * Parses the Condition Module, returning a list of Conditions and a list of Keywords for taxonomy terms
      *
-     * @param object $condition_module
+     * @param null|object $condition_module
      *
      * @return Collection
      */
-    protected function parseCondition(object $condition_module)
+    protected function parseCondition(null|object $condition_module)
     :Collection
     {
-        return collect(
-            [
-                'conditions' => $this->standardizeArrayWords($condition_module->ConditionList->Condition ?? []),
-                'keywords'   => $this->standardizeArrayWords($condition_module->KeywordList->Keyword ?? []),
-            ]
-        );
+        try {
+            return collect(
+                [
+                    'conditions' => $this
+                        ->standardizeArrayWords($condition_module->ConditionList->Condition ?? []),
+                    'keywords'   => $this
+                        ->standardizeArrayWords($condition_module->KeywordList->Keyword ?? []),
+                ],
+            );
+        } catch(Exception $exception) {
+            $this->returnException(
+                'condition module',
+                $exception->getMessage()
+            );
+        }
+
+        return collect();
     }
 
     /**
      * Parses the Design Info Module, returning an array of Phases, the Study Type, and a collection of Study Designs
      *
-     * @param object $design_module
+     * @param null|object $design_module
      *
      * @return Collection
      */
-    protected function parseDesign(object $design_module)
+    protected function parseDesign(null|object $design_module)
     :Collection
     {
-        /**
-         * Unsure if needed
-         */
-        // $study_design = $design_module->DesignInfo ?? collect([]);
-        // if (is_object($study_design)) {
-        //     $design_masking = $study_design->DesignMaskingInfo ?? [];
-        //     if (is_object($design_masking)) {
-        //         $design_mask     = $design_masking->DesignMasking ?? '';
-        //         $design_mask_arr = collect([
-        //                                        $design_masking
-        //                                            ->DesignWhoMaskedList
-        //                                            ->DesignWhoMasked ?? '',
-        //                                    ])
-        //             ->filter();
-        //         $design_mask_arr->isNotEmpty() ? $design_mask .= " ({$design_mask_arr->implode(' ')})" : null;
-        //     }
-        //
-        //     $study_design = collect(
-        //         [
-        //             'allocation'   => $study_design->DesignAllocation ?? '',
-        //             'intervention' => $study_design->DesignInterventionModel ?? '',
-        //             'masking'      => $design_mask ?? '',
-        //             'purpose'      => $study_design->DesignPrimaryPurpose ?? '',
-        //         ]
-        //     );
-        // }
-        //
-        // unset($design_mask, $design_masking, $design_mask_arr);
 
-        return collect(
-            [
-                'phase' => collect($design_module->PhaseList->Phase ?? [])
-                    ->map(function ($phase) {
-                        return ['phase' => $phase];
-                    }),
-                // 'study_type'    => $design_module->StudyType,
-                // 'study_designs' => $study_design,
-            ]
-        );
+
+        try {
+            /**
+             * Unsure if needed
+             */
+            // $study_design = $design_module->DesignInfo ?? collect([]);
+            // if (is_object($study_design)) {
+            //     $design_masking = $study_design->DesignMaskingInfo ?? [];
+            //     if (is_object($design_masking)) {
+            //         $design_mask     = $design_masking->DesignMasking ?? '';
+            //         $design_mask_arr = collect([
+            //                                        $design_masking
+            //                                            ->DesignWhoMaskedList
+            //                                            ->DesignWhoMasked ?? '',
+            //                                    ])
+            //             ->filter();
+            //         $design_mask_arr->isNotEmpty() ? $design_mask .= " ({$design_mask_arr->implode(' ')})" : null;
+            //     }
+            //
+            //     $study_design = collect(
+            //         [
+            //             'allocation'   => $study_design->DesignAllocation ?? '',
+            //             'intervention' => $study_design->DesignInterventionModel ?? '',
+            //             'masking'      => $design_mask ?? '',
+            //             'purpose'      => $study_design->DesignPrimaryPurpose ?? '',
+            //         ]
+            //     );
+            // }
+            //
+            // unset($design_mask, $design_masking, $design_mask_arr);
+
+            return collect(
+                [
+                    'phase' => collect($design_module->PhaseList->Phase ?? [])
+                        ->map(fn ($phase) => ['phase' => $phase]),
+                    // 'study_type'    => $design_module->StudyType,
+                    // 'study_designs' => $study_design,
+                ]
+            );
+        } catch(Exception $exception) {
+            $this->returnException(
+                'design module',
+                $exception->getMessage()
+            );
+        }
+
+        return collect();
     }
 
     /**
      * Parses the Arms Interventions Module, returning a collection of Interventions
      *
-     * @param object $arms_module
+     * @param null|object $arms_module
      *
      * @return Collection
      */
-    protected function parseArms(object $arms_module)
+    protected function parseArms(null|object $arms_module)
     :Collection
     {
-        $intervention_arr = collect([]);
-        $interventions    = $arms_module->InterventionList ?? [];
-        if (is_object($interventions) && !empty($interventions->Intervention)) {
-            $intervention_arr = collect($interventions->Intervention)
-                ->map(function ($arr_item) {
-                    return [
+        try {
+            $intervention_arr = collect([]);
+            $interventions    = $arms_module->InterventionList ?? [];
+            if (is_object($interventions) && !empty($interventions->Intervention)) {
+                $intervention_arr = collect($interventions->Intervention)
+                    ->map(fn ($arr_item) => [
                         'type' => $arr_item->InterventionType ?? '',
                         'name' => $arr_item->InterventionName ?? '',
-                    ];
-                })
-                ->filter();
+                    ])
+                    ->filter();
+            }
+
+            unset($interventions);
+
+            return collect(
+                [
+                    'interventions' => $intervention_arr ?? [],
+                    'drugs'         => $intervention_arr->isNotEmpty()
+                        ? $intervention_arr
+                            ->map(fn ($arr_item) => strtolower($arr_item['type']) === 'drug'
+                                ? $arr_item['name']
+                                : false,
+                            )
+                            ->filter()
+                        : collect(),
+                ]
+            );
+        } catch(Exception $exception) {
+            $this->returnException(
+                'arms/interventions module',
+                $exception->getMessage()
+            );
         }
 
-        unset($interventions);
-
-        return collect(
-            [
-                'interventions' => $intervention_arr ?? [],
-                'drugs'         => $intervention_arr->isNotEmpty() ?
-                    $intervention_arr
-                        ->map(function ($arr_item) {
-                            return strtolower($arr_item['type']) === 'drug' ? $arr_item['name'] : false;
-                        })
-                        ->filter()
-                    : collect(),
-            ]
-        );
+        return collect();
     }
 
     /**
      * Parses the Outcomes Module, returning a collection of Outcome Measures
      *
-     * @param object $outcome_module
+     * @param null|object $outcome_module
      *
      * @return Collection
      */
-    protected function parseOutcome(object $outcome_module)
+    protected function parseOutcome(null|object $outcome_module)
     :Collection
     {
-        $outcomes        = collect([]);
-        $primary_outcome = $outcome_module
-                ->PrimaryOutcomeList
-                ->PrimaryOutcome ?? [];
-        $second_outcome  = $outcome_module
-                ->SecondaryOutcomeList
-                ->SecondaryOutcome ?? [];
 
-        if (!empty($primary_outcome)) {
-            collect($primary_outcome)
-                ->map(function ($outcome) use ($outcomes) {
-                    $outcomes->push(['measure' => $outcome->PrimaryOutcomeMeasure]);
-                    return false;
-                });
+        try {
+            $outcomes        = collect([]);
+            $primary_outcome = $outcome_module
+                                   ->PrimaryOutcomeList
+                                   ->PrimaryOutcome ?? [];
+            $second_outcome  = $outcome_module
+                                   ->SecondaryOutcomeList
+                                   ->SecondaryOutcome ?? [];
+
+            if (!empty($primary_outcome)) {
+                collect($primary_outcome)
+                    ->each(fn ($outcome) => $outcomes->push(['measure' => $outcome->PrimaryOutcomeMeasure]));
+            }
+
+            if (!empty($second_outcome)) {
+                collect($second_outcome)
+                    ->each(fn ($outcome) => $outcomes->push(['measure' => $outcome->SecondaryOutcomeMeasure]));
+            }
+
+            unset($primary_outcome, $second_outcome);
+
+            return collect(
+                [
+                    'outcome_measures' => $outcomes,
+                ]
+            );
+        } catch(Exception $exception) {
+            $this->returnException(
+                'outcome module',
+                $exception->getMessage()
+            );
         }
 
-        if (!empty($second_outcome)) {
-            collect($second_outcome)
-                ->map(function ($outcome) use ($outcomes) {
-                    $outcomes->push(['measure' => $outcome->SecondaryOutcomeMeasure]);
-                    return false;
-                });
-        }
-
-        unset($primary_outcome, $second_outcome);
-
-        return collect(
-            [
-                'outcome_measures' => $outcomes,
-            ]
-        );
+        return collect();
     }
 
     /**
      * Parses the Eligibility Module, returning the Gender, Minimum Age, and Maximum Age fields
      *
-     * @param object $eligibility_module
+     * @param null|object $eligibility_module
      *
      * @return Collection
      */
-    protected function parseEligibility(object $eligibility_module)
+    protected function parseEligibility(null|object $eligibility_module)
     :Collection
     {
-        return collect(
-            [
-                'gender'      => $eligibility_module->Gender ?? '',
-                'minimum_age' => intval(Helper::stripYears($eligibility_module->MinimumAge ?? '') ?: 0),
-                'maximum_age' => intval(Helper::stripYears($eligibility_module->MaximumAge ?? '') ?: 999),
-            ]
-        );
+
+        try {
+            return collect(
+                [
+                    'gender'      => $eligibility_module->Gender ?? '',
+                    'minimum_age' => intval(
+                        Helper::stripYears(
+                            $eligibility_module->MinimumAge ?? ''
+                        )
+                            ?: 0 // Definitive minimum age
+                    ),
+                    'maximum_age' => intval(
+                        Helper::stripYears($eligibility_module->MaximumAge ?? ''
+                        )
+                            ?: 999 // Definitive maximum age
+                    ),
+                ]
+            );
+        } catch(Exception $exception) {
+            $this->returnException(
+                'eligibility module',
+                $exception->getMessage()
+            );
+        }
+
+        return collect();
     }
 
     /**
      * Parses the Contacts Locations Module, returning a collection for the Location field
      *
-     * @param object $location_module The location array data grabbed
-     * @param object $trial_status    The status of the trial
+     * @param null|object $location_module The location array data grabbed
+     * @param null|object $trial_status    The status of the trial
      *
      * @return Collection
      */
-    protected function parseLocation(object $location_module, object $trial_status)
+    protected function parseLocation(null|object $location_module, null|object $trial_status)
     :Collection
     {
-        $import_trial         = true;
-        $allowed_status       = $this->trialStatus
-            ->toArray();
-        $allowed_countries    = $this->allowedTrialLocations;
-        $disallowed_countries = $this->disallowedTrialLocations;
-        /**
-         * Map through all the locations, and set them up for import. During this time
-         * we will be getting the latitude and longitude from Google Maps
-         */
-        $locations = collect($location_module->LocationList->Location ?? []);
-        if ($locations->isNotEmpty()) {
-            $trial_status = $trial_status->OverallStatus ?? '';
-            $locations    = $locations
-                ->map(function ($location) use ($allowed_countries, $allowed_status, $disallowed_countries, $trial_status) {
-                    $location_status = $location->LocationStatus ?? '';
-                    $country         = $location->LocationCountry ?? '';
-                    $has_status      = false;
-                    $in_array        = false;
+        try {
+            $import_trial   = true;
+            $allowed_status = $this->trialStatus
+                ->toArray();
+            /**
+             * Map through all the locations, and set them up for import. During this time
+             * we will be getting the latitude and longitude from Google Maps
+             */
+            $locations = collect($location_module->LocationList->Location ?? []);
+            if ($locations->isNotEmpty()) {
+                $trial_status = $trial_status->OverallStatus ?? '';
+                $locations    = $locations
+                    ->map(function ($location) use ($allowed_status, $trial_status) {
+                        $location_status = $location->LocationStatus ?? '';
+                        $country         = $location->LocationCountry ?? '';
+                        $has_status      = false;
+                        $in_array        = false;
 
-                    /**
-                     * Grab the phone number for the contact
-                     */
-                    $contact_list = $location->LocationContactList ?? false;
-                    if ($contact_list && property_exists($contact_list, 'LocationContact')) {
-                        $phone = $contact_list->LocationContact[0]->LocationContactPhone ?? '';
-                    }
+                        /**
+                         * Grab the phone number for the contact
+                         */
+                        $contact_list = $location->LocationContactList ?? false;
+                        if ($contact_list && property_exists($contact_list, 'LocationContact')) {
+                            $phone = $contact_list->LocationContact[0]->LocationContactPhone ?? '';
+                        }
 
-                    if ($allowed_countries->isNotEmpty()) {
-                        $in_array = $allowed_countries->search(Str::lower($country));
-                    } elseif ($disallowed_countries->isNotEmpty()) {
-                        $in_array = $disallowed_countries->search(Str::lower($country));
-                    }
+                        if ($this->allowedTrialLocations->isNotEmpty()) {
+                            $in_array = $this->allowedTrialLocations->search(Str::lower($country));
+                        } elseif ($this->disallowedTrialLocations->isNotEmpty()) {
+                            $in_array = $this->disallowedTrialLocations->search(Str::lower($country));
+                        }
 
-                    if (in_array(Str::lower($location_status), $allowed_status) || $trial_status) {
-                        $has_status = true;
-                    }
+                        if (in_array(Str::lower($location_status), $allowed_status) || $trial_status) {
+                            $has_status = true;
+                        }
 
-                    $languages = $this->mapLanguage($country);
+                        $languages = collect();
+                        if ($this->countryMappedLanguages->isNotEmpty()) {
+                            $languages = $this->mapLanguage($country);
+                        }
 
-                    if (is_bool($in_array) && $has_status) {
-                        return [
-                            'city'              => $location->LocationCity ?? '',
-                            'country'           => $country,
-                            'facility'          => trim($this->filterParenthesis($location->LocationFacility ?? '')),
-                            'id'                => Str::camel(sanitize_title($location->LocationFacility ?? '')),
-                            'phone'             => $phone ?? '',
-                            'post_title'        => strtr(
-                                $location->LocationFacility ?? '',
-                                [
-                                    '( ' => '(',
-                                    ' )' => ')',
-                                ]
-                            ),
-                            'location_language' => $languages->isNotEmpty() ? $languages->implode(';') : "All",
-                            'recruiting_status' => $location_status ?: $trial_status,
-                            'state'             => $location->LocationState ?? '',
-                            'zip'               => $location->LocationZip ?? '',
-                        ];
-                    }
-                    return false;
-                })
-                ->filter()
-                ->values();
+                        if (is_int($in_array) && $has_status) {
+                            return [
+                                'city'              => $location->LocationCity ?? '',
+                                'country'           => $country,
+                                'facility'          => trim($this->filterParenthesis($location->LocationFacility ?? '')),
+                                'id'                => Str::camel(sanitize_title($location->LocationFacility ?? '')),
+                                'phone'             => $phone ?? '',
+                                'post_title'        => strtr(
+                                    $location->LocationFacility ?? '',
+                                    [
+                                        '( ' => '(',
+                                        ' )' => ')',
+                                    ],
+                                ),
+                                'location_language' => $languages->isNotEmpty() ? $languages->implode(';') : "All",
+                                'recruiting_status' => $location_status ?: $trial_status,
+                                'state'             => $location->LocationState ?? '',
+                                'zip'               => $location->LocationZip ?? '',
+                            ];
+                        }
 
-            if ($locations->isEmpty()) {
-                $import_trial = false;
+                        return [];
+                    })
+                    ->filter()
+                    ->values();
+
+                if ($locations->isEmpty()) {
+                    $import_trial = false;
+                }
             }
+
+            return collect(
+                [
+                    'locations' => $locations,
+                    'import'    => $import_trial,
+                ],
+            );
+        } catch (Exception $exception) {
+            $this->returnException(
+                'location module',
+                $exception->getMessage()
+            );
         }
 
-        return collect(
-            [
-                'locations' => $locations,
-                'import'    => $import_trial,
-            ]
-        );
+        return collect();
     }
 
     /**
@@ -497,6 +594,7 @@ trait MSApiField
      * @return null|array|string|string[]
      */
     protected function filterParenthesis(string $text)
+    :array|string|null
     {
         return preg_replace('#\([^)]+\)#i', '', $text);
     }
@@ -509,6 +607,7 @@ trait MSApiField
      * @return array|false|int
      */
     protected function extractParenthesis(string $text)
+    :bool|int|array
     {
         preg_match_all('#\((.*?)\)#', $text, $parenthesis_text);
         return $parenthesis_text[1] ?? [];
@@ -517,13 +616,14 @@ trait MSApiField
     /**
      * Easier method to combine acf data updates
      *
-     * @param string $field_name The ACF field name
-     * @param mixed  $field_data The data to save
-     * @param int    $post_id    The post ID to save to
+     * @param  string      $field_name  The ACF field name
+     * @param  mixed       $field_data  The data to save
+     * @param  string|int  $post_id     The post ID to save to
      *
-     * @return bool
+     * @return bool|int
      */
-    protected function updateACF(string $field_name, $field_data, int $post_id)
+    protected function updateACF(string $field_name, mixed $field_data, string|int $post_id)
+    :bool|int
     {
         return update_field($field_name, $field_data, $post_id);
     }
@@ -582,9 +682,7 @@ trait MSApiField
         $ignored_fields = wp_parse_args($ignored_fields, $default_ignore);
 
         return $fields
-            ->filter(function ($field) use ($ignored_fields) {
-                return $field['type'] && !in_array($field['type'], $ignored_fields);
-            })
+            ->filter(fn ($field) => $field['type'] && !in_array($field['type'], $ignored_fields))
             ->map(function ($field) use ($ignored_fields) {
                 $field_name = $field['name'] ?? '';
                 $field_arr  = [
@@ -598,22 +696,35 @@ trait MSApiField
                 $sub_fields = $field['sub_fields'] ?? false;
                 if ($sub_fields) {
                     $field_arr['sub_fields'] = collect($sub_fields)
-                        ->map(function ($sub_field) use ($ignored_fields) {
-                            if ($sub_field['type'] && !in_array($sub_field['type'], $ignored_fields)) {
-                                return [
-                                    'default_value' => $sub_field['default_value'] ?? false,
-                                    'key'           => $sub_field['key'] ?? false,
-                                    'name'          => $sub_field['name'] ?? false,
-                                    'type'          => $sub_field['type'],
-                                ];
-                            }
-                            return false;
-                        })
+                        ->map(fn ($sub_field) => $sub_field['type'] && !in_array($sub_field['type'], $ignored_fields)
+                            ? [
+                                'default_value' => $sub_field['default_value'] ?? false,
+                                'key'           => $sub_field['key'] ?? false,
+                                'name'          => $sub_field['name'] ?? false,
+                                'type'          => $sub_field['type'],
+                            ]
+                            : false)
                         ->filter()
                         ->values();
                 }
                 return $field_arr;
             })
             ->values();
+    }
+
+    /**
+     * Quick call to an error logging
+     *
+     * @param string $module The module the error occurred
+     * @param string $error  The error message
+     *
+     * @return void
+     */
+    private function returnException(string $module, string $error)
+    :void
+    {
+        $this
+            ->errorLog
+            ->error("Error with parsing the $module for $this->nctId.\n\r $error");
     }
 }
