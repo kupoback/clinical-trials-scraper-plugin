@@ -5,7 +5,7 @@ Tags:
 Requires at least: 5.9.0
 Tested up to: 6.0.2
 Requires PHP: 7.4
-Stable tag: 1.1
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,10 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 == Description ==
 
 == Changelog ==
+
+= 1.1.1 =
+
+Added in fix for study protocol not mapping correctly due to dashes
 
 = 1.1 =
 

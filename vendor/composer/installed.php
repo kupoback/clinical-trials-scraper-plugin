@@ -3,7 +3,7 @@
         'name' => 'clique/merck-scraper',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '0d9b059525e6d926599143361475342b8e28e3a2',
+        'reference' => '37d7c176aa3dc31e45ebf457769628940a237432',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -31,7 +31,7 @@
         'clique/merck-scraper' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '0d9b059525e6d926599143361475342b8e28e3a2',
+            'reference' => '37d7c176aa3dc31e45ebf457769628940a237432',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

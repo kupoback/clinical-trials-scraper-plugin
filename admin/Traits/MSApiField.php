@@ -58,7 +58,8 @@ trait MSApiField
                                                 preg_replace(
                                                     "/[^[:alpha:]]/u",
                                                     '',
-                                                    $keyword,
+                                                    // Need to get just the first part of the word
+                                                    explode('-', $keyword)[0] ?? '',
                                                 ),
                                             ),
                                         ))
