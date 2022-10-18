@@ -248,7 +248,13 @@ trait MSAdminTrial
                                 return false;
                             }
 
-                            return $this->updateACF($field['name'], $arr_data, $post_id);
+                            return $this
+                                ->updateACF(
+                                    $field['name'],
+                                    $arr_data
+                                        ->toArray(),
+                                    $post_id,
+                                );
                         }
 
                         return false;
