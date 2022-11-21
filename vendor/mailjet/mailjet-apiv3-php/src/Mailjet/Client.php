@@ -298,8 +298,13 @@ class Client
 
         $url = $this->buildURL($resource, $action, (string) $args['id'], $args['actionid']);
 
-        $contentType = ('csvdata/text:plain' === $action || 'csverror/text:csv' === $action) ? 'text/plain' : 'application/json';
-        
+        $contentType = 'application/json';
+        if ('csvdata/text:plain' === $action) {
+            $contentType = 'text/plain';
+        } else if ('csverror/text:csv' === $action) {
+            $contentType = 'text/csv';
+        }
+
         $isBasicAuth = $this->isBasicAuthentication($this->apikey, $this->apisecret);
         $auth = $isBasicAuth ? [$this->apikey, $this->apisecret] : [$this->apitoken];
 
@@ -379,6 +384,8 @@ class Client
     {
         if (isset($options['version'])) {
             $this->version = $options['version'];
+        } else if (isset($resource[2])) {
+            $this->version = $resource[2];
         }
 
         $this->url = (string)($options['url'] ?? Config::MAIN_URL);

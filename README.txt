@@ -2,10 +2,10 @@
 Contributors: Nick Makris
 Donate link: https://cliquestudios.com
 Tags:
-Requires at least: 5.9.0
-Tested up to: 6.0.2
+Requires at least: 6.0.0
+Tested up to: 6.1.1
 Requires PHP: 7.4
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,16 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 == Description ==
 
 == Changelog ==
+
+= 1.1.3 =
+
+• Fixed issue where not including a semicolon in a textarea under Merck Scraper Settings would return a single string, instead of a properly formatted array
+    • Replaced explode option for a preg_split allowing the use of a regex for a return or new line character
+
+• Removed the if/elseif condition statement for Locations, allowing the user to set an Allowed Location, as well as a Disallowed Location for the query expression
+• Added in Expand[Concept] statement to the LocationCountry in the expression builder
+• Fixed issue supporting the use of Allowed Locations and Disallowed Locations to skip over countries that should or shouldn't be imported
+• Updated composer package dependencies to the latest versions
 
 = 1.1.2 =
 

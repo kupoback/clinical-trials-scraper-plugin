@@ -470,11 +470,14 @@ trait MSApiField
                         if ($contact_list && property_exists($contact_list, 'LocationContact')) {
                             $phone = $contact_list->LocationContact[0]->LocationContactPhone ?? '';
                         }
-
                         if ($this->allowedTrialLocations->isNotEmpty()) {
-                            $in_array = $this->allowedTrialLocations->search(Str::lower($country));
-                        } elseif ($this->disallowedTrialLocations->isNotEmpty()) {
-                            $in_array = $this->disallowedTrialLocations->search(Str::lower($country));
+                            error_log(print_r('allowed trial locations', true));
+                            $in_array = $this->allowedTrialLocations->contains(Str::lower($country));
+                        }
+
+                        if ($this->disallowedTrialLocations->isNotEmpty()) {
+                            error_log(print_r('disallowed trial locations', true));
+                            $in_array = !$this->disallowedTrialLocations->contains(Str::lower($country));
                         }
 
                         if (in_array(Str::lower($location_status), $allowed_status) || $trial_status) {
@@ -486,7 +489,7 @@ trait MSApiField
                             $languages = $this->mapLanguage($country);
                         }
 
-                        if (is_int($in_array) && $has_status) {
+                        if ($in_array && $has_status) {
                             return [
                                 'city'              => $location->LocationCity ?? '',
                                 'country'           => $country,

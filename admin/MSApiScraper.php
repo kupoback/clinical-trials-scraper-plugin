@@ -617,12 +617,18 @@ class MSApiScraper
          */
         $this->trialStatus = collect(
             MSHelper::textareaToArr(
-                self::acfStrOptionFld('clinical_trials_api_status_search'),
+                self::acfStrOptionFld('clinical_trials_api_status_search')
             ),
         )
             ->filter();
     }
 
+    /**
+     * Sets up all the necessary data for the Class
+     * to utilize during the API import process
+     *
+     * @return void|WP_Error
+     */
     protected function preHttpDataSetup()
     {
         /**
@@ -712,16 +718,18 @@ class MSApiScraper
         $studies_imported = collect();
         $num_not_imported = 0;
 
-        $api_data = json_decode($http_callback->getBody()
-                                              ->getContents());
+        $api_data = json_decode(
+            $http_callback
+                ->getBody()
+                ->getContents()
+        );
 
         // Set data root to first object key
         $api_data = $api_data->FullStudiesResponse ?? null;
 
         // Number of trials found
-        // $this->totalFound = 5;
         if ($total_found_override === 0) {
-            $this->totalFound = $api_data->NStudiesFound ?: 0;
+            $this->totalFound = $api_data->NStudiesFound ?? 0;
 
             /**
              * Determine how many times we need to loop through the items based on the amount found
@@ -781,34 +789,36 @@ class MSApiScraper
                     }
                 }
 
-                $studies       = collect($api_data->FullStudies);
-                $initial_count = $studies->count();
-                $studies       = $studies
-                    ->map(function ($study) {
-                        $study->Study->ProtocolSection->Rank = $study->Rank;
+                $studies       = collect($api_data->FullStudies ?? []);
+                if ($studies->isNotEmpty()) {
+                    $initial_count = $studies->count();
+                    $studies       = $studies
+                        ->map(function ($study) {
+                            $study->Study->ProtocolSection->Rank = $study->Rank;
 
-                        return $study;
-                    })
-                    ->filter(function ($study) use ($trashed_posts) {
-                        // Filter the data removing ones that are marked as "trash"
-                        $study_id_module = collect(
-                            collect($study)
-                                ->get('Study')
-                                ->ProtocolSection,
-                        )
-                            ->get('IdentificationModule');
+                            return $study;
+                        })
+                        ->filter(function ($study) use ($trashed_posts) {
+                            // Filter the data removing ones that are marked as "trash"
+                            $study_id_module = collect(
+                                collect($study)
+                                    ->get('Study')
+                                    ->ProtocolSection,
+                            )
+                                ->get('IdentificationModule');
 
-                        $study = self::parseId($study_id_module);
+                            $study = self::parseId($study_id_module);
 
-                        return !$trashed_posts->search($study->get('nct_id'));
-                    })
-                    ->values();
+                            return !$trashed_posts->search($study->get('nct_id'));
+                        })
+                        ->values();
 
-                $num_not_imported = $num_not_imported + ($initial_count - $studies->count());
+                    $num_not_imported = $num_not_imported + ($initial_count - $studies->count());
 
-                if ($studies->count() > 0) {
-                    $studies_imported
-                        ->push(self::studyImportLoop($studies));
+                    if ($studies->count() > 0) {
+                        $studies_imported
+                            ->push(self::studyImportLoop($studies));
+                    }
                 }
             endfor;
         } else {

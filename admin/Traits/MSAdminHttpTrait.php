@@ -69,15 +69,20 @@ trait MSAdminHttpTrait
             }
 
             // Trial Location search
-            if ($this->disallowedTrialLocations->isEmpty()) {
+
+            // Allowed Trial Locations
+            if ($this->allowedTrialLocations->isNotEmpty()) {
                 $location = $this->mapImplode($this->allowedTrialLocations);
                 $expression->push(
-                    "EXPAND[Concept] (AREA[LocationCountry] $location)"
+                    "EXPAND[Concept] (AREA[LocationCountry] ($location))"
                 );
-            } elseif ($this->disallowedTrialLocations->isNotEmpty()) {
+            }
+
+            // Disallowed Trial Locations
+            if ($this->disallowedTrialLocations->isNotEmpty()) {
                 $location = $this->mapImplode($this->disallowedTrialLocations);
                 $expression->push(
-                    "(AREA[LocationCountry] NOT $location)"
+                    "EXPAND[Concept] (AREA[LocationCountry] NOT ($location))"
                 );
             }
 
