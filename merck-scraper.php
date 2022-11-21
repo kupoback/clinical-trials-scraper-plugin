@@ -28,10 +28,10 @@ use Merck_Scraper\Includes\MSDeactivator;
  * Plugin Name:       Merck Scrapper - WPML
  * Plugin URI:        #
  * Description:       This plugin is used to scrape data from clinicaltrials.gov website.
- * Version:           1.1.3
+ * Version:           1.1.3.1
  * Author:            Clique Studios
  * Author URI:        https://cliquestudios.com
- * Requires at least: 6.0.0
+ * Requires at least: 6.0
  * Tested up to:      6.1.1
  * Requires PHP:      7.4
  * License:           GPL-2.0+
@@ -52,7 +52,7 @@ require plugin_dir_path(__FILE__) . 'vendor/autoload.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('MERCK_SCRAPER_VERSION', '1.1.3');
+define('MERCK_SCRAPER_VERSION', '1.1.3.1');
 
 /**
  * This constant is used to save the logs to a specific directory

@@ -471,12 +471,10 @@ trait MSApiField
                             $phone = $contact_list->LocationContact[0]->LocationContactPhone ?? '';
                         }
                         if ($this->allowedTrialLocations->isNotEmpty()) {
-                            error_log(print_r('allowed trial locations', true));
                             $in_array = $this->allowedTrialLocations->contains(Str::lower($country));
                         }
 
                         if ($this->disallowedTrialLocations->isNotEmpty()) {
-                            error_log(print_r('disallowed trial locations', true));
                             $in_array = !$this->disallowedTrialLocations->contains(Str::lower($country));
                         }
 
