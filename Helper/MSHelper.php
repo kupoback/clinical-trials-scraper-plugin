@@ -66,8 +66,8 @@ class MSHelper
     {
         if ($field) {
             $field = Str::replace('<br />', ';', $field);
-            $field = Str::replace(';', '\n', $field);
-            $field = preg_split('/\n|\r\n?/', $field);
+            $field = Str::replace(';', '', $field);
+            $field = preg_split('/\R/', $field);
 
             return array_map('trim', $field);
         }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Merck_Scraper\Admin\Traits;
 
@@ -22,7 +22,7 @@ trait MSApiField
     /**
      * Parses the IdentificationModule object field, returning the Post Title, NCTID, and Official Title field
      *
-     * @param null|object $id_module The IdentificationModule object from the govt API data
+     * @param  null|object  $id_module  The IdentificationModule object from the govt API data
      *
      * @return Collection
      */
@@ -95,10 +95,10 @@ trait MSApiField
                         ->first(),
                 ],
             );
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             $this->returnException(
                 'id module',
-                $exception->getMessage()
+                $exception->getMessage(),
             );
         }
 
@@ -109,7 +109,7 @@ trait MSApiField
      * Parses the StatusModule object field, returning the Trial Status taxonomy term, Start Date,
      * Primary Completion Date, Completion Date, Study First Post Date, and Results First Post Date fields
      *
-     * @param null|object $status_module
+     * @param  null|object  $status_module
      *
      * @return Collection
      */
@@ -133,10 +133,10 @@ trait MSApiField
                     // 'results_first_post_date' => $status_module->ResultsFirstPostDateStruct->ResultsFirstPostDate ?? '',
                 ],
             );
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             $this->returnException(
                 'status module',
-                $exception->getMessage()
+                $exception->getMessage(),
             );
         }
 
@@ -146,7 +146,7 @@ trait MSApiField
     /**
      * Parses the Sponsor Collaborators Module, returning the Lead Sponsor Name field
      *
-     * @param null|object $sponsor_module
+     * @param  null|object  $sponsor_module
      *
      * @return Collection
      */
@@ -161,10 +161,10 @@ trait MSApiField
                                                ->LeadSponsorName ?? '',
                 ],
             );
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             $this->returnException(
                 'sponsor module',
-                $exception->getMessage()
+                $exception->getMessage(),
             );
         }
 
@@ -174,7 +174,7 @@ trait MSApiField
     /**
      * Parses the Oversight Module, not currently used
      *
-     * @param null|object $oversight_module
+     * @param  null|object  $oversight_module
      *
      * @return Collection
      */
@@ -182,14 +182,14 @@ trait MSApiField
     :Collection
     {
         return collect(
-            []
+            [],
         );
     }
 
     /**
      * Parses the Description Module, returning the Brief Summary as post content
      *
-     * @param null|object $description_module
+     * @param  null|object  $description_module
      *
      * @return Collection
      */
@@ -203,10 +203,10 @@ trait MSApiField
                     'trial_purpose' => $description_module->BriefSummary ?? '',
                 ],
             );
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             $this->returnException(
                 'description module',
-                $exception->getMessage()
+                $exception->getMessage(),
             );
         }
 
@@ -216,7 +216,7 @@ trait MSApiField
     /**
      * Parses the Condition Module, returning a list of Conditions and a list of Keywords for taxonomy terms
      *
-     * @param null|object $condition_module
+     * @param  null|object  $condition_module
      *
      * @return Collection
      */
@@ -232,10 +232,10 @@ trait MSApiField
                         ->standardizeArrayWords($condition_module->KeywordList->Keyword ?? []),
                 ],
             );
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             $this->returnException(
                 'condition module',
-                $exception->getMessage()
+                $exception->getMessage(),
             );
         }
 
@@ -245,15 +245,13 @@ trait MSApiField
     /**
      * Parses the Design Info Module, returning an array of Phases, the Study Type, and a collection of Study Designs
      *
-     * @param null|object $design_module
+     * @param  null|object  $design_module
      *
      * @return Collection
      */
     protected function parseDesign(null|object $design_module)
     :Collection
     {
-
-
         try {
             /**
              * Unsure if needed
@@ -290,12 +288,12 @@ trait MSApiField
                         ->map(fn ($phase) => ['phase' => $phase]),
                     // 'study_type'    => $design_module->StudyType,
                     // 'study_designs' => $study_design,
-                ]
+                ],
             );
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             $this->returnException(
                 'design module',
-                $exception->getMessage()
+                $exception->getMessage(),
             );
         }
 
@@ -305,7 +303,7 @@ trait MSApiField
     /**
      * Parses the Arms Interventions Module, returning a collection of Interventions
      *
-     * @param null|object $arms_module
+     * @param  null|object  $arms_module
      *
      * @return Collection
      */
@@ -337,12 +335,12 @@ trait MSApiField
                             )
                             ->filter()
                         : collect(),
-                ]
+                ],
             );
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             $this->returnException(
                 'arms/interventions module',
-                $exception->getMessage()
+                $exception->getMessage(),
             );
         }
 
@@ -352,14 +350,13 @@ trait MSApiField
     /**
      * Parses the Outcomes Module, returning a collection of Outcome Measures
      *
-     * @param null|object $outcome_module
+     * @param  null|object  $outcome_module
      *
      * @return Collection
      */
     protected function parseOutcome(null|object $outcome_module)
     :Collection
     {
-
         try {
             $outcomes        = collect([]);
             $primary_outcome = $outcome_module
@@ -384,12 +381,12 @@ trait MSApiField
             return collect(
                 [
                     'outcome_measures' => $outcomes,
-                ]
+                ],
             );
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             $this->returnException(
                 'outcome module',
-                $exception->getMessage()
+                $exception->getMessage(),
             );
         }
 
@@ -399,35 +396,33 @@ trait MSApiField
     /**
      * Parses the Eligibility Module, returning the Gender, Minimum Age, and Maximum Age fields
      *
-     * @param null|object $eligibility_module
+     * @param  null|object  $eligibility_module
      *
      * @return Collection
      */
     protected function parseEligibility(null|object $eligibility_module)
     :Collection
     {
-
         try {
             return collect(
                 [
                     'gender'      => $eligibility_module->Gender ?? '',
                     'minimum_age' => intval(
                         Helper::stripYears(
-                            $eligibility_module->MinimumAge ?? ''
+                            $eligibility_module->MinimumAge ?? '',
                         )
                             ?: 0 // Definitive minimum age
                     ),
                     'maximum_age' => intval(
-                        Helper::stripYears($eligibility_module->MaximumAge ?? ''
-                        )
-                            ?: 999 // Definitive maximum age
+                        Helper::stripYears($eligibility_module->MaximumAge ?? '',
+                        ) ?: 999 // Definitive maximum age
                     ),
-                ]
+                ],
             );
-        } catch(Exception $exception) {
+        } catch (Exception $exception) {
             $this->returnException(
                 'eligibility module',
-                $exception->getMessage()
+                $exception->getMessage(),
             );
         }
 
@@ -437,8 +432,8 @@ trait MSApiField
     /**
      * Parses the Contacts Locations Module, returning a collection for the Location field
      *
-     * @param null|object $location_module The location array data grabbed
-     * @param null|object $trial_status    The status of the trial
+     * @param  null|object  $location_module  The location array data grabbed
+     * @param  null|object  $trial_status     The status of the trial
      *
      * @return Collection
      */
@@ -470,11 +465,12 @@ trait MSApiField
                         if ($contact_list && property_exists($contact_list, 'LocationContact')) {
                             $phone = $contact_list->LocationContact[0]->LocationContactPhone ?? '';
                         }
+
                         if ($this->allowedTrialLocations->isNotEmpty()) {
                             $in_array = $this->allowedTrialLocations->contains(Str::lower($country));
                         }
 
-                        if ($this->disallowedTrialLocations->isNotEmpty()) {
+                        if (!$in_array && $this->disallowedTrialLocations->isNotEmpty()) {
                             $in_array = !$this->disallowedTrialLocations->contains(Str::lower($country));
                         }
 
@@ -527,7 +523,7 @@ trait MSApiField
         } catch (Exception $exception) {
             $this->returnException(
                 'location module',
-                $exception->getMessage()
+                $exception->getMessage(),
             );
         }
 
@@ -537,7 +533,7 @@ trait MSApiField
     /**
      * Parses the IPD Sharing Statement Module, not currently used
      *
-     * @param object $ipd_module
+     * @param  object  $ipd_module
      *
      * @return Collection
      */
@@ -545,14 +541,14 @@ trait MSApiField
     :Collection
     {
         return collect(
-            []
+            [],
         );
     }
 
     /**
      * Sets up the array needed to create or update a post
      *
-     * @param array $post_args The post args to set up for a wp_insert_post or wp_create_post
+     * @param  array  $post_args  The post args to set up for a wp_insert_post or wp_create_post
      *
      * @return array
      */
@@ -570,9 +566,9 @@ trait MSApiField
     /**
      * Checks if a numerical value is between the min_value and max_value
      *
-     * @param int $value     The value
-     * @param int $min_value The minimum value
-     * @param int $max_value The maximum value
+     * @param  int  $value      The value
+     * @param  int  $min_value  The minimum value
+     * @param  int  $max_value  The maximum value
      *
      * @return bool
      */
@@ -585,13 +581,14 @@ trait MSApiField
         if ($value > $max_value) {
             return false;
         }
+
         return true;
     }
 
     /**
      * Quick filter to remove items with parenthesis in them
      *
-     * @param string $text The text to filter parenthesis out of
+     * @param  string  $text  The text to filter parenthesis out of
      *
      * @return null|array|string|string[]
      */
@@ -604,7 +601,7 @@ trait MSApiField
     /**
      * Quick filter to extract only the items in parentheses
      *
-     * @param string $text
+     * @param  string  $text
      *
      * @return array|false|int
      */
@@ -612,6 +609,7 @@ trait MSApiField
     :bool|int|array
     {
         preg_match_all('#\((.*?)\)#', $text, $parenthesis_text);
+
         return $parenthesis_text[1] ?? [];
     }
 
@@ -633,7 +631,7 @@ trait MSApiField
     /**
      * Maps through the ACF group ID to use for import
      *
-     * @param string $acf_field The ACF Group ID
+     * @param  string  $acf_field  The ACF Group ID
      *
      * @return Collection
      */
@@ -649,7 +647,7 @@ trait MSApiField
      * This function will take a single item array and loop through it, removing any parenthesis
      * and return the capitalization of each first word
      *
-     * @param array $collection
+     * @param  array  $collection
      *
      * @return array
      */
@@ -662,6 +660,7 @@ trait MSApiField
                 if ($keyword) {
                     return ucwords($this->filterParenthesis($keyword));
                 }
+
                 return false;
             })
             ->filter()
@@ -671,8 +670,8 @@ trait MSApiField
     /**
      * Maps through a Collection of ACF fields provided, ignoring any defined ones.
      *
-     * @param Collection $fields         A collection of the ACF Group ID
-     * @param array      $ignored_fields Any field types to ignore. Defaults are tab and message
+     * @param  Collection  $fields          A collection of the ACF Group ID
+     * @param  array       $ignored_fields  Any field types to ignore. Defaults are tab and message
      *
      * @return Collection
      */
@@ -709,6 +708,7 @@ trait MSApiField
                         ->filter()
                         ->values();
                 }
+
                 return $field_arr;
             })
             ->values();
@@ -717,8 +717,8 @@ trait MSApiField
     /**
      * Quick call to an error logging
      *
-     * @param string $module The module the error occurred
-     * @param string $error  The error message
+     * @param  string  $module  The module the error occurred
+     * @param  string  $error   The error message
      *
      * @return void
      */

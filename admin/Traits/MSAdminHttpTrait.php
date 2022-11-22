@@ -64,7 +64,7 @@ trait MSAdminHttpTrait
             if ($this->trialStatus->isNotEmpty()) {
                 $recruiting_status = $this->mapImplode($this->trialStatus);
                 $expression->push(
-                    "(AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ( $recruiting_status ))"
+                    "(AREA[OverallStatus] ( $recruiting_status ))"
                 );
             }
 
@@ -74,7 +74,7 @@ trait MSAdminHttpTrait
             if ($this->allowedTrialLocations->isNotEmpty()) {
                 $location = $this->mapImplode($this->allowedTrialLocations);
                 $expression->push(
-                    "EXPAND[Concept] (AREA[LocationCountry] ($location))"
+                    "(AREA[LocationCountry] ($location))"
                 );
             }
 
@@ -82,14 +82,14 @@ trait MSAdminHttpTrait
             if ($this->disallowedTrialLocations->isNotEmpty()) {
                 $location = $this->mapImplode($this->disallowedTrialLocations);
                 $expression->push(
-                    "EXPAND[Concept] (AREA[LocationCountry] NOT ($location))"
+                    "(AREA[LocationCountry] NOT ($location))"
                 );
             }
 
             // Trial sponsor search name
             $sponsor_name = $this->acfOptionField('clinical_trials_api_sponsor_search') ?: "Merck Sharp &amp; Dohme";
             $expression->push(
-                "(AREA[LeadSponsorName] EXPAND[Concept] \"$sponsor_name\")"
+                "(AREA[LeadSponsorName] \"$sponsor_name\")"
             );
 
             // Expression builder
