@@ -64,7 +64,7 @@ trait MSAdminHttpTrait
             if ($this->trialStatus->isNotEmpty()) {
                 $recruiting_status = $this->mapImplode($this->trialStatus);
                 $expression->push(
-                    "(AREA[OverallStatus] ( $recruiting_status ))"
+                    "(AREA[OverallStatus] EXPAND[Term] COVER[FullMatch] ($recruiting_status))"
                 );
             }
 
@@ -74,7 +74,7 @@ trait MSAdminHttpTrait
             if ($this->allowedTrialLocations->isNotEmpty()) {
                 $location = $this->mapImplode($this->allowedTrialLocations);
                 $expression->push(
-                    "(AREA[LocationCountry] ($location))"
+                    "(AREA[LocationCountry] $location)"
                 );
             }
 
@@ -82,7 +82,7 @@ trait MSAdminHttpTrait
             if ($this->disallowedTrialLocations->isNotEmpty()) {
                 $location = $this->mapImplode($this->disallowedTrialLocations);
                 $expression->push(
-                    "(AREA[LocationCountry] NOT ($location))"
+                    "(AREA[LocationCountry] NOT $location)"
                 );
             }
 

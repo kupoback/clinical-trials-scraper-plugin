@@ -24,7 +24,6 @@ use Merck_Scraper\Traits\MSLoggerTrait;
 use Monolog\Logger;
 use WP_Error;
 use WP_HTTP_Response;
-use WP_Query;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -72,9 +71,9 @@ class MSApiScraper
     private Collection $allowedTrialLocations;
 
     /**
-     * @var Logger|false Instantiates the success logger for the API
+     * @var false|Logger Instantiates the success logger for the API
      */
-    private Logger $apiLog;
+    private Logger|bool $apiLog;
 
     /**
      * @var Logger Used for debugging the API response
@@ -102,9 +101,9 @@ class MSApiScraper
     private Collection $disallowedTrialLocations;
 
     /**
-     * @var Logger|false Instantiates the error logger for the API
+     * @var false|Logger Instantiates the error logger for the API
      */
-    private Logger $errorLog;
+    private Logger|bool $errorLog;
 
     /**
      * @var string|mixed The Google Maps API key from the Database
@@ -546,9 +545,7 @@ class MSApiScraper
         string $file_name,
         string $file_path = MERCK_SCRAPER_LOG_DIR,
         int    $logger_type = Logger::ERROR,
-    )
-    :Logger|bool
-    {
+    ):Logger|bool {
         return self::initLogger($name, $file_name, $file_path, $logger_type);
     }
 

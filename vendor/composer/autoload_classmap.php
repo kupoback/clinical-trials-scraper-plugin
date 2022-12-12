@@ -72,6 +72,7 @@ return array(
     'Carbon\\Traits\\IntervalStep' => $vendorDir . '/nesbot/carbon/src/Carbon/Traits/IntervalStep.php',
     'Carbon\\Traits\\Localization' => $vendorDir . '/nesbot/carbon/src/Carbon/Traits/Localization.php',
     'Carbon\\Traits\\Macro' => $vendorDir . '/nesbot/carbon/src/Carbon/Traits/Macro.php',
+    'Carbon\\Traits\\MagicParameter' => $vendorDir . '/nesbot/carbon/src/Carbon/Traits/MagicParameter.php',
     'Carbon\\Traits\\Mixin' => $vendorDir . '/nesbot/carbon/src/Carbon/Traits/Mixin.php',
     'Carbon\\Traits\\Modifiers' => $vendorDir . '/nesbot/carbon/src/Carbon/Traits/Modifiers.php',
     'Carbon\\Traits\\Mutability' => $vendorDir . '/nesbot/carbon/src/Carbon/Traits/Mutability.php',
