@@ -28,7 +28,7 @@ use Merck_Scraper\Includes\MSDeactivator;
  * Plugin Name:       Merck Scrapper - WPML
  * Plugin URI:        #
  * Description:       This plugin is used to scrape data from clinicaltrials.gov website.
- * Version:           1.1.4
+ * Version:           1.1.4.1
  * Author:            Clique Studios
  * Author URI:        https://cliquestudios.com
  * Requires at least: 6.0
@@ -158,6 +158,7 @@ add_action('ms_govt_scrape_cron', function () {
 if (!wp_next_scheduled('ms_govt_scrape_cron')) {
     // Grab the next day, and set it up
     $next_thursday = Carbon::now('America/New_York')
+                           //->next("");
                            ->next(CarbonInterface::THURSDAY);
     wp_schedule_event(
         $next_thursday->timestamp,

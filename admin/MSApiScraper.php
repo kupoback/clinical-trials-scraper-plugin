@@ -363,7 +363,8 @@ class MSApiScraper
                 'additional_nct_ids',
                 $additional_nct_ids
                     ->filter()
-                    ->implode(';<br />'),
+                    ->map(fn ($nct_id) => ucwords($nct_id))
+                    ->implode(';' . PHP_EOL),
                 'merck_settings'
             );
 
@@ -376,6 +377,9 @@ class MSApiScraper
                     ->values()
                     ->each(function ($nct_id) use (&$studies_imported, $trashed_posts, $total_to_import) {
                         $this->httpArgs['expr'] = self::setupExpression($nct_id);
+                        // Reset the min and max ranks so that we can actually pull in the trial
+                        $this->httpArgs['min_rnk'] = 1;
+                        $this->httpArgs['max_rnk'] = 2;
                         $client_http            = self::scraperHttpCB(
                             '/api/query/full_studies',
                             "GET",
@@ -721,107 +725,111 @@ class MSApiScraper
                 ->getContents()
         );
 
-        // Set data root to first object key
-        $api_data = $api_data->FullStudiesResponse ?? null;
+        /**
+         * Check if there's a FullStudiesResponse
+         */
+        if ($api_data->FullStudiesResponse ?? false) {
+            // Set data root to first object key
+            $api_data = $api_data->FullStudiesResponse ?? null;
 
-        // Number of trials found
-        if ($total_found_override === 0) {
-            $this->totalFound = $api_data->NStudiesFound ?? 0;
+            // Number of trials found
+            if ($total_found_override === 0) {
+                $this->totalFound = $api_data->NStudiesFound ?? 0;
 
-            /**
-             * Determine how many times we need to loop through the items based on the amount found
-             * versus the max number of item's we're getting
-             */
-            $loop_number = intval(round($this->totalFound / $this->maxRank));
-            $loop_number = $loop_number === 0 ? 1 : $loop_number;
-        } else {
-            $this->totalFound = $total_found_override;
-            $loop_number      = 1;
-        }
+                /**
+                 * Determine how many times we need to loop through the items based on the amount found
+                 * versus the max number of item's we're getting
+                 */
+                $loop_number = intval(round($this->totalFound / $this->maxRank));
+                $loop_number = $loop_number === 0 ? 1 : $loop_number;
+            } else {
+                $this->totalFound = $total_found_override;
+                $loop_number      = 1;
+            }
 
-        if ((int) $api_data->NStudiesFound > 0) {
-            /**
-             * Iterate through the import if the import max count is
-             * higher than the max_rnk set.
-             */
-            for ($iteration = 0; $iteration <= $loop_number; $iteration++) :
-                // Increase the min_rnk and max_rnk for each loop above the first
-                if ($iteration > 0) {
-                    $this->httpArgs['min_rnk'] = $this->httpArgs['min_rnk'] + $this->maxRank;
-                    $this->httpArgs['max_rnk'] = $this->httpArgs['max_rnk'] + $this->maxRank;
+            if ((int) $api_data->NStudiesFound > 0) {
+                /**
+                 * Iterate through the import if the import max count is
+                 * higher than the max_rnk set.
+                 */
+                for ($iteration = 0; $iteration <= $loop_number; $iteration++) :
+                    // Increase the min_rnk and max_rnk for each loop above the first
+                    if ($iteration > 0) {
+                        $this->httpArgs['min_rnk'] = $this->httpArgs['min_rnk'] + $this->maxRank;
+                        $this->httpArgs['max_rnk'] = $this->httpArgs['max_rnk'] + $this->maxRank;
 
-                    $http_callback = self::scraperHttpCB(
-                        '/api/query/full_studies',
-                        "GET",
-                        $this->httpArgs,
-                        ['delay' => 120,],
-                    );
+                        $http_callback = self::scraperHttpCB(
+                            '/api/query/full_studies',
+                            "GET",
+                            $this->httpArgs,
+                            ['delay' => 120,],
+                        );
 
-                    if (!is_wp_error($http_callback)) {
-                        // Grab the results
-                        $api_data = json_decode($http_callback->getBody()
-                                                              ->getContents());
+                        if (!is_wp_error($http_callback)) {
+                            // Grab the results
+                            $api_data = json_decode($http_callback->getBody()
+                                                                  ->getContents());
 
-                        // Set data root to first object key
-                        $api_data = $api_data->FullStudiesResponse ?? null;
-                        ;
-                    } else {
-                        $this
-                            ->errorLog
-                            ->error(
-                                sprintf(
-                                    '%s %s - %s',
-                                    __("Error grabbing items during ranks", 'merck-scraper'),
-                                    $this->httpArgs['min_rnk'],
-                                    $this->httpArgs['max_rnk'],
-                                ),
-                            );
+                            // Set data root to first object key
+                            $api_data = $api_data->FullStudiesResponse ?? null;
+                        } else {
+                            $this
+                                ->errorLog
+                                ->error(
+                                    sprintf(
+                                        '%s %s - %s',
+                                        __("Error grabbing items during ranks", 'merck-scraper'),
+                                        $this->httpArgs['min_rnk'],
+                                        $this->httpArgs['max_rnk'],
+                                    ),
+                                );
 
-                        $this
-                            ->errorLog
-                            ->error(json_decode($http_callback->getBody()
-                                                              ->getContents()));
-                        // We don't want to stop the import, in case the issues were just at one instance
-                        continue;
+                            $this
+                                ->errorLog
+                                ->error(json_decode($http_callback->getBody()
+                                                                  ->getContents()));
+                            // We don't want to stop the import, in case the issues were just at one instance
+                            continue;
+                        }
                     }
-                }
 
-                $studies       = collect($api_data->FullStudies ?? []);
-                if ($studies->isNotEmpty()) {
-                    $initial_count = $studies->count();
-                    $studies       = $studies
-                        ->map(function ($study) {
-                            $study->Study->ProtocolSection->Rank = $study->Rank;
+                    $studies = collect($api_data->FullStudies ?? []);
+                    if ($studies->isNotEmpty()) {
+                        $initial_count = $studies->count();
+                        $studies       = $studies
+                            ->map(function ($study) {
+                                $study->Study->ProtocolSection->Rank = $study->Rank;
 
-                            return $study;
-                        })
-                        ->filter(function ($study) use ($trashed_posts) {
-                            // Filter the data removing ones that are marked as "trash"
-                            $study_id_module = collect(
-                                collect($study)
-                                    ->get('Study')
-                                    ->ProtocolSection,
-                            )
-                                ->get('IdentificationModule');
+                                return $study;
+                            })
+                            ->filter(function ($study) use ($trashed_posts) {
+                                // Filter the data removing ones that are marked as "trash"
+                                $study_id_module = collect(
+                                    collect($study)
+                                        ->get('Study')
+                                        ->ProtocolSection,
+                                )
+                                    ->get('IdentificationModule');
 
-                            $study = self::parseId($study_id_module);
+                                $study = self::parseId($study_id_module);
 
-                            return !$trashed_posts->search($study->get('nct_id'));
-                        })
-                        ->values();
+                                return !$trashed_posts->search($study->get('nct_id'));
+                            })
+                            ->values();
 
-                    $num_not_imported = $num_not_imported + ($initial_count - $studies->count());
+                        $num_not_imported = $num_not_imported + ($initial_count - $studies->count());
 
-                    if ($studies->count() > 0) {
-                        $studies_imported
-                            ->push(self::studyImportLoop($studies));
+                        if ($studies->count() > 0) {
+                            $studies_imported
+                                ->push(self::studyImportLoop($studies));
+                        }
                     }
-                }
-            endfor;
-        } else {
-            $this
-                ->errorLog
-                ->error(__("No studies were found", 'merck-scraper'));
+                endfor;
+            } else {
+                $this
+                    ->errorLog
+                    ->error(__("No studies were found", 'merck-scraper'));
+            }
         }
 
         return $studies_imported;
