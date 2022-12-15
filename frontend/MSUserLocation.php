@@ -11,11 +11,13 @@ namespace Merck_Scraper\Frontend;
 use Error;
 use Geocoder\Collection;
 use Geocoder\Exception\Exception;
-use Geocoder\Provider\GeoPlugin\GeoPlugin;
+use Geocoder\Provider\FreeGeoIp\FreeGeoIp;
 use Geocoder\Provider\Provider;
+use Geocoder\Provider\GeoPlugin\GeoPlugin;
 use Geocoder\ProviderAggregator;
 use Geocoder\Query\GeocodeQuery;
 use Http\Adapter\Guzzle7\Client;
+use Monolog\Logger;
 use WP_Error;
 
 /**
@@ -65,13 +67,18 @@ class MSUserLocation
     private array $errReturn;
 
     /**
+     * @var Logger An Error log File
+     */
+    private Logger $logger;
+
+    /**
      * MSUserLocation __construct
      *
      * @param  string           $userLocation  The users location
      * @param  array{Provider}  $provider      An array of service providers to override the FreeGeoIp used
      * @param  string           $using_name    The service providers using name.
      */
-    public function __construct(string $userLocation = '', array $provider = [], string $using_name = 'free_geo_ip')
+    public function __construct(string $userLocation = '', array $provider = [], string $using_name = 'geo_plugin')
     {
         $this->userLocation = $userLocation;
         $this->noUserIp     = new WP_Error(400, "No user IP defined");
@@ -266,10 +273,11 @@ class MSUserLocation
                 ->using($this->usingName)
                 ->geocodeQuery(GeocodeQuery::create($this->userLocation));
         } catch (Exception $exception) {
-            $logger = $this->initLogger('geolocate', 'iplookup', MERCK_SCRAPER_LOG_DIR . '/iplookup');
-            $logger->error(
-                "Provider or Providers Using Name is incorrectly set or missing. {$exception->getMessage()}",
-            );
+            $this->logger = self::initLogger('geolocate', 'iplookup', MERCK_SCRAPER_LOG_DIR . '/iplookup');
+            $this->logger
+                ->error(
+                    "Provider or Providers Using Name is incorrectly set or missing. {$exception->getMessage()}"
+                );
 
             return new WP_Error(
                 401,
