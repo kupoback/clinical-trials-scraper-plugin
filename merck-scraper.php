@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Merck_Scraper;
 
@@ -28,7 +28,7 @@ use Merck_Scraper\Includes\MSDeactivator;
  * Plugin Name:       Merck Scrapper - WPML
  * Plugin URI:        #
  * Description:       This plugin is used to scrape data from clinicaltrials.gov website.
- * Version:           1.1.5
+ * Version:           1.2.0
  * Author:            Clique Studios
  * Author URI:        https://cliquestudios.com
  * Requires at least: 6.0
@@ -52,7 +52,7 @@ require plugin_dir_path(__FILE__) . 'vendor/autoload.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('MERCK_SCRAPER_VERSION', '1.1.5');
+define('MERCK_SCRAPER_VERSION', '1.2.0');
 
 /**
  * This constant is used to save the logs to a specific directory
@@ -90,14 +90,14 @@ if (!class_exists('ACF') || !class_exists('SitePress')) {
                 __('Error', 'merck-scraper'),
                 sprintf(
                     __("The plugin %s requires $plugin_name to be installed.", 'merck-scraper'),
-                    '<strong>Merck Scraper - WPML</strong>'
+                    '<strong>Merck Scraper - WPML</strong>',
                 ),
                 sprintf(
                     '<p>%s</p>',
                     __(
                         "Please install or activate $plugin_name and try again.",
-                        'merck-scraper'
-                    )
+                        'merck-scraper',
+                    ),
                 ),
                 $plugin_name === 'WordPress Multi-language' ?
                     sprintf(
@@ -114,7 +114,7 @@ if (!class_exists('ACF') || !class_exists('SitePress')) {
         if (!class_exists('SitePress')) {
             printf('%s', printError('WordPress Multi-language'));
         }
-    }, 20);
+    },         20);
     MSDeactivator::deactivate();
 }
 
@@ -152,6 +152,9 @@ add_action('ms_govt_scrape_cron', function () {
     }
 });
 
+//add_action('ms_scrape_log_cleanup', function () {
+//});
+
 /**
  * If the cron job isn't scheduled to run, we'll set it up to run
  */
@@ -163,6 +166,23 @@ if (!wp_next_scheduled('ms_govt_scrape_cron')) {
     wp_schedule_event(
         $next_thursday->timestamp,
         'thursday_api',
-        'ms_govt_scrape_cron'
+        'ms_govt_scrape_cron',
     );
 }
+
+//if (!wp_next_scheduled('ms_scrape_log_cleanup')) {
+//    $now        = Carbon::now('America/New_York');
+//    $next_month = $now
+//        ->next(
+//            $now
+//                ->addMonth()
+//                ->startOfMonth()
+//                ->toTimeString(),
+//        );
+//
+    // wp_schedule_event(
+    //     $next_month, //'timestamp'
+    //      'monthly',
+    //     'ms_scrape_log_cleanup',
+    // );
+//}

@@ -71,20 +71,20 @@ trait MSAdminHttpTrait
             // Trial Location search
 
             // Allowed Trial Locations
-            if ($this->allowedTrialLocations->isNotEmpty()) {
-                $location = $this->mapImplode($this->allowedTrialLocations);
-                $expression->push(
-                    "(AREA[LocationCountry] $location)"
-                );
-            }
+            // if ($this->allowedTrialLocations->isNotEmpty()) {
+            //     $location = $this->mapImplode($this->allowedTrialLocations);
+            //     $expression->push(
+            //         "(AREA[LocationCountry] $location)"
+            //     );
+            // }
 
             // Disallowed Trial Locations
-            if ($this->disallowedTrialLocations->isNotEmpty()) {
-                $location = $this->mapImplode($this->disallowedTrialLocations);
-                $expression->push(
-                    "(AREA[LocationCountry] NOT $location)"
-                );
-            }
+            // if ($this->disallowedTrialLocations->isNotEmpty()) {
+            //     $location = $this->mapImplode($this->disallowedTrialLocations);
+            //     $expression->push(
+            //         "(AREA[LocationCountry] NOT $location)"
+            //     );
+            // }
 
             // Trial sponsor search name
             $sponsor_name = $this->acfOptionField('clinical_trials_api_sponsor_search') ?: "Merck Sharp &amp; Dohme";

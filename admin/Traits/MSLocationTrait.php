@@ -397,4 +397,9 @@ trait MSLocationTrait
             )
             ->filter();
     }
+
+    protected function locationFilter(Collection $locations)
+    {
+
+    }
 }

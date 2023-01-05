@@ -414,8 +414,10 @@ trait MSApiField
                             ?: 0 // Definitive minimum age
                     ),
                     'maximum_age' => intval(
-                        Helper::stripYears($eligibility_module->MaximumAge ?? '',
-                        ) ?: 999 // Definitive maximum age
+                        Helper::stripYears(
+                            $eligibility_module->MaximumAge ?? '',
+                        )
+                            ?: 999 // Definitive maximum age
                     ),
                 ],
             );

@@ -253,6 +253,9 @@ class MSApiScraper
             ],
         );
 
+        /**
+         * Get Trial Locations
+         */
         self::registerRoute(
             'get-trial-locations',
             WP_REST_Server::CREATABLE,
@@ -338,7 +341,7 @@ class MSApiScraper
         /**
          * If there are any manual NCT ID's, make API calls for them
          */
-        if ($additional_nct_ids->isNotEmpty()) {
+        if ($additional_nct_ids->isNotEmpty() && !$manual_call) {
             /**
              * Check for any Additional NCT ID's defined, and if they exist
              * remove them from the second portion of the import which fetches
@@ -795,13 +798,23 @@ class MSApiScraper
 
                     $studies = collect($api_data->FullStudies ?? []);
                     if ($studies->isNotEmpty()) {
-                        $initial_count = $studies->count();
-                        $studies       = $studies
+                        $studies = collect($studies)
                             ->map(function ($study) {
                                 $study->Study->ProtocolSection->Rank = $study->Rank;
-
                                 return $study;
-                            })
+                            });
+                        $initial_count = $studies->count();
+
+                        /**
+                         * Run through each study's locations list if populated
+                         * and remove any that are not part of the allowed list
+                         * or not part of the disallowed list
+                         */
+                        $studies = $this->filterImportLocations($studies);
+
+                        $this->totalFound = $this->totalFound - ($initial_count - $studies->count());
+
+                        $studies       = $studies
                             ->filter(function ($study) use ($trashed_posts) {
                                 // Filter the data removing ones that are marked as "trash"
                                 $study_id_module = collect(
@@ -811,9 +824,10 @@ class MSApiScraper
                                 )
                                     ->get('IdentificationModule');
 
-                                $study = self::parseId($study_id_module);
+                                $study = $this->parseId($study_id_module);
 
-                                return !$trashed_posts->search($study->get('nct_id'));
+                                return !$trashed_posts
+                                    ->search($study->get('nct_id'));
                             })
                             ->values();
 
@@ -821,7 +835,7 @@ class MSApiScraper
 
                         if ($studies->count() > 0) {
                             $studies_imported
-                                ->push(self::studyImportLoop($studies));
+                                ->push($this->studyImportLoop($studies));
                         }
                     }
                 endfor;
@@ -834,5 +848,4 @@ class MSApiScraper
 
         return $studies_imported;
     }
-
 }

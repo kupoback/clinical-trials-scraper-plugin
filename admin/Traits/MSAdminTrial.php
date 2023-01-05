@@ -7,6 +7,42 @@ use Illuminate\Support\Collection;
 
 trait MSAdminTrial
 {
+    use MSApiField;
+
+    /**
+     * Filters each study, and checks if it has locations or not.
+     *
+     * If the trial has locations, it will parse and check against
+     * the allowed and disallowed countries to filter out those locations,
+     * then if there are any still, we will allow the trial to be imported
+     * otherwise if there are no leftover trials, it's removed from the import
+     *
+     * If there are no trial locations at all, we'll still import the trial
+     *
+     * @param  Collection  $studies A collection of studies from the API
+     *
+     * @return Collection
+     */
+    private function filterImportLocations(Collection $studies)
+    :Collection
+    {
+        return $studies
+            ->filter(function ($study) {
+                $study_protocol = $study->Study->ProtocolSection;
+                if ($study_protocol ?? false) {
+                    if (count($study_protocol->ContactsLocationsModule->LocationList->Location ?? []) > 0) {
+                        return $this->parseLocation(
+                            ($study_protocol->ContactsLocationsModule ?? null),
+                            ($study_protocol->StatusModule ?? null),
+                        )->get('locations')
+                         ->count() > 0;
+                    }
+                    return true;
+                }
+                return false;
+            });
+    }
+
     /**
      * A separated loop to handle pagination of posts
      *
