@@ -7,6 +7,7 @@ namespace Merck_Scraper;
 use Carbon\CarbonInterface;
 use Exception;
 use Illuminate\Support\Carbon;
+use Merck_Scraper\Admin\MSAdminLoggerDelete;
 use Merck_Scraper\Admin\MSApiScraper;
 use Merck_Scraper\Includes\MSMainClass;
 use Merck_Scraper\Includes\MSActivator;
@@ -26,10 +27,9 @@ use Merck_Scraper\Includes\MSDeactivator;
  *
  * @wordpress-plugin
  * Plugin Name:       Merck Scrapper - WPML
- * Plugin URI:        #
  * Description:       This plugin is used to scrape data from clinicaltrials.gov website.
  * Version:           1.2.0
- * Author:            Clique Studios
+ * Author:            Clique Studios (Nick Makris)
  * Author URI:        https://cliquestudios.com
  * Requires at least: 6.0
  * Tested up to:      6.1.1
@@ -59,6 +59,9 @@ define('MERCK_SCRAPER_VERSION', '1.2.0');
  */
 define("MERCK_SCRAPER_LOG_DIR", WP_CONTENT_DIR . '/ms-logs');
 
+/**
+ * This constant is used to save API logs to the API directory
+ */
 define("MERCK_SCRAPER_API_LOG_DIR", WP_CONTENT_DIR . "/ms-logs/api");
 
 /**
@@ -67,6 +70,7 @@ define("MERCK_SCRAPER_API_LOG_DIR", WP_CONTENT_DIR . "/ms-logs/api");
  */
 register_activation_hook(__FILE__, function () {
     MSActivator::activate();
+    ms_set_cron_jobs();
 });
 
 /**
@@ -75,6 +79,7 @@ register_activation_hook(__FILE__, function () {
  */
 register_deactivation_hook(__FILE__, function () {
     MSDeactivator::deactivate();
+    ms_remove_cron_jobs();
 });
 
 /**
@@ -130,12 +135,20 @@ if (!class_exists('ACF') || !class_exists('SitePress')) {
 function run_ms()
 :void
 {
-    !is_dir(MERCK_SCRAPER_LOG_DIR) ? mkdir(MERCK_SCRAPER_LOG_DIR) : null;
+    if (!is_dir(MERCK_SCRAPER_LOG_DIR)) {
+        mkdir(MERCK_SCRAPER_LOG_DIR);
+    }
+
     $plugin = new MSMainClass();
     $plugin->executePlugin();
 }
 
 run_ms();
+
+add_action('ms_scrape_log_cleanup', function () {
+    (new MSAdminLoggerDelete())
+        ->deleteTwoMonthsOfFiles();
+});
 
 /**
  * This is the cron job setup function
@@ -152,37 +165,44 @@ add_action('ms_govt_scrape_cron', function () {
     }
 });
 
-//add_action('ms_scrape_log_cleanup', function () {
-//});
+$now = Carbon::now('America/New_York');
 
 /**
  * If the cron job isn't scheduled to run, we'll set it up to run
  */
 if (!wp_next_scheduled('ms_govt_scrape_cron')) {
     // Grab the next day, and set it up
-    $next_thursday = Carbon::now('America/New_York')
-                           //->next("");
-                           ->next(CarbonInterface::THURSDAY);
     wp_schedule_event(
-        $next_thursday->timestamp,
-        'thursday_api',
+        $now
+            ->next(CarbonInterface::THURSDAY)
+            ->timestamp,
+        'thursdays',
         'ms_govt_scrape_cron',
     );
 }
 
-//if (!wp_next_scheduled('ms_scrape_log_cleanup')) {
-//    $now        = Carbon::now('America/New_York');
-//    $next_month = $now
-//        ->next(
-//            $now
-//                ->addMonth()
-//                ->startOfMonth()
-//                ->toTimeString(),
-//        );
-//
-    // wp_schedule_event(
-    //     $next_month, //'timestamp'
-    //      'monthly',
-    //     'ms_scrape_log_cleanup',
-    // );
-//}
+/**
+ * Cron job for deleting logs from two months ago, every 2 months
+ */
+if (!wp_next_scheduled('ms_scrape_log_cleanup')) {
+    wp_schedule_event(
+        $now
+            ->addMonths(2)
+            ->startOfMonth()
+            ->timestamp,
+        'two_months',
+        'ms_scrape_log_cleanup',
+    );
+}
+
+/**
+ * Removes the two set cron jobs
+ *
+ * @return void
+ */
+function ms_remove_cron_jobs()
+:void
+{
+    wp_clear_scheduled_hook('ms_govt_scrape_cron');
+    wp_clear_scheduled_hook('ms_scrape_log_cleanup');
+}

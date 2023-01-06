@@ -1,0 +1,46 @@
+{
+    "key": "group_63b8738bbcc0e",
+    "title": "Trial Notes",
+    "fields": [
+        {
+            "key": "field_63b8738cae527",
+            "label": "Trial Notes",
+            "name": "trial_notes",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "wpml_cf_preferences": 2,
+            "default_value": "",
+            "maxlength": "",
+            "rows": 4,
+            "placeholder": "",
+            "new_lines": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "trials"
+            }
+        ]
+    ],
+    "menu_order": -1,
+    "position": "side",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "This creates a side section for the client to enter notes for a trial",
+    "show_in_rest": 0,
+    "modified": 1673032764
+}

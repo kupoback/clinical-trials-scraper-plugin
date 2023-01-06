@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+
 use Merck_Scraper\Admin\Traits\MSAdminHttpTrait;
 use Merck_Scraper\Admin\Traits\MSAdminTrial;
 use Merck_Scraper\Admin\Traits\MSApiField;
@@ -21,6 +22,7 @@ use Merck_Scraper\Traits\MSDBCallbacks;
 use Merck_Scraper\Traits\MSGoogleMaps;
 use Merck_Scraper\Traits\MSHttpCallback;
 use Merck_Scraper\Traits\MSLoggerTrait;
+
 use Monolog\Logger;
 use WP_Error;
 use WP_HTTP_Response;

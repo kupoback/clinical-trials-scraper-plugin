@@ -4,6 +4,7 @@
 		"php": "^8.0.0",
 		"composer/installers": "^2.0",
 		"ext-json": "*",
+		"ext-zip": "*",
 		"10quality/wp-query-builder": "^1.0",
 		"geocoder-php/geo-plugin-provider": "^4.2",
 		"geocoder-php/free-geoip-provider": "^4.4",

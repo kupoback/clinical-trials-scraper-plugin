@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace Merck_Scraper\Admin;
 
+use Carbon\Carbon;
+use Carbon\CarbonInterface;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Merck_Scraper\Traits\MSApiTrait;
 use WP_Error;
 use WP_HTTP_Response;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
+use ZipArchive;
 
 /**
  * Registers the rest api for the scraper
@@ -24,29 +29,24 @@ class MSApiLogger
     use MSApiTrait;
 
     /**
-     * Folder for the api logs
-     *
-     * @var string
+     * @var array|string[] Sets up dot files to omit for diff
      */
-    public string $apiLogDir;
-
-    /**
-     * Folder for the api error logs
-     *
-     * @var string|mixed
-     */
-    public string $apiErrDir;
+    protected array $dotFiles = ['.', '..'];
 
     /**
      * MSApiLogger constructor.
      *
      * @param string $apiLogDir String filepath for the api log directory
      * @param string $apiErrDir String filepath for the api error log directory
+     * @param string $emailLogDir String filepath for the email log directory
+     * @param string $emailErrDir String filepath for the email error directory
      */
-    public function __construct(string $apiLogDir = MERCK_SCRAPER_API_LOG_DIR . '/log', string $apiErrDir = MERCK_SCRAPER_API_LOG_DIR . '/error')
-    {
-        $this->apiLogDir = $apiLogDir;
-        $this->apiErrDir = $apiErrDir;
+    public function __construct(
+        public string $apiLogDir = MERCK_SCRAPER_API_LOG_DIR . '/log',
+        public string $apiErrDir = MERCK_SCRAPER_API_LOG_DIR . '/error',
+        public string $emailLogDir = MERCK_SCRAPER_LOG_DIR . '/email/log',
+        public string $emailErrDir = MERCK_SCRAPER_LOG_DIR . '/email/error'
+    ) {
     }
 
     /**
@@ -143,7 +143,7 @@ class MSApiLogger
     {
         return rest_ensure_response(
             collect(scandir(MERCK_SCRAPER_LOG_DIR))
-                ->filter(fn ($directory) => ($directory !== '.' && $directory !== '..'))
+                ->diff($this->dotFiles)
                 ->map(fn ($directory) => [
                     'dirLabel' => ucwords($directory),
                     'dirValue' => $directory,
@@ -205,7 +205,7 @@ class MSApiLogger
                     ? $this->apiLogDir
                     : ($file_type === 'err' ? $this->apiErrDir : null);
             } else {
-                $file_type = match($file_type) {
+                $file_type = match ($file_type) {
                     'err' => 'error',
                     'success' => 'log',
                 };

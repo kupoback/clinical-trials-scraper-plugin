@@ -17,11 +17,16 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 
 = 1.2.0 =
 
-Worked on adjusting how the import expression is built.
+**Reworks**
 
-No longer using locations for the expression, but instead to filter out the return results of trials based on the location fields
+* Worked on adjusting how the import expression is built.
+    * No longer using locations for the expression, but instead to filter out the return results of trials based on the location fields
 
-Worked on integration to compile and zip up old log files to free up some space and eliminate the overflow of files in the admin
+**New Integrations**
+* Integrated functionality to delete and remove log files that are at least 2 months old through a cron job at the start of the month every 2 months
+* Added new ACF field for adding of notes for a Trial
+    * Added new notes column and field for trials on the Trial Listing Page
+* Added new Archive Post Status
 
 = 1.1.5 =
 

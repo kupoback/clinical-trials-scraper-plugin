@@ -138,4 +138,34 @@ trait MSAdminTrait
             "show_in_rest"      => false,
         ];
     }
+
+    /**
+     * Merges and parses the post status creation array
+     *
+     * @param  string  $label The name for the post status
+     * @param  array   $args  An array of arguments to override the defaults
+     *
+     * @return array
+     */
+    protected function postStatusArray(string $label, array $args = [])
+    :array
+    {
+        $plural = Str::plural($label);
+        $default = [
+            'label'                     => $label,
+            'label_count'               => false,
+            'exclude_from_search'       => null,
+            '_builtin'                  => false,
+            'public'                    => null,
+            'internal'                  => null,
+            'protected'                 => null,
+            'private'                   => null,
+            'publicly_queryable'        => null,
+            'show_in_admin_status_list' => null,
+            'show_in_admin_all_list'    => null,
+            'date_floating'             => null,
+        ];
+
+         return wp_parse_args($args, $default);
+    }
 }

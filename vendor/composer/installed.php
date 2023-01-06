@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'clique/merck-scraper',
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
-        'reference' => 'a65a694d5c72033dc53474a157e377e25cd0ab13',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => 'e5c1d82fcf35c22953e4c84e2ab89d9e2e5e4047',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -29,9 +29,9 @@
             'dev_requirement' => false,
         ),
         'clique/merck-scraper' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => 'a65a694d5c72033dc53474a157e377e25cd0ab13',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => 'e5c1d82fcf35c22953e4c84e2ab89d9e2e5e4047',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -197,9 +197,9 @@
             'dev_requirement' => false,
         ),
         'nesbot/carbon' => array(
-            'pretty_version' => '2.64.1',
-            'version' => '2.64.1.0',
-            'reference' => 'f2e59963f4c4f4fdfb9fcfd752e8d2e2b79a4e2c',
+            'pretty_version' => '2.65.0',
+            'version' => '2.65.0.0',
+            'reference' => '09acf64155c16dc6f580f36569ae89344e9734a3',
             'type' => 'library',
             'install_path' => __DIR__ . '/../nesbot/carbon',
             'aliases' => array(),

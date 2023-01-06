@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Merck_Scraper\Admin;
 
+use Illuminate\Support\Str;
+use Merck_Scraper\Admin\Traits\MSAdminTrait;
 use WP_Post;
 
 /**
@@ -17,6 +19,8 @@ use WP_Post;
  */
 class MSAdmin
 {
+
+    use MSAdminTrait;
 
     /**
      * The ID of this plugin.
@@ -185,6 +189,7 @@ class MSAdmin
             'group_60fed83c786ed', // Merck Settings
             'group_618e88f57b867', // Trial Ages
             'group_6220de6da8144', // Location Single Post
+            'group_63b8738bbcc0e', // Trial Notes
         ];
 
         if (in_array($group['key'], $groups)) {
@@ -216,12 +221,22 @@ class MSAdmin
     public function customSchedule(array $schedules)
     :array
     {
-        $schedules['thursday_api'] = [
-            'interval' => 604800,
-            'display'  => __("Thursday Once Weekly"),
-        ];
-
-        return $schedules;
+        return collect($schedules)
+            ->put(
+                'thursdays',
+                [
+                    'interval' => 604800,
+                    'display'  => __("Thursday Once Weekly", 'merck-scraper'),
+                ]
+            )
+            ->put(
+                'two_months',
+                [
+                    'interval' => 5260000,
+                    'display' => __('Every 2 months', 'merck-scraper'),
+                ]
+            )
+            ->toArray();
     }
 
     /**
@@ -241,6 +256,7 @@ class MSAdmin
         // Add any custom columns here before the `date` field
         $custom_columns = [
             'nct_id' => __("NCT ID", 'merck-scraper'),
+            'notes'  => __('Trial Notes', 'merck-scraper'),
             'date'   => $post_date,
         ];
 
@@ -261,8 +277,15 @@ class MSAdmin
     {
         if ($column_key === 'nct_id') {
             printf(
-                '<span style="">%s</span>',
+                '<span>%s</span>',
                 get_field('api_data_nct_id', $post_id) ?: '-',
+            );
+        }
+
+        if ($column_key === 'notes') {
+            printf(
+                '<span>%s</span>',
+                get_field('trial_notes', $post_id) ?: 'No notes created yet',
             );
         }
     }
@@ -424,6 +447,70 @@ class MSAdmin
     }
 
     /**
+     * Registers and creates custom post status'
+     *
+     * @return void
+     */
+    public function createCustomStatus()
+    :void
+    {
+        $label = _x('Archived', 'merck-scraper');
+        collect(
+            [
+                'archive' => self::postStatusArray(
+                    $label,
+                    [
+                        'label_count'               => _n_noop(
+                            "$label <span class='count'>(%s)</span>",
+                            "$label <span class='count'>(%s)</span>",
+                        ),
+                        'public'                    => true,
+                        'exclude_from_search'       => false,
+                        'show_in_admin_all_list'    => true,
+                        'show_in_admin_status_list' => true,
+                        'publicly_queryable'        => false,
+                    ]
+                )
+            ]
+        )
+            ->each(function ($args, $status_name) {
+                register_post_status($status_name, $args);
+            });
+    }
+
+    public function addStatusToDropdown()
+    {
+        global $post;
+        if ($post->post_type === 'trials') {
+            $status = ($post->post_status == 'completed')
+                ? "jQuery('#post-status-display').text('Archived');jQuery('select[name=\"post_status\"]').val('archive');" : '';
+            echo "<script>
+                jQuery(document).ready( function() {
+                    jQuery('select[name=\"post_status\"]').append('<option value=\"archive\">Archived</option>');
+                    $status
+                });
+            </script>";
+        }
+    }
+
+
+
+    public function displayCustomStatus($states)
+    {
+        if ($this->isTrialsAdmin()) {
+            global $post;
+            $post_status = get_query_var('post_status');
+            if ($post_status !== 'archive') {
+                if ($post->post_status === 'archive') {
+                    echo "<script>jQuery(document).ready(function() {jQuery('#post-status-display').text('Archived');});</script>";
+                    return ['Archived'];
+                }
+            }
+        }
+        return $states;
+    }
+
+    /**
      * Checks whether we're on the Admin edit-trials archive page
      *
      * @return bool
@@ -432,7 +519,7 @@ class MSAdmin
     {
         if (is_admin() && function_exists('get_current_screen')) {
             $current_screen   = get_current_screen();
-            $post_edit_screen = ['edit-trials', 'edit-events', 'edit-products', 'edit-leadership'];
+            $post_edit_screen = ['edit-trials', 'edit-locations'];
             return is_object($current_screen) && in_array($current_screen->id, $post_edit_screen) && is_search();
         }
         return false;

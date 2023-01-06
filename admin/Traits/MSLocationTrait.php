@@ -10,7 +10,6 @@ use WP_Query;
 
 trait MSLocationTrait
 {
-
     /**
      * This method parses through all the locations for the study just imported.
      *
@@ -396,10 +395,5 @@ trait MSLocationTrait
                 : false,
             )
             ->filter();
-    }
-
-    protected function locationFilter(Collection $locations)
-    {
-
     }
 }
