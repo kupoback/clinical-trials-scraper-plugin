@@ -141,10 +141,7 @@ class MSMainClass
             10,
             2
         );
-        $this->loader->addAction('init', $plugin_admin, 'createCustomStatus');
-        $this->loader->addAction('post_submitbox_misc_actions', $plugin_admin, 'addStatusToDropdown');
         $this->loader->addFilter('cron_schedules', $plugin_admin, 'customSchedule');
-        $this->loader->addFilter('display_post_state', $plugin_admin, 'displayCustomStatus');
 
         /**
          * Filters and Actions to expand the Admin Columns for the Trials Post type,

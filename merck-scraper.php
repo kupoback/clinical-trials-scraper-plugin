@@ -70,7 +70,6 @@ define("MERCK_SCRAPER_API_LOG_DIR", WP_CONTENT_DIR . "/ms-logs/api");
  */
 register_activation_hook(__FILE__, function () {
     MSActivator::activate();
-    ms_set_cron_jobs();
 });
 
 /**
