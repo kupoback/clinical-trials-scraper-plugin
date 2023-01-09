@@ -12,6 +12,7 @@ const frontendDir = {
 };
 
 mix.js(`${adminDir.js}/merck-scraper-admin.js`, adminDir.dist);
+mix.js(`${adminDir.js}/merck-scraper-disable-publish-sidebar.js`, adminDir.dist);
 mix.js(`${adminDir.js}/merck-scraper-vue.js`, adminDir.dist)
     .vue();
 mix.js(`${frontendDir.js}/merck-scraper-frontend.js`, frontendDir.dist)

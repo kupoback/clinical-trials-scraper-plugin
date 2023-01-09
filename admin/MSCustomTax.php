@@ -70,6 +70,19 @@ class MSCustomTax
             ),
             ['trials', 'locations']
         );
+
+        self::loopTaxonomy(
+            collect(
+                [
+                    'custom_trial_publication_status' => self::taxonomyArray(
+                        'Custom Trial Publication Status',
+                        'Custom Trial Publication Status',
+                        'custom-trial-publication-status',
+                        false,
+                    )
+                ]
+            )
+        );
     }
 
     /**

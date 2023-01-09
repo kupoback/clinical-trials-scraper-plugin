@@ -692,6 +692,7 @@ return array(
     'Merck_Scraper\\Admin\\MSApiLogger' => $baseDir . '/Admin/MSApiLogger.php',
     'Merck_Scraper\\Admin\\MSApiScraper' => $baseDir . '/Admin/MSApiScraper.php',
     'Merck_Scraper\\Admin\\MSCustomPT' => $baseDir . '/Admin/MSCustomPT.php',
+    'Merck_Scraper\\Admin\\MSCustomPostStatus' => $baseDir . '/Admin/MSCustomPostStatus.php',
     'Merck_Scraper\\Admin\\MSCustomTax' => $baseDir . '/Admin/MSCustomTax.php',
     'Merck_Scraper\\Admin\\MSLocationMetaBox' => $baseDir . '/Admin/MSLocationMetaBox.php',
     'Merck_Scraper\\Admin\\MSMetaBox' => $baseDir . '/Admin/MSMetaBox.php',

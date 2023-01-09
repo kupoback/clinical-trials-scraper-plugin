@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'clique/merck-scraper',
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
-        'reference' => 'e5c1d82fcf35c22953e4c84e2ab89d9e2e5e4047',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
+        'reference' => '291615b0cc40f1336e39c54d51e9656794308a0f',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -29,9 +29,9 @@
             'dev_requirement' => false,
         ),
         'clique/merck-scraper' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => 'e5c1d82fcf35c22953e4c84e2ab89d9e2e5e4047',
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => '291615b0cc40f1336e39c54d51e9656794308a0f',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -376,7 +376,7 @@
         'roave/security-advisories' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'ef9dca6c49faa06e7203bbed30411e26e474a8fb',
+            'reference' => '9c6c8f411c2eefd00a6400a892c9df1a74fe365a',
             'type' => 'metapackage',
             'install_path' => NULL,
             'aliases' => array(),

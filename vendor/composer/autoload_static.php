@@ -940,6 +940,7 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         'Merck_Scraper\\Admin\\MSApiLogger' => __DIR__ . '/../..' . '/Admin/MSApiLogger.php',
         'Merck_Scraper\\Admin\\MSApiScraper' => __DIR__ . '/../..' . '/Admin/MSApiScraper.php',
         'Merck_Scraper\\Admin\\MSCustomPT' => __DIR__ . '/../..' . '/Admin/MSCustomPT.php',
+        'Merck_Scraper\\Admin\\MSCustomPostStatus' => __DIR__ . '/../..' . '/Admin/MSCustomPostStatus.php',
         'Merck_Scraper\\Admin\\MSCustomTax' => __DIR__ . '/../..' . '/Admin/MSCustomTax.php',
         'Merck_Scraper\\Admin\\MSLocationMetaBox' => __DIR__ . '/../..' . '/Admin/MSLocationMetaBox.php',
         'Merck_Scraper\\Admin\\MSMetaBox' => __DIR__ . '/../..' . '/Admin/MSMetaBox.php',

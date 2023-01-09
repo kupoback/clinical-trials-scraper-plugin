@@ -7,6 +7,7 @@ namespace Merck_Scraper\Includes;
 use Merck_Scraper\Admin\MSAdmin;
 use Merck_Scraper\Admin\MSApiLogger;
 use Merck_Scraper\Admin\MSApiScraper;
+use Merck_Scraper\Admin\MSCustomPostStatus;
 use Merck_Scraper\Admin\MSCustomPT;
 use Merck_Scraper\Admin\MSCustomTax;
 use Merck_Scraper\Admin\MSLocationMetaBox;
@@ -42,41 +43,19 @@ class MSMainClass
     protected MSLoader $loader;
 
     /**
-     * The unique identifier of this plugin.
-     *
-     * @since    1.0.0
-     * @access   protected
-     * @var      string $pluginName The string used to uniquely identify this plugin.
-     */
-    protected string $pluginName;
-
-    /**
-     * The current version of the plugin.
-     *
-     * @since    1.0.0
-     * @access   protected
-     * @var      string $version The current version of the plugin.
-     */
-    protected string $version;
-
-    /**
      * Define the core functionality of the plugin.
      *
      * Set the plugin name and the plugin version that can be used throughout the plugin.
      * Load the dependencies, define the locale, and set the hooks for the Admin area and
      * the frontend-facing side of the site.
      *
+     * @param  string  $pluginName  The current name of the plugin.
+     * @param  string  $version     The current version of the plugin.
+     *
      * @since    1.0.0
      */
-    public function __construct()
+    public function __construct(protected string $pluginName = 'merck-scraper', protected string $version = MERCK_SCRAPER_VERSION)
     {
-        if (defined('MERCK_SCRAPER_VERSION')) {
-            $this->version = MERCK_SCRAPER_VERSION;
-        } else {
-            $this->version = '1.0.0';
-        }
-        $this->pluginName = 'merck-scraper';
-
         $this->loadDependencies();
         $this->setLocale();
         $this->adminHooks();
@@ -100,6 +79,7 @@ class MSMainClass
      * @access   private
      */
     private function loadDependencies()
+    :void
     {
         $this->loader = new MSLoader();
     }
@@ -114,6 +94,7 @@ class MSMainClass
      * @access   private
      */
     private function setLocale()
+    :void
     {
         $plugin_i18n = new MSI18n();
 
@@ -121,15 +102,16 @@ class MSMainClass
     }
 
     /**
-     * Register all of the hooks related to the Admin area functionality
+     * Register all the hooks related to the Admin area functionality
      * of the plugin.
      *
      * @since    1.0.0
      * @access   private
      */
     private function adminHooks()
+    :void
     {
-        $plugin_admin = new MSAdmin($this->getPluginName(), $this->getversion());
+        $plugin_admin = new MSAdmin($this->pluginName, $this->version);
 
         $this->loader->addAction('admin_enqueue_scripts', $plugin_admin, 'enqueueStyles');
         $this->loader->addAction('admin_enqueue_scripts', $plugin_admin, 'enqueueScripts');
@@ -142,6 +124,7 @@ class MSMainClass
             2
         );
         $this->loader->addFilter('cron_schedules', $plugin_admin, 'customSchedule');
+
 
         /**
          * Filters and Actions to expand the Admin Columns for the Trials Post type,
@@ -162,6 +145,7 @@ class MSMainClass
         // Options Page
         $this->loader->addAction('acf/init', $admin_options, 'acfOptionsPage');
         $this->loader->addAction('admin_menu', $admin_options, 'customOptsPage', 105);
+        $this->loader->addAction('admin_init', $admin_options, 'settingsInit');
 
         // Registers the Logger API
         $logger_api = new MSApiLogger();
@@ -185,6 +169,33 @@ class MSMainClass
         $location_meta_box = new MSLocationMetaBox;
         $this->loader->addAction('add_meta_boxes', $location_meta_box, 'addMetaBoxes');
         // $this->loader->addAction('save_post', $location_meta_box, 'savePost');
+
+        /**
+         * Custom post Status
+         */
+        $plugin_post_status = new MSCustomPostStatus();
+        $this->loader->addAction('init', $plugin_post_status, 'registerPostStatus');
+        $this->loader->addAction('admin_init', $plugin_post_status, 'overrideAdminPostListInit');
+        $this->loader->addAction('admin_init', $plugin_post_status, 'adminRedirects');
+        $this->loader->addAction('admin_footer-post.php', $plugin_post_status, 'appendPostStatusList');
+        $this->loader->addAction('admin_footer-post-new.php', $plugin_post_status, 'appendPostStatusList');
+        $this->loader->addAction('admin_footer-edit.php', $plugin_post_status, 'appendPostStatusListQuickedit');
+        $this->loader->addAction('admin_print_footer_scripts', $plugin_post_status, 'changePublishButtonGutenberg');
+        $this->loader->addAction('display_post_states', $plugin_post_status, 'appendPostStatusPostOverview');
+        $this->loader->addAction('custom_trial_publication_status_add_form_fields', $plugin_post_status, 'statusTaxonomyCustomFields', 10, 2);
+        $this->loader->addAction('created_custom_trial_publication_status', $plugin_post_status, 'saveStatusTaxonomyCustomFields', 10, 2);
+        $this->loader->addAction('custom_trial_publication_status_edit_form_fields', $plugin_post_status, 'statusTaxonomyCustomFields', 10, 2);
+        $this->loader->addAction('edited_custom_trial_publication_status', $plugin_post_status, 'saveStatusTaxonomyCustomFields', 10, 2);
+        $this->loader->addAction('manage_edit-custom_trial_publication_status_columns', $plugin_post_status, 'editStatusTaxonomyColumns');
+        $this->loader->addAction('add_meta_boxes', $plugin_post_status, 'addStatusMetabox');
+        $this->loader->addAction('enqueue_block_editor_assets', $plugin_post_status, 'removePublishingSidebarGutenberg');
+
+        $this->loader->addFilter('parentFile', $plugin_post_status, 'parentFile');
+        $this->loader->addFilter('submenuFile', $plugin_post_status, 'submenuFile');
+        $this->loader->addFilter('wp_update_term_data', $plugin_post_status, 'overrideStatusTaxonomyOnSave', 10, 4);
+        $this->loader->addFilter('manage_custom_trial_publication_status_custom_column', $plugin_post_status, 'addStatusTaxonomyColumnsContent', 10, 3);
+        $this->loader->addFilter('wpInsertPostData', $plugin_post_status, 'wpInsertPostData', 99, 2);
+        $this->loader->addFilter('gettext', $plugin_post_status, 'gettextOverride', 10, 3);
     }
 
     /**
@@ -195,8 +206,9 @@ class MSMainClass
      * @access   private
      */
     private function publicHooks()
+    :void
     {
-        $plugin_public = new MSPublic($this->getPluginName(), $this->getversion());
+        $plugin_public = new MSPublic($this->pluginName, $this->version);
 
         // $this->loader->addAction('wp_enqueue_scripts', $plugin_public, 'enqueueStyles');
         // $this->loader->addAction('wp_enqueue_scripts', $plugin_public, 'enqueueScripts');
@@ -206,26 +218,14 @@ class MSMainClass
     }
 
     /**
-     * Run the loader to execute all of the hooks with WordPress.
+     * Run the loader to execute all the hooks with WordPress.
      *
      * @since    1.0.0
      */
     public function executePlugin()
+    :void
     {
         $this->loader->executeUtility();
-    }
-
-    /**
-     * The name of the plugin used to uniquely identify it within the context of
-     * WordPress and to define internationalization functionality.
-     *
-     * @return    string    The name of the plugin.
-     * @since     1.0.0
-     */
-    public function getPluginName()
-    :string
-    {
-        return $this->pluginName;
     }
 
     /**
@@ -238,17 +238,5 @@ class MSMainClass
     :MSLoader
     {
         return $this->loader;
-    }
-
-    /**
-     * Retrieve the version number of the plugin.
-     *
-     * @return    string    The version number of the plugin.
-     * @since     1.0.0
-     */
-    public function getversion()
-    :string
-    {
-        return $this->version;
     }
 }

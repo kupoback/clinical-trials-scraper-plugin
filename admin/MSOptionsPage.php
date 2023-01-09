@@ -71,8 +71,8 @@ class MSOptionsPage
          */
         add_submenu_page(
             'merck-scraper',
-            'API Scraper',
-            'API Scraper',
+            __('API Scraper', 'merck-scraper'),
+            __('API Scraper', 'merck-scraper'),
             'edit_posts',
             'merck-api-scraper',
             [$this, 'apiScraperPage']
@@ -83,11 +83,20 @@ class MSOptionsPage
          */
         add_submenu_page(
             'merck-scraper',
-            'API Logs',
-            'API Logs',
+            __('API Logs', 'merck-scraper'),
+            __('API Logs', 'merck-scraper'),
             'edit_posts',
             'merck-logs-scraper',
             [$this, 'logsScraperPage']
+        );
+
+        add_submenu_page(
+            'merck-scraper',
+            __('Custom Trial Publication Status', 'merck-scraper'),
+            __('Custom Trial Publication Status', 'merck-scraper'),
+            'publish_posts',
+            'custom-trial-publication-status-taxonomy',
+            [$this, 'admin_menu_link_custom_trial_publication_status_taxonomy',],
         );
     }
 
@@ -124,6 +133,35 @@ class MSOptionsPage
     }
 
     /**
+     * Init additional settings page params
+     *
+     * @since    1.0.4
+     */
+    public function settingsInit()
+    :void
+    {
+        register_setting(
+            'writing',
+            'custom-trial-publication-status-add-extra-admin-menu-item',
+            [$this, 'settingsSanitize'],
+        );
+        add_settings_section(
+            'custom-trial-publication-status-settings',
+            __('Extended Post Status', 'merck-scraper'),
+            [$this, 'settingsSectionDescription'],
+            'writing',
+        );
+        add_settings_field(
+            'custom-trial-status-add-extra-admin-menu-item',
+            '<label for="custom-trial-status-add-extra-admin-menu-item">' . __('Move status to main admin menu.', 'merck-scraper') . '</label>',
+            [$this, 'settingsExtraAdminMenuItemField'],
+            'writing',
+            'custom-trial-publication-status-settings',
+        );
+    }
+
+
+    /**
      * Creates the options' page for a mounted Vue Component
      *
      * @param string $container_class The container class
@@ -141,5 +179,44 @@ class MSOptionsPage
             $title,
             $vue_id
         );
+    }
+
+    /**
+     * Add description to settings page section
+     *
+     * @since    1.0.4
+     */
+    public function settingsSectionDescription()
+    :void
+    {
+        echo __('Settings for trial status handling.', 'merck-scraper');
+    }
+
+    /**
+     * Sanitize setting page input
+     *
+     * @param $input
+     *
+     * @return bool
+     * @since    1.0.4
+     */
+    public function settingsSanitize($input)
+    :bool
+    {
+        return isset($input);
+    }
+
+    /**
+     * Add settings section fields
+     *
+     * @since    1.0.4
+     */
+    public function settingsExtraAdminMenuItemField()
+    :void
+    {
+        $returner = '
+            <input id="custom-trial-status-add-extra-admin-menu-item" type="checkbox" value="1" name="custom-post-status-add-extra-admin-menu-item"' . checked(get_option('extended-post-status-add-extra-admin-menu-item', false), true, false) . '>
+        ';
+        echo $returner;
     }
 }

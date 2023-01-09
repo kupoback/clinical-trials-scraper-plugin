@@ -28,6 +28,12 @@ declare(strict_types = 1);
  */
 
 // If uninstall not called from WordPress, then exit.
-if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-	exit;
+if (! defined('WP_UNINSTALL_PLUGIN')) {
+    exit;
 }
+
+/**
+ * Cleanup and delete and custom post status'
+ */
+register_taxonomy('custom_post_status', 'post');
+Merck_Scraper\Helper\MSHelper::resetPostStatus();
