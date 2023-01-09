@@ -23,57 +23,33 @@ class MSAdmin
     use MSAdminTrait;
 
     /**
-     * The ID of this plugin.
+     * An array of screens that things should be added to
      *
-     * @since    1.0.0
-     * @access   private
-     * @var      string $pluginName The ID of this plugin.
+     * @var string[]
      */
-    private string $pluginName;
-
-    /**
-     * The version of this plugin.
-     *
-     * @since    1.0.0
-     * @access   private
-     * @var      string $version The current version of this plugin.
-     */
-    private string $version;
+    private array $screens = ['trials', 'locations',];
 
     /**
      * An array of screens that things should be added to
      *
      * @var string[]
      */
-    private array $screens;
-
-    /**
-     * An array of screens that things should be added to
-     *
-     * @var string[]
-     */
-    private array $optsScreens;
+    private array $optsScreens = [
+        'toplevel_page_merck-scraper',
+        'merck-scraper_page_merck-api-scraper',
+        'merck-scraper_page_merck-logs-scraper',
+    ];
 
     /**
      * Initialize the class and set its properties.
      *
-     * @param string $plugin_name The name of this plugin.
+     * @param string $pluginName The ID of this plugin.
      * @param string $version     The version of this plugin.
      *
      * @since    1.0.0
      */
-    public function __construct(string $plugin_name, string $version)
+    public function __construct(private string $pluginName, private string $version)
     {
-        $this->pluginName = $plugin_name;
-        $this->version    = $version;
-
-        $this->screens = ['trials', 'locations',];
-
-        $this->optsScreens = [
-            'toplevel_page_merck-scraper',
-            'merck-scraper_page_merck-api-scraper',
-            'merck-scraper_page_merck-logs-scraper',
-        ];
     }
 
     /**

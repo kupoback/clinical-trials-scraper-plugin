@@ -173,7 +173,7 @@ class MSMainClass
         /**
          * Custom post Status
          */
-        $plugin_post_status = new MSCustomPostStatus();
+        $plugin_post_status = new MSCustomPostStatus($this->pluginName, $this->version);
         $this->loader->addAction('init', $plugin_post_status, 'registerPostStatus');
         $this->loader->addAction('admin_init', $plugin_post_status, 'overrideAdminPostListInit');
         $this->loader->addAction('admin_init', $plugin_post_status, 'adminRedirects');

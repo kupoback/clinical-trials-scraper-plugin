@@ -22,7 +22,7 @@ class MSCustomPostStatus
      *
      * @since    1.0.0
      */
-    public function __construct()
+    public function __construct(private string $pluginName, private string $version)
     {
     }
 
@@ -673,7 +673,12 @@ class MSCustomPostStatus
     public function removePublishingSidebarGutenberg()
     :void
     {
-        wp_enqueue_script('disablePublishSidebar', plugin_dir_url(__FILE__) . 'dist/disablePublishSidebar.js', ['jquery']);
+        wp_enqueue_script(
+            "$this->pluginName-disablePublishSidebar",
+            plugin_dir_url(__FILE__) . 'dist/disablePublishSidebar.js',
+            ['jquery'],
+            $this->version,
+        );
     }
 
     /**
