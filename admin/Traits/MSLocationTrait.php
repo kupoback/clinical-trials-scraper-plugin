@@ -340,7 +340,7 @@ trait MSLocationTrait
                     get_the_title($post_id),
                     $location->get('city', ''),
                     $location->get('state', ''),
-                    $location->get('zip', ($location->get('zipcode',  ''))),
+                    $location->get('zip', $location->get('zipcode', '')),
                     $location->get('country', ''),
                 ],
             )

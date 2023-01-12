@@ -16,7 +16,8 @@
 		"nesbot/carbon": "^2.31",
 		"php-http/guzzle7-adapter": "^1.0",
 		"php-http/message": "^1.12",
-		"vlucas/phpdotenv": "^3.0"
+		"vlucas/phpdotenv": "^3.0",
+        "timothyjensen/acf-field-group-values": "^3.4"
     },
 	"require-dev": {
 		"squizlabs/php_codesniffer": "^3.5",

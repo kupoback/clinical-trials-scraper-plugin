@@ -58,6 +58,11 @@ class MSApiScraper
 
     //region Class Vars
     /**
+     * @var array The fields from the ACF JSON
+     */
+    private array $acfJsonContents;
+
+    /**
      * @var Collection Sets a collection of age ranges defined in the WP-Admin
      */
     private Collection $ageRanges;
@@ -88,6 +93,11 @@ class MSApiScraper
     private string $baseUrl = 'https://clinicaltrials.gov/api/query';
 
     /**
+     * @var Logger|bool A file containing all the changes of the Scraper Data
+     */
+    private Logger|bool $changeLog;
+
+    /**
      * @var Collection A collection of languages and countries defined and used for trial_languages mapping
      */
     private Collection $countryMappedLanguages;
@@ -106,6 +116,11 @@ class MSApiScraper
      * @var false|Logger Instantiates the error logger for the API
      */
     private Logger|bool $errorLog;
+
+    /**
+     * @var string The JSON ID of the ACF Field Group
+     */
+    private string $groupAcfId = 'group_60fae8b82087d';
 
     /**
      * @var string|mixed The Google Maps API key from the Database
@@ -192,6 +207,8 @@ class MSApiScraper
      */
     public function __construct(array $email_params = [], string $apiLogDirectory = MERCK_SCRAPER_API_LOG_DIR)
     {
+        $this->acfJsonContents = json_decode(file_get_contents(plugin_dir_path(__FILE__) . "acf-json/$this->groupAcfId.json"), true);
+
         /**
          * Now timestamp used to keep the log files in order
          */
@@ -203,9 +220,11 @@ class MSApiScraper
         $this->sendTo = collect($email_params);
 
         $timestamp      = $this->nowTime->timestamp;
-        $this->errorLog = self::initLogger("api-error", "error-$timestamp", "$apiLogDirectory/error");
+
         $this->apiLog   = self::initLogger("api-import", "api-$timestamp", "$apiLogDirectory/log", Logger::INFO);
         $this->apiResponse = self::initLogger('ApiReturn', "api-return-$timestamp", "$apiLogDirectory/api-response", Logger::API);
+        $this->changeLog = self::initLogger('changelog', "trial-changes-{$this->nowTime->format('d-m-y H:i')}", MERCK_SCRAPER_API_CHANGES_DIR, Logger::INFO);
+        $this->errorLog = self::initLogger("api-error", "error-$timestamp", "$apiLogDirectory/error");
     }
 
     /**
@@ -666,7 +685,7 @@ class MSApiScraper
         }
 
         // Parse and organize each field and single-level subfield
-        $this->trialFields = self::getFieldGroup('group_60fae8b82087d');
+        $this->trialFields = self::getFieldGroup($this->groupAcfId);
         if ($this->trialFields->isEmpty()) {
             $this
                 ->errorLog

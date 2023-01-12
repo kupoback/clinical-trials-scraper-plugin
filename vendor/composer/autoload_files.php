@@ -20,4 +20,6 @@ return array(
     '11298418fac2d36d6d38c7c3efc5b206' => $vendorDir . '/10quality/wp-query-builder/src/Lib/functions.php',
     '72579e7bd17821bb1321b87411366eae' => $vendorDir . '/illuminate/support/helpers.php',
     '8cff32064859f4559445b89279f3199c' => $vendorDir . '/php-http/message/src/filters.php',
+    '897a9afa9cc2993be67137995e9c3727' => $vendorDir . '/timothyjensen/acf-field-group-values/src/get_all_custom_field_meta.php',
+    'd35498c89b636aea2b0c2e13364e72c9' => $vendorDir . '/timothyjensen/acf-field-group-values/src/get_structured_block_data.php',
 );

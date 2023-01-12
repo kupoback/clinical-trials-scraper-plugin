@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'voku\\' => array($vendorDir . '/voku/portable-ascii/src/voku'),
+    'TimJensen\\ACF\\' => array($vendorDir . '/timothyjensen/acf-field-group-values/src'),
     'TenQuality\\WP\\Database\\' => array($vendorDir . '/10quality/wp-query-builder/src'),
     'TenQuality\\Data\\' => array($vendorDir . '/10quality/php-data-model/src'),
     'Symfony\\Polyfill\\Php80\\' => array($vendorDir . '/symfony/polyfill-php80'),

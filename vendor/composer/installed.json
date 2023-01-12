@@ -3538,6 +3538,60 @@
             "install-path": "../symfony/translation-contracts"
         },
         {
+            "name": "timothyjensen/acf-field-group-values",
+            "version": "3.4.0",
+            "version_normalized": "3.4.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/timothyjensen/acf-field-group-values.git",
+                "reference": "25fecdaa1b82937931a6bac33832d183c2ea5a54"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/timothyjensen/acf-field-group-values/zipball/25fecdaa1b82937931a6bac33832d183c2ea5a54",
+                "reference": "25fecdaa1b82937931a6bac33832d183c2ea5a54",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.3 || ^8.0"
+            },
+            "require-dev": {
+                "brain/monkey": "*",
+                "infection/infection": "*",
+                "phpunit/phpunit": "^9.5.23"
+            },
+            "time": "2022-08-23T13:29:50+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "files": [
+                    "src/get_all_custom_field_meta.php",
+                    "src/get_structured_block_data.php"
+                ],
+                "psr-4": {
+                    "TimJensen\\ACF\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Tim Jensen",
+                    "email": "tim@timjensen.us",
+                    "homepage": "https://www.timjensen.us",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Retrieve all post meta and option values for the specified ACF field group",
+            "support": {
+                "issues": "https://github.com/timothyjensen/acf-field-group-values/issues",
+                "source": "https://github.com/timothyjensen/acf-field-group-values/tree/3.4.0"
+            },
+            "install-path": "../timothyjensen/acf-field-group-values"
+        },
+        {
             "name": "vlucas/phpdotenv",
             "version": "v3.6.10",
             "version_normalized": "3.6.10.0",

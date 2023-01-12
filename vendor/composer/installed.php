@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'clique/merck-scraper',
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
-        'reference' => '291615b0cc40f1336e39c54d51e9656794308a0f',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => 'e5c1d82fcf35c22953e4c84e2ab89d9e2e5e4047',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -29,9 +29,9 @@
             'dev_requirement' => false,
         ),
         'clique/merck-scraper' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => '291615b0cc40f1336e39c54d51e9656794308a0f',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => 'e5c1d82fcf35c22953e4c84e2ab89d9e2e5e4047',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -450,6 +450,15 @@
             'provided' => array(
                 0 => '2.3|3.0',
             ),
+        ),
+        'timothyjensen/acf-field-group-values' => array(
+            'pretty_version' => '3.4.0',
+            'version' => '3.4.0.0',
+            'reference' => '25fecdaa1b82937931a6bac33832d183c2ea5a54',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../timothyjensen/acf-field-group-values',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'vlucas/phpdotenv' => array(
             'pretty_version' => 'v3.6.10',

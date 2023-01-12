@@ -4,6 +4,7 @@ namespace Merck_Scraper\Admin\Traits;
 
 use Exception;
 use Illuminate\Support\Collection;
+use function get_all_custom_field_meta;
 
 trait MSAdminTrial
 {
@@ -125,7 +126,9 @@ trait MSAdminTrial
         ini_set('memory_limit', '4096M');
         ini_set('post_max_size', '2048M');
 
-        $return = collect([]);
+        $return        = collect();
+        $trial_changes = collect(); // Container for the field data if there are existing data
+        $new_changes   = collect(); // Container for holding any new changed data
 
         //region Modules
         $arms_module      = $this->parseArms($field_data->get('ArmsInterventionsModule', null));
@@ -197,6 +200,8 @@ trait MSAdminTrial
                 "Failed to create trial post.",
             );
         } else {
+            $trial_changes = collect(get_all_custom_field_meta($post_id, $this->acfJsonContents))
+                ->filter();
             // Updating our post
             $post_args
                 ->put('ID', $post_id);
@@ -250,75 +255,114 @@ trait MSAdminTrial
 
             // Set up our collection to pull data from
             //region Field Data Setup
-            $field_data = collect([])
-                ->put('nct_id', $nct_id)
-                ->put('url', $id_module->get('url', ''))
-                ->put('brief_title', $id_module->get('brief_title', ''))
-                ->put('official_title', $id_module->get('official_title', ''))
-                ->put('trial_purpose', $desc_module->get('trial_purpose', ''))
-                ->put('study_keyword', $id_module->get('study_keyword', ''))
-                ->put('study_protocol', $id_module->get('study_protocol', ''))
-                ->put('start_date', $status_module->get('start_date', ''))
-                ->put('primary_completion_date', $status_module->get('primary_completion_date', ''))
-                ->put('completion_date', $status_module->get('completion_date', ''))
-                ->put('lead_sponsor_name', $sponsor_module->get('lead_sponsor_name', ''))
-                ->put('gender', $eligible_module->get('gender', ''))
-                ->put('minimum_age', $eligible_module->get('minimum_age', ''))
-                ->put('maximum_age', $eligible_module->get('maximum_age', ''))
-                ->put('other_ids', $id_module->get('other_ids', ''))
-                // ->put('interventions', $arms_module->get('interventions'))
-                ->put('phase', $design_module->get('phase', ''));
+            $field_data = collect(
+                [
+                    'nct_id'                  => $nct_id,
+                    'url'                     => $id_module->get('url', ''),
+                    'brief_title'             => $id_module->get('brief_title', ''),
+                    'official_title'          => $id_module->get('official_title', ''),
+                    'trial_purpose'           => $desc_module->get('trial_purpose', ''),
+                    'study_keyword'           => $id_module->get('study_keyword', ''),
+                    'study_protocol'          => $id_module->get('study_protocol', ''),
+                    'start_date'              => $status_module->get('start_date', ''),
+                    'primary_completion_date' => $status_module->get('primary_completion_date', ''),
+                    'completion_date'         => $status_module->get('completion_date', ''),
+                    'lead_sponsor_name'       => $sponsor_module->get('lead_sponsor_name', ''),
+                    'gender'                  => $eligible_module->get('gender', ''),
+                    'minimum_age'             => $eligible_module->get('minimum_age', ''),
+                    'maximum_age'             => $eligible_module->get('maximum_age', ''),
+                    'other_ids'               => $id_module->get('other_ids', ''),
+                    // 'interventions' => $arms_module->get('interventions'),
+                    'phase'                   => $design_module->get('phase', ''),
+                ],
+            );
             //endregion
 
             //region Field Data Import
             // Map through our fields and update their values
+            // @TODO Uncomment out ACF saving before deploying
             $acf_fields
-                ->map(function ($field) use ($field_data, $post_id, $return) {
+                ->map(function ($field) use ($field_data, $new_changes, $post_id, $return, $trial_changes) {
                     $data_name = $field['data_name'] ?? '';
                     if ($field['type'] === 'repeater') {
                         $sub_fields = $field['sub_fields'] ?? false;
                         if ($sub_fields && $sub_fields->isNotEmpty()) {
                             // Retrieve the data based on the parent data_name
-                            $arr_data = $field_data->get($data_name) ?? collect();
+                            $arr_data    = $field_data->get($data_name) ?? collect();
+                            $arr_changes = collect();
                             if ($arr_data->isEmpty()) {
                                 return false;
                             }
 
-                            return $this
-                                ->updateACF(
-                                    $field['name'],
-                                    $arr_data
-                                        ->toArray(),
-                                    $post_id,
-                                );
+                            // Compare existing data with new import data
+                            $original_data = collect($trial_changes->get($field['name'], ''))
+                                ->flatten();
+                            $flat_arr_data = $arr_data
+                                ->flatten()
+                                ->diff($original_data);
+
+                            // If there is new data, merge it in
+                            if ($original_data->isNotEmpty() && $flat_arr_data->isNotEmpty()) {
+                                $new_changes
+                                    ->put(
+                                        $data_name,
+                                        $flat_arr_data
+                                            ->each(fn ($value, $key) => $arr_changes
+                                                ->push($arr_data->get($key))),
+                                    );
+                            }
+
+                            // return $this
+                            //     ->updateACF(
+                            //         $field['name'],
+                            //         $arr_data
+                            //             ->toArray(),
+                            //         $post_id,
+                            //     );
                         }
 
                         return false;
                     }
+
+                    $original_data = $trial_changes->pull("api_data_$data_name", '');
 
                     // Setup name escaping for textarea
                     if ($field['type'] === 'textarea') {
                         if ($field_data->isNotEmpty()) {
+                            $field_data = $field_data->get($data_name);
                             if ($field['name'] === 'api_data_other_ids') {
                                 $field_data = $field_data
-                                    ->get($data_name)
                                     ->implode(PHP_EOL);
-                            } else {
-                                $field_data = $field_data
-                                    ->get($data_name);
                             }
 
-                            return $this->updateACF(
-                                $field['name'],
-                                $field_data,
-                                $post_id,
-                            );
+                            // Merge in new data if it has changed
+                            if ($original_data !== $field_data) {
+                                $new_changes->put($data_name, $field_data);
+                            }
+
+                            // return $this->updateACF(
+                            //     $field['name'],
+                            //     $field_data,
+                            //     $post_id,
+                            // );
                         }
 
                         return false;
                     }
 
-                    return $this->updateACF($field['name'], $field_data->get($data_name), $post_id);
+                    $field_data = $field_data->get($data_name);
+
+                    // Check if the value is an integer for like Age for comparison
+                    if (intval($field_data)) {
+                        $original_data = intval($original_data);
+                    }
+
+                    // If there is new string data, merge it in
+                    if ($original_data !== $field_data && $field_data && $original_data) {
+                        $new_changes->put($data_name, $field_data);
+                    }
+
+                    // return $this->updateACF($field['name'], $field_data, $post_id);
                 });
             //endregion
 
@@ -326,13 +370,18 @@ trait MSAdminTrial
             /**
              * Set up the taxonomy terms
              */
-            collect()
-                // Set the key as the taxonomy name
-                ->put('study_keyword', $condition_module->get('keywords'))
-                ->put('conditions', $condition_module->get('conditions'))
-                ->put('trial_status', $status_module->get('trial_status'))
-                // ->put('trial_category', [])
-                ->each(fn ($terms, $taxonomy) => wp_set_object_terms($post_id, $terms, $taxonomy));
+            collect(
+                [
+                    // Set the key as the taxonomy name
+                    'study_keyword' => $condition_module->get('keywords'),
+                    'conditions'    => $condition_module->get('conditions'),
+                    'trial_status'  => $status_module->get('trial_status'),
+                    // 'trial_category'  => [],
+                ],
+            )
+                ->each(function ($terms, $taxonomy) use ($post_id) {
+                    wp_set_object_terms($post_id, $terms, $taxonomy);
+                });
 
             /**
              * Set up the taxonomy terms for Trial Drugs
@@ -390,9 +439,9 @@ trait MSAdminTrial
             }
             //endregion
 
-            if ($contact_module->get('locations') && $contact_module->get('import')) {
-                $return->put('locations', collect($contact_module->get('locations')));
-            }
+            // if ($contact_module->get('locations') && $contact_module->get('import')) {
+            //     $return->put('locations', collect($contact_module->get('locations')));
+            // }
         }
 
         $return->put('ID', $post_id);

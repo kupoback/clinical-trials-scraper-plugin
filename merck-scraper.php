@@ -65,6 +65,11 @@ define("MERCK_SCRAPER_LOG_DIR", WP_CONTENT_DIR . '/ms-logs');
 define("MERCK_SCRAPER_API_LOG_DIR", WP_CONTENT_DIR . "/ms-logs/api");
 
 /**
+ * This constant defines the location of the text files that contain the trial changes
+ */
+define("MERCK_SCRAPER_API_CHANGES_DIR", WP_CONTENT_DIR . "/uploads/ms-api-changes");
+
+/**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-merck-scraper-activator.php
  */
@@ -118,7 +123,7 @@ if (!class_exists('ACF') || !class_exists('SitePress')) {
         if (!class_exists('SitePress')) {
             printf('%s', printError('WordPress Multi-language'));
         }
-    },         20);
+    }, 20);
     MSDeactivator::deactivate();
 }
 
@@ -136,6 +141,10 @@ function run_ms()
 {
     if (!is_dir(MERCK_SCRAPER_LOG_DIR)) {
         mkdir(MERCK_SCRAPER_LOG_DIR);
+    }
+
+    if (!is_dir(MERCK_SCRAPER_API_CHANGES_DIR)) {
+        mkdir(MERCK_SCRAPER_API_CHANGES_DIR);
     }
 
     $plugin = new MSMainClass();

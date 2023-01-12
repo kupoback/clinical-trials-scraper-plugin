@@ -21,6 +21,8 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         '11298418fac2d36d6d38c7c3efc5b206' => __DIR__ . '/..' . '/10quality/wp-query-builder/src/Lib/functions.php',
         '72579e7bd17821bb1321b87411366eae' => __DIR__ . '/..' . '/illuminate/support/helpers.php',
         '8cff32064859f4559445b89279f3199c' => __DIR__ . '/..' . '/php-http/message/src/filters.php',
+        '897a9afa9cc2993be67137995e9c3727' => __DIR__ . '/..' . '/timothyjensen/acf-field-group-values/src/get_all_custom_field_meta.php',
+        'd35498c89b636aea2b0c2e13364e72c9' => __DIR__ . '/..' . '/timothyjensen/acf-field-group-values/src/get_structured_block_data.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -30,6 +32,7 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         ),
         'T' => 
         array (
+            'TimJensen\\ACF\\' => 14,
             'TenQuality\\WP\\Database\\' => 23,
             'TenQuality\\Data\\' => 16,
         ),
@@ -96,6 +99,10 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         'voku\\' => 
         array (
             0 => __DIR__ . '/..' . '/voku/portable-ascii/src/voku',
+        ),
+        'TimJensen\\ACF\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/timothyjensen/acf-field-group-values/src',
         ),
         'TenQuality\\WP\\Database\\' => 
         array (
@@ -1226,6 +1233,7 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         'TenQuality\\WP\\Database\\Abstracts\\DataModel' => __DIR__ . '/..' . '/10quality/wp-query-builder/src/Abstracts/DataModel.php',
         'TenQuality\\WP\\Database\\QueryBuilder' => __DIR__ . '/..' . '/10quality/wp-query-builder/src/QueryBuilder.php',
         'TenQuality\\WP\\Database\\Traits\\DataModelTrait' => __DIR__ . '/..' . '/10quality/wp-query-builder/src/Traits/DataModelTrait.php',
+        'TimJensen\\ACF\\Field_Group_Values' => __DIR__ . '/..' . '/timothyjensen/acf-field-group-values/src/Field_Group_Values.php',
         'UnhandledMatchError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
         'ValueError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
         'voku\\helper\\ASCII' => __DIR__ . '/..' . '/voku/portable-ascii/src/voku/helper/ASCII.php',

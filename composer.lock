@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "af65c05aa0e4e65714efd7eefe3a1ee0",
+    "content-hash": "3d1bf0864d787540efde2a17a0d6d676",
     "packages": [
         {
             "name": "10quality/php-data-model",
@@ -2812,6 +2812,57 @@
                 }
             ],
             "time": "2022-06-27T17:10:44+00:00"
+        },
+        {
+            "name": "timothyjensen/acf-field-group-values",
+            "version": "3.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/timothyjensen/acf-field-group-values.git",
+                "reference": "25fecdaa1b82937931a6bac33832d183c2ea5a54"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/timothyjensen/acf-field-group-values/zipball/25fecdaa1b82937931a6bac33832d183c2ea5a54",
+                "reference": "25fecdaa1b82937931a6bac33832d183c2ea5a54",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.3 || ^8.0"
+            },
+            "require-dev": {
+                "brain/monkey": "*",
+                "infection/infection": "*",
+                "phpunit/phpunit": "^9.5.23"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/get_all_custom_field_meta.php",
+                    "src/get_structured_block_data.php"
+                ],
+                "psr-4": {
+                    "TimJensen\\ACF\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Tim Jensen",
+                    "email": "tim@timjensen.us",
+                    "homepage": "https://www.timjensen.us",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Retrieve all post meta and option values for the specified ACF field group",
+            "support": {
+                "issues": "https://github.com/timothyjensen/acf-field-group-values/issues",
+                "source": "https://github.com/timothyjensen/acf-field-group-values/tree/3.4.0"
+            },
+            "time": "2022-08-23T13:29:50+00:00"
         },
         {
             "name": "vlucas/phpdotenv",

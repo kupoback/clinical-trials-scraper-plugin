@@ -978,6 +978,7 @@ return array(
     'TenQuality\\WP\\Database\\Abstracts\\DataModel' => $vendorDir . '/10quality/wp-query-builder/src/Abstracts/DataModel.php',
     'TenQuality\\WP\\Database\\QueryBuilder' => $vendorDir . '/10quality/wp-query-builder/src/QueryBuilder.php',
     'TenQuality\\WP\\Database\\Traits\\DataModelTrait' => $vendorDir . '/10quality/wp-query-builder/src/Traits/DataModelTrait.php',
+    'TimJensen\\ACF\\Field_Group_Values' => $vendorDir . '/timothyjensen/acf-field-group-values/src/Field_Group_Values.php',
     'UnhandledMatchError' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
     'ValueError' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
     'voku\\helper\\ASCII' => $vendorDir . '/voku/portable-ascii/src/voku/helper/ASCII.php',
