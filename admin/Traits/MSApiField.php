@@ -43,7 +43,7 @@ trait MSApiField
 
             $title = '';
             if ($id_module->BriefTitle !== null) {
-                $title          = $this->filterParenthesis($id_module->BriefTitle);
+                $title          = trim($this->filterParenthesis($id_module->BriefTitle));
                 $study_keywords = self::extractParenthesis($id_module->BriefTitle);
                 if (!empty($study_keywords)) {
                     $study_protocol = collect($study_keywords)
@@ -330,9 +330,8 @@ trait MSApiField
                     'drugs'         => $intervention_arr->isNotEmpty()
                         ? $intervention_arr
                             ->map(fn ($arr_item) => strtolower($arr_item['type']) === 'drug'
-                                ? $arr_item['name']
-                                : false,
-                            )
+                                ? ucwords(rtrim($arr_item['name'], ','))
+                                : false)
                             ->filter()
                         : collect(),
                 ],
@@ -660,7 +659,11 @@ trait MSApiField
             ->filter()
             ->map(function ($keyword) {
                 if ($keyword) {
-                    return ucwords($this->filterParenthesis($keyword));
+                    return ucwords(
+                        trim(
+                            rtrim($this->filterParenthesis($keyword), ',')
+                        )
+                    );
                 }
 
                 return false;

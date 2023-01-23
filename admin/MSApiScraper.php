@@ -26,6 +26,7 @@ use Merck_Scraper\Traits\MSLoggerTrait;
 use Monolog\Logger;
 use WP_Error;
 use WP_HTTP_Response;
+use WP_Query;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -97,6 +98,8 @@ class MSApiScraper
      */
     private Logger|bool $changeLog;
 
+    private string $changeLogName;
+
     /**
      * @var Collection A collection of languages and countries defined and used for trial_languages mapping
      */
@@ -148,6 +151,11 @@ class MSApiScraper
     ];
 
     private string|int $maxRank;
+
+    /**
+     * @var bool Condition set on whether the API call was made through the admin
+     */
+    private bool $manualApiCall;
 
     /**
      * @var string Current NCT ID in use
@@ -205,26 +213,10 @@ class MSApiScraper
      * @param  array   $email_params     An array with the email and the name of whom to send the email to
      * @param  string  $apiLogDirectory  The path string of the dir for the API Log
      */
-    public function __construct(array $email_params = [], string $apiLogDirectory = MERCK_SCRAPER_API_LOG_DIR)
+    public function __construct(array $email_params = [], public string $apiLogDirectory = MERCK_SCRAPER_API_LOG_DIR)
     {
-        $this->acfJsonContents = json_decode(file_get_contents(plugin_dir_path(__FILE__) . "acf-json/$this->groupAcfId.json"), true);
-
-        /**
-         * Now timestamp used to keep the log files in order
-         */
-        $this->nowTime = Carbon::now();
-
-        /**
-         * An array of people who the email notification should be sent out to
-         */
+        // An array of people who the email notification should be sent out to
         $this->sendTo = collect($email_params);
-
-        $timestamp      = $this->nowTime->timestamp;
-
-        $this->apiLog   = self::initLogger("api-import", "api-$timestamp", "$apiLogDirectory/log", Logger::INFO);
-        $this->apiResponse = self::initLogger('ApiReturn', "api-return-$timestamp", "$apiLogDirectory/api-response", Logger::API);
-        $this->changeLog = self::initLogger('changelog', "trial-changes-{$this->nowTime->format('d-m-y H:i')}", MERCK_SCRAPER_API_CHANGES_DIR, Logger::INFO);
-        $this->errorLog = self::initLogger("api-error", "error-$timestamp", "$apiLogDirectory/error");
     }
 
     /**
@@ -295,7 +287,8 @@ class MSApiScraper
     public function apiImport(WP_REST_Request $request = null)
     :WP_Error|WP_REST_Response|WP_HTTP_Response
     {
-        self::setData();
+        $this->acfJsonContents = json_decode(file_get_contents(plugin_dir_path(__FILE__) . "acf-json/$this->groupAcfId.json"), true);
+        self::setupVariableData();
         // Callback to the frontend to let them know we're starting the import
         self::updatePosition("Starting Import");
         set_time_limit(1800);
@@ -303,13 +296,16 @@ class MSApiScraper
         ini_set('memory_limit', '4096M');
         ini_set('post_max_size', '2048M');
 
-        $nct_id_field     = $request['nctidField'] ?? false;
-        $manual_call      = $request['manualCall'] ?? '';
-        $num_not_imported = 0;
-        $starting_rank    = self::acfOptionField('min_import_rank') ?: 1;
-        // $this->maxRank         = 5;
-        $this->maxRank    = self::acfOptionField('max_import_rank') ?: 30;
         $studies_imported = collect();
+        $num_not_imported = 0;
+
+        $nct_id_field = $request['nctidField'] ?? false;
+
+
+        $starting_rank = self::acfOptionField('min_import_rank') ?: 1;
+        // $this->maxRank         = 5;
+        $this->maxRank       = self::acfOptionField('max_import_rank') ?: 30;
+        $this->manualApiCall = $request['manualCall'] ?? false;
 
         /**
          * Fetch any manually added NCT ID's that aren't being found in the API
@@ -362,7 +358,7 @@ class MSApiScraper
         /**
          * If there are any manual NCT ID's, make API calls for them
          */
-        if ($additional_nct_ids->isNotEmpty() && !$manual_call) {
+        if ($additional_nct_ids->isNotEmpty() && !$this->manualApiCall) {
             /**
              * Check for any Additional NCT ID's defined, and if they exist
              * remove them from the second portion of the import which fetches
@@ -399,40 +395,96 @@ class MSApiScraper
                 $total_to_import = $additional_nct_ids->count();
                 $additional_nct_ids
                     ->values()
-                    ->each(function ($nct_id) use (&$studies_imported, $trashed_posts, $total_to_import) {
-                        $this->httpArgs['expr'] = self::setupExpression($nct_id);
-                        // Reset the min and max ranks so that we can actually pull in the trial
-                        $this->httpArgs['min_rnk'] = 1;
-                        $this->httpArgs['max_rnk'] = 2;
-                        $client_http            = self::scraperHttpCB(
-                            '/api/query/full_studies',
-                            "GET",
-                            $this->httpArgs,
-                            ['delay' => 120,],
-                        );
-                        $studies_imported->push(self::trialsProcessingLoop($client_http, $trashed_posts, $total_to_import));
-                    });
+                    ->each(fn ($nct_id) => $studies_imported
+                        ->push(
+                            self::singleApiCalls(
+                                $nct_id,
+                                $trashed_posts,
+                                $total_to_import
+                            )
+                        ));
+                    // ->each(function ($nct_id) use (&$studies_imported, $trashed_posts, $total_to_import) {
+                        // $this->httpArgs['expr'] = self::setupExpression($nct_id);
+                        // // Reset the min and max ranks so that we can actually pull in the trial
+                        // $this->httpArgs['min_rnk'] = 1;
+                        // $this->httpArgs['max_rnk'] = 2;
+                        // $client_http            = self::scraperHttpCB(
+                        //     '/api/query/full_studies',
+                        //     "GET",
+                        //     $this->httpArgs,
+                        //     ['delay' => 120,],
+                        // );
+                        // $studies_imported->push(self::additionalApiCalls($nct_id, $trashed_posts, $total_to_import));
+                    // });
             }
         }
 
+        $studies_imported = $studies_imported
+            ->flatten(1)
+            ->values();
+
+        // Fetch existing trials that were not imported
+        $all_trials = new WP_Query(
+            [
+                'post_type'      => 'trials',
+                'posts_per_page' => -1,
+                'post_status'    => 'any',
+                'fields'         => 'ids',
+            ]
+        );
+        if (!is_wp_error($all_trials) && $all_trials->found_posts > 0) {
+            // Map through all the trials and return the post ID mapping to their NCT ID
+            $remaining_trials =
+                collect($all_trials->posts)
+                    ->mapWithKeys(fn ($post_id) => [
+                        $post_id => get_field('api_data_nct_id', $post_id)
+                    ])
+                    ->sortKeys()
+                    ->diff(
+                        $studies_imported
+                            ->map(fn ($trial) => $trial->get('NCT_ID', false))
+                            ->filter()
+                            ->values()
+                    );
+
+            /**
+             * If any trials remain after comparing the two Collections
+             * run through them and fetch their new status
+             */
+            if ($remaining_trials->isNotEmpty()) {
+                $total_to_import = $remaining_trials->count();
+                $remaining_trials
+                    ->each(fn ($nct_id) => $studies_imported
+                        ->push(
+                            self::singleApiCalls(
+                                $nct_id,
+                                $trashed_posts,
+                                $total_to_import
+                            )
+                        ));
+            }
+        }
+
+        // Path to the file
+        // wp_upload_dir()['baseurl'] . "/ms-api-changes/$this->changeLogName.txt"
+
         /**
-         * Sets up the array for the Email method
+         * Send the email only if it was run by the weekly call, after setting
+         * up the API Log with the right contents
          */
-        if ($studies_imported->isNotEmpty()) {
-            $studies_imported = $studies_imported
-                ->flatten(1)
-                ->values();
+        if (!$this->manualApiCall && $studies_imported->isNotEmpty()) {
             $this
                 ->apiLog
                 ->info("Imported {$studies_imported->count()} Studies", $studies_imported->toArray());
-        }
 
-        /**
-         * Send the email only if it was run by the weekly call
-         */
-        if (!$manual_call) {
             self::emailSetup($studies_imported, $num_not_imported);
         }
+
+        // Close the log and text files
+        $this->apiLog->close();
+        $this->apiResponse->close();
+        $this->errorLog->close();
+        $this->changeLog->close();
 
         // Restore the max_execution_time
         ini_restore('post_max_size');
@@ -457,7 +509,7 @@ class MSApiScraper
     public function geoLocate(WP_REST_Request $request)
     :WP_Error|WP_REST_Response|WP_HTTP_Response
     {
-        self::setData();
+        self::setupVariableData();
         $post_id = $request->get_param('id');
 
         $gm_geocoder_data = self::locationPostSetup($post_id);
@@ -556,174 +608,6 @@ class MSApiScraper
         ini_restore('max_execution_time');
 
         return rest_ensure_response(true);
-    }
-
-    /**
-     * A public accessible logger setup
-     *
-     * @param  string  $name
-     * @param  string  $file_name
-     * @param  string  $file_path
-     * @param  int     $logger_type
-     *
-     * @return false|Logger
-     */
-    public function setLogger(
-        string $name,
-        string $file_name,
-        string $file_path = MERCK_SCRAPER_LOG_DIR,
-        int    $logger_type = Logger::ERROR,
-    ):Logger|bool {
-        return self::initLogger($name, $file_name, $file_path, $logger_type);
-    }
-
-    /**
-     * Sets up and instantiates the class for the API call
-     *
-     * @return void
-     */
-    public function setData()
-    :void
-    {
-        $this->gmApiKey = self::acfOptionField('google_maps_server_side_api_key');
-
-        /**
-         * Collection of the allowed conditions
-         */
-        $this->allowedConditions = collect(
-            MSHelper::textareaToArr(
-                self::acfStrOptionFld('allowed_conditions'),
-            ),
-        )
-            ->filter();
-
-        /**
-         * Our list of allowed Trial Locations
-         */
-        $this->allowedTrialLocations = collect(
-            MSHelper::textareaToArr(
-                self::acfStrOptionFld('clinical_trials_api_location_search'),
-            ),
-        )
-            ->filter();
-
-        /**
-         * Collection of the disallowed conditions
-         */
-        $this->disallowedConditions = collect(
-            MSHelper::textareaToArr(
-                self::acfStrOptionFld('disallowed_conditions'),
-            ),
-        )
-            ->filter();
-
-        /**
-         * Our list of disallowed Trial Locations
-         */
-        $this->disallowedTrialLocations = collect(
-            MSHelper::textareaToArr(
-                self::acfStrOptionFld('clinical_trials_api_omit_location_search'),
-            ),
-        )
-            ->filter();
-
-        /**
-         * Iterates through a textarea of the Study Protocol items
-         */
-        $this->protocolNames = collect(
-            MSHelper::textareaToArr(
-                self::acfStrOptionFld('clinical_trials_api_study_protocol_filter'),
-            ),
-        )
-            ->filter();
-
-        /**
-         * Iterates through the status and sanitizes them for comparison as well as query
-         */
-        $this->trialStatus = collect(
-            MSHelper::textareaToArr(
-                self::acfStrOptionFld('clinical_trials_api_status_search')
-            ),
-        )
-            ->filter();
-    }
-
-    /**
-     * Sets up all the necessary data for the Class
-     * to utilize during the API import process
-     *
-     * @return void|WP_Error
-     */
-    protected function preHttpDataSetup()
-    {
-        /**
-         * Grab all the ages set in the trial_age, and loop through them grabbing
-         * the minimum_age and maximum_age from ACF.
-         */
-        $this->ageRanges = collect(get_terms(['taxonomy' => 'trial_age', 'hide_empty' => false]));
-        if ($this->ageRanges->isNotEmpty()) {
-            $this->ageRanges = $this->ageRanges
-                ->map(function ($term) {
-                    $age_ranges = get_field('age_range', $term);
-                    if (!empty($age_ranges)) {
-                        $min_age = $age_ranges['minimum_age'] ?: 0;
-                        $max_age = $age_ranges['maximum_age'] ?: 999;
-                    } else {
-                        // Log an error if there is no age range set for the term
-                        $this
-                            ->errorLog
-                            ->error(__("Please ensure you set an age range", 'merck-scraper'));
-                    }
-
-                    return [
-                        'name'    => $term->name,
-                        'slug'    => $term->slug,
-                        'min_age' => isset($min_age) ? intval($min_age) : 0,
-                        'max_age' => isset($max_age) ? intval($max_age) : 999,
-                    ];
-                });
-        }
-
-        // Parse and organize each field and single-level subfield
-        $this->trialFields = self::getFieldGroup($this->groupAcfId);
-        if ($this->trialFields->isEmpty()) {
-            $this
-                ->errorLog
-                ->error(__("Trial ACF Group is empty or missing.", 'merck-scraper'));
-
-            return new WP_Error(424, __("Trial ACF Group is empty or missing.", 'merck'));
-        }
-
-        $this->locationFields = self::getFieldGroup('group_6220de6da8144');
-        if ($this->locationFields->isEmpty()) {
-            $this
-                ->errorLog
-                ->error(__("Location ACF Group is empty or missing", 'merck-scraper'));
-
-            return new WP_Error(424, __("Location ACF Group is empty or missing.", 'merck'));
-        }
-
-        $this->countryMappedLanguages = collect(self::acfOptionField('clinical_trials_api_language_locations'))
-            ->filter(fn ($location) => collect($location)
-                ->filter()
-                ->isNotEmpty());
-
-        if ($this->countryMappedLanguages->isNotEmpty()) {
-            /**
-             * Creates an array of languages, codes and the countries they should be associated to. This is
-             * used to split up the API calls and better map the data import.
-             */
-            $language_codes = collect(apply_filters('wpml_active_languages', null))
-                ->mapWithKeys(fn ($language) => [$language['translated_name'] => $language['code']]);
-
-            $this->countryMappedLanguages = $this->countryMappedLanguages
-                ->map(fn ($country_language) => [
-                    'code'     => $language_codes->get($country_language['language']) ?? 'en',
-                    'country'  => collect(MSHelper::textareaToArr($country_language["countries"] ?? ''))
-                        ->filter(),
-                    'language' => $country_language['language'] ?? '',
-                ]);
-        }
     }
 
     /**
@@ -868,5 +752,214 @@ class MSApiScraper
         }
 
         return $studies_imported;
+    }
+
+    /**
+     * A public accessible logger setup
+     *
+     * @param  string  $name
+     * @param  string  $file_name
+     * @param  string  $file_path
+     * @param  int     $logger_type
+     *
+     * @return false|Logger
+     */
+    public function setLogger(
+        string $name,
+        string $file_name,
+        string $file_path = MERCK_SCRAPER_LOG_DIR,
+        int    $logger_type = Logger::ERROR,
+    ):Logger|bool {
+        return self::initLogger($name, $file_name, $file_path, $logger_type);
+    }
+
+    /**
+     * Sets up and instantiates the class variables for the API call, including log files, so not to muddy the
+     * text file strings keeping it accurate
+     *
+     * @return void
+     */
+    public function setupVariableData()
+    :void
+    {
+        /**
+         * Now timestamp used to keep the log files in order
+         */
+        $this->nowTime       = Carbon::now('America/New_York');
+        $this->changeLogName = "trial-changes-{$this->nowTime->format('d-m-y-H:i:s')}";
+
+        $timestamp = $this->nowTime->timestamp;
+
+        $this->apiLog      = self::initLogger("api-import", "api-$timestamp", "$this->apiLogDirectory/log", Logger::INFO);
+        $this->apiResponse = self::initLogger('api-return', "api-return-$timestamp", "$this->apiLogDirectory/api-response", Logger::API);
+        $this->changeLog   = self::initLogger('changelog', $this->changeLogName, MERCK_SCRAPER_API_CHANGES_DIR, Logger::INFO, 'txt');
+        $this->errorLog    = self::initLogger("api-error", "error-$timestamp", "$this->apiLogDirectory/error");
+
+        $this->gmApiKey = self::acfOptionField('google_maps_server_side_api_key');
+
+        /**
+         * Collection of the allowed conditions
+         */
+        $this->allowedConditions = collect(
+            MSHelper::textareaToArr(
+                self::acfStrOptionFld('allowed_conditions'),
+            ),
+        )
+            ->filter();
+
+        /**
+         * Our list of allowed Trial Locations
+         */
+        $this->allowedTrialLocations = collect(
+            MSHelper::textareaToArr(
+                self::acfStrOptionFld('clinical_trials_api_location_search'),
+            ),
+        )
+            ->filter();
+
+        /**
+         * Collection of the disallowed conditions
+         */
+        $this->disallowedConditions = collect(
+            MSHelper::textareaToArr(
+                self::acfStrOptionFld('disallowed_conditions'),
+            ),
+        )
+            ->filter();
+
+        /**
+         * Our list of disallowed Trial Locations
+         */
+        $this->disallowedTrialLocations = collect(
+            MSHelper::textareaToArr(
+                self::acfStrOptionFld('clinical_trials_api_omit_location_search'),
+            ),
+        )
+            ->filter();
+
+        /**
+         * Iterates through a textarea of the Study Protocol items
+         */
+        $this->protocolNames = collect(
+            MSHelper::textareaToArr(
+                self::acfStrOptionFld('clinical_trials_api_study_protocol_filter'),
+            ),
+        )
+            ->filter();
+
+        /**
+         * Iterates through the status and sanitizes them for comparison as well as query
+         */
+        $this->trialStatus = collect(
+            MSHelper::textareaToArr(
+                self::acfStrOptionFld('clinical_trials_api_status_search'),
+            ),
+        )
+            ->filter();
+    }
+
+    /**
+     * Sets up all the necessary data for the Class
+     * to utilize during the API import process
+     *
+     * @return void|WP_Error
+     */
+    protected function preHttpDataSetup()
+    {
+        /**
+         * Grab all the ages set in the trial_age, and loop through them grabbing
+         * the minimum_age and maximum_age from ACF.
+         */
+        $this->ageRanges = collect(get_terms(['taxonomy' => 'trial_age', 'hide_empty' => false]));
+        if ($this->ageRanges->isNotEmpty()) {
+            $this->ageRanges = $this->ageRanges
+                ->map(function ($term) {
+                    $age_ranges = get_field('age_range', $term);
+                    if (!empty($age_ranges)) {
+                        $min_age = $age_ranges['minimum_age'] ?: 0;
+                        $max_age = $age_ranges['maximum_age'] ?: 999;
+                    } else {
+                        // Log an error if there is no age range set for the term
+                        $this
+                            ->errorLog
+                            ->error(__("Please ensure you set an age range", 'merck-scraper'));
+                    }
+
+                    return [
+                        'name'    => $term->name,
+                        'slug'    => $term->slug,
+                        'min_age' => isset($min_age) ? intval($min_age) : 0,
+                        'max_age' => isset($max_age) ? intval($max_age) : 999,
+                    ];
+                });
+        }
+
+        // Parse and organize each field and single-level subfield
+        $this->trialFields = self::getFieldGroup($this->groupAcfId);
+        if ($this->trialFields->isEmpty()) {
+            $this
+                ->errorLog
+                ->error(__("Trial ACF Group is empty or missing.", 'merck-scraper'));
+
+            return new WP_Error(424, __("Trial ACF Group is empty or missing.", 'merck'));
+        }
+
+        $this->locationFields = self::getFieldGroup('group_6220de6da8144');
+        if ($this->locationFields->isEmpty()) {
+            $this
+                ->errorLog
+                ->error(__("Location ACF Group is empty or missing", 'merck-scraper'));
+
+            return new WP_Error(424, __("Location ACF Group is empty or missing.", 'merck'));
+        }
+
+        $this->countryMappedLanguages = collect(self::acfOptionField('clinical_trials_api_language_locations'))
+            ->filter(fn ($location) => collect($location)
+                ->filter()
+                ->isNotEmpty());
+
+        if ($this->countryMappedLanguages->isNotEmpty()) {
+            /**
+             * Creates an array of languages, codes and the countries they should be associated to. This is
+             * used to split up the API calls and better map the data import.
+             */
+            $language_codes = collect(apply_filters('wpml_active_languages', null))
+                ->mapWithKeys(fn ($language) => [$language['translated_name'] => $language['code']]);
+
+            $this->countryMappedLanguages = $this->countryMappedLanguages
+                ->map(fn ($country_language) => [
+                    'code'     => $language_codes->get($country_language['language']) ?? 'en',
+                    'country'  => collect(MSHelper::textareaToArr($country_language["countries"] ?? ''))
+                        ->filter(),
+                    'language' => $country_language['language'] ?? '',
+                ]);
+        }
+    }
+
+    /**
+     * A combined method used in two spots for making single NCT ID
+     * api calls
+     *
+     * @param  int|string  $nct_id
+     * @param  Collection  $trashed_posts
+     * @param  int         $total_import
+     *
+     * @return WP_Error|Collection
+     */
+    protected function singleApiCalls(int|string $nct_id, Collection $trashed_posts, int $total_import)
+    :WP_Error|Collection
+    {
+        $this->httpArgs['expr'] = self::setupExpression($nct_id);
+        // Reset the min and max ranks so that we can actually pull in the trial
+        $this->httpArgs['min_rnk'] = 1;
+        $this->httpArgs['max_rnk'] = 2;
+        $client_http            = self::scraperHttpCB(
+            '/api/query/full_studies',
+            "GET",
+            $this->httpArgs,
+            ['delay' => 120,],
+        );
+
+        return self::trialsProcessingLoop($client_http, $trashed_posts, $total_import);
     }
 }

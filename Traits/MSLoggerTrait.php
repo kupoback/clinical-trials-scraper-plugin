@@ -21,10 +21,11 @@ trait MSLoggerTrait
     /**
      * Sets up the Logger
      *
-     * @param string       $name         The logger name
-     * @param  int|string  $file_name    The file name for the logger
-     * @param string       $file_path    The path to place the file
-     * @param int          $logger_type  The type of log file this is
+     * @param string       $name            The logger name
+     * @param  int|string  $file_name       The file name for the logger
+     * @param string       $file_path       The path to place the file
+     * @param int          $logger_type     The type of log file this is
+     * @param string       $text_extension  The file extension if needed to override log files
      *
      * @return false|Logger
      * @link LineFormatter https://github.com/Seldaek/monolog/blob/main/doc/message-structure.md
@@ -32,13 +33,12 @@ trait MSLoggerTrait
      * @link Monolog https://github.com/Seldaek/monolog
      */
     protected function initLogger(
-        string     $name,
-        int|string $file_name,
-        string     $file_path = MERCK_SCRAPER_LOG_DIR,
-        int        $logger_type = Logger::ERROR
-    )
-    :Logger|bool
-    {
+        string      $name,
+        int|string  $file_name,
+        string      $file_path = MERCK_SCRAPER_LOG_DIR,
+        int         $logger_type = Logger::ERROR,
+        string      $text_extension = 'log',
+    ) :Logger|bool {
         if (!$name || !$file_name) {
             return false;
         }
@@ -50,11 +50,8 @@ trait MSLoggerTrait
         $formatter->setJsonPrettyPrint(true);
         $formatter->setMaxNormalizeDepth(10);
 
-        // Ensures we're setting the extension and not a param is
-        $file_name = str_replace('.log', '', $file_name);
-
         // Setup our StreamHandler and set our formatter
-        $stream    = new StreamHandler("$file_path/$file_name.log", $logger_type);
+        $stream    = new StreamHandler("$file_path/$file_name.$text_extension", $logger_type);
         $stream->setFormatter($formatter);
 
         $logger = new Logger($name);

@@ -11,6 +11,11 @@ trait MSAdminTrial
     use MSApiField;
 
     /**
+     * @var Collection Container for holding any new changed data
+     */
+    private Collection $new_changes;
+
+    /**
      * Filters each study, and checks if it has locations or not.
      *
      * If the trial has locations, it will parse and check against
@@ -118,7 +123,7 @@ trait MSAdminTrial
      * @return false|Collection
      * @throws Exception
      */
-    protected function studyImport(object $field_data, int $position_index)
+    private function studyImport(object $field_data, int $position_index)
     :bool|Collection
     {
         set_time_limit(600);
@@ -128,7 +133,7 @@ trait MSAdminTrial
 
         $return        = collect();
         $trial_changes = collect(); // Container for the field data if there are existing data
-        $new_changes   = collect(); // Container for holding any new changed data
+        $this->new_changes = collect();
 
         //region Modules
         $arms_module      = $this->parseArms($field_data->get('ArmsInterventionsModule', null));
@@ -282,7 +287,7 @@ trait MSAdminTrial
             // Map through our fields and update their values
             // @TODO Uncomment out ACF saving before deploying
             $acf_fields
-                ->map(function ($field) use ($field_data, $new_changes, $post_id, $return, $trial_changes) {
+                ->map(function ($field) use ($field_data, $post_id, $return, $trial_changes) {
                     $data_name = $field['data_name'] ?? '';
                     if ($field['type'] === 'repeater') {
                         $sub_fields = $field['sub_fields'] ?? false;
@@ -296,20 +301,17 @@ trait MSAdminTrial
 
                             // Compare existing data with new import data
                             $original_data = collect($trial_changes->get($field['name'], ''))
-                                ->flatten();
+                                ->flatten()
+                                ->map(fn ($value) => trim($value));
                             $flat_arr_data = $arr_data
                                 ->flatten()
+                                ->map(fn ($value) => trim($value))
                                 ->diff($original_data);
 
                             // If there is new data, merge it in
                             if ($original_data->isNotEmpty() && $flat_arr_data->isNotEmpty()) {
-                                $new_changes
-                                    ->put(
-                                        $data_name,
-                                        $flat_arr_data
-                                            ->each(fn ($value, $key) => $arr_changes
-                                                ->push($arr_data->get($key))),
-                                    );
+                                $this->new_changes
+                                    ->put($data_name, $arr_data->toArray());
                             }
 
                             // return $this
@@ -337,7 +339,7 @@ trait MSAdminTrial
 
                             // Merge in new data if it has changed
                             if ($original_data !== $field_data) {
-                                $new_changes->put($data_name, $field_data);
+                                $this->new_changes->put($data_name, $field_data);
                             }
 
                             // return $this->updateACF(
@@ -353,13 +355,13 @@ trait MSAdminTrial
                     $field_data = $field_data->get($data_name);
 
                     // Check if the value is an integer for like Age for comparison
-                    if (intval($field_data)) {
+                    if (intval($field_data) && in_array($data_name, ['minimum_age', 'maximum_age'])) {
                         $original_data = intval($original_data);
                     }
 
                     // If there is new string data, merge it in
                     if ($original_data !== $field_data && $field_data && $original_data) {
-                        $new_changes->put($data_name, $field_data);
+                        $this->new_changes->put($data_name, $field_data);
                     }
 
                     // return $this->updateACF($field['name'], $field_data, $post_id);
@@ -379,9 +381,7 @@ trait MSAdminTrial
                     // 'trial_category'  => [],
                 ],
             )
-                ->each(function ($terms, $taxonomy) use ($post_id) {
-                    wp_set_object_terms($post_id, $terms, $taxonomy);
-                });
+                ->each(fn ($terms, $taxonomy) => self::mergeAndSaveTerms($post_id, $terms, $taxonomy));
 
             /**
              * Set up the taxonomy terms for Trial Drugs
@@ -398,7 +398,7 @@ trait MSAdminTrial
                             $tax_terms = (array) $terms;
                         }
 
-                        wp_set_object_terms($post_id, $tax_terms ?? [], $taxonomy);
+                        self::mergeAndSaveTerms($post_id, $tax_terms ?? [], $taxonomy);
                     });
             }
 
@@ -428,20 +428,40 @@ trait MSAdminTrial
                                  * instead of the opposite. Might be due to type comparison
                                  * as well as value comparison.
                                  */
-                                return ($min_age === 0 && $max_age === 999)
+                                ($min_age === 0 && $max_age === 999)
                                     ? []
-                                    : wp_set_object_terms($post_id, $term['slug'], 'trial_age', true);
+                                    : self::mergeAndSaveTerms($post_id, $term['slug'], 'trial_age', true);
                             }
-
-                            return [];
                         });
                 }
             }
             //endregion
 
+            // @TODO Uncomment for saving of locations
             // if ($contact_module->get('locations') && $contact_module->get('import')) {
             //     $return->put('locations', collect($contact_module->get('locations')));
             // }
+        }
+
+        /**
+         * Final filter to ensure all empty data is removed
+         */
+        $this->new_changes = $this->new_changes
+            ->filter();
+
+        /**
+         * Pass the new changes data to the changelog file,
+         * but not when triggered from the admin
+         */
+        if ($this->new_changes->isNotEmpty()
+            // && !$this->manualApiCall
+        ) {
+            $this->changeLog
+                ->info(
+                    "Changes for $nct_id",
+                    $this->new_changes
+                        ->toArray()
+                );
         }
 
         $return->put('ID', $post_id);
@@ -466,7 +486,7 @@ trait MSAdminTrial
      *
      * @return Collection
      */
-    protected function doNotImportTrial(int $post_id = 0, string $title = '', string $nct_id = '', string $msg = '')
+    private function doNotImportTrial(int $post_id = 0, string $title = '', string $nct_id = '', string $msg = '')
     :Collection
     {
         return collect(
@@ -477,5 +497,34 @@ trait MSAdminTrial
                 'MESSAGE' => $msg,
             ],
         );
+    }
+
+    /**
+     * Common method to check for existing terms of a taxonomy, finding the difference, and pushing
+     * any new changes to the class Collection
+     *
+     * @param  int              $post_id   The post ID of the trial
+     * @param  array|string     $terms     An array or string of terms to push to the trial
+     * @param  string           $taxonomy  The taxonomy to assign the terms to
+     * @param  bool             $append    Whether to append to existing terms or not
+     *
+     * @return void
+     */
+    private function mergeAndSaveTerms(int $post_id, array|string $terms, string $taxonomy, bool $append = false)
+    :void
+    {
+        $existing_terms = collect(wp_get_post_terms($post_id, $taxonomy))
+            ->filter()
+            ->mapWithKeys(fn ($term) => [$term->slug => $term->name]);
+        $mapped_terms = collect($terms)
+            ->mapWithKeys(fn ($term) => [sanitize_title($term) => $term]);
+        $new_terms = $existing_terms->diffAssoc($mapped_terms);
+        if ($new_terms->isNotEmpty()) {
+            // If we have new terms, add them to the new changes collection
+            $this->new_changes
+                ->put($taxonomy, $terms);
+        }
+        // @TODO Uncomment for saving of taxonomy terms
+        // wp_set_object_terms($post_id, $terms, $taxonomy, $append);
     }
 }

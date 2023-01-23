@@ -80,7 +80,7 @@ trait MSEmailTrait
                         $status = $study
                                 ->get('POST_STATUS', false);
                         if (is_string($status)) {
-                            match(strtolower($status)) {
+                            match (strtolower($status)) {
                                 'draft', 'pending' => $new_posts->push($study),
                                 'trash' => $trashed_posts->push($study),
                                 'publish' => $updated_posts->push($study),
