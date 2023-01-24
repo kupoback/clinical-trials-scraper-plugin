@@ -33,6 +33,8 @@ class MSApiLogger
      */
     protected array $dotFiles = ['.', '..'];
 
+    protected string $changeLogDir = MERCK_SCRAPER_API_CHANGES_DIR;
+
     /**
      * MSApiLogger constructor.
      *
@@ -80,7 +82,7 @@ class MSApiLogger
             'api-get-log-file',
             WP_REST_Server::CREATABLE,
             [$this, 'apiGetLogFile'],
-            '(?P<file>[a-zA-Z0-9-]+)',
+            '(?P<file>[a-zA-Z0-9\-\:]+)',
             [
                 'file'     => [
                     'required'          => true,
@@ -98,7 +100,7 @@ class MSApiLogger
             'api-delete-file',
             WP_REST_Server::CREATABLE,
             [$this, 'apiDeleteFile'],
-            '(?P<file>[a-zA-Z0-9-]+)',
+            '(?P<file>[a-zA-Z0-9\-\:]+)',
             [
                 'file' => [
                     'required'          => true,
@@ -148,6 +150,12 @@ class MSApiLogger
                     'dirLabel' => ucwords($directory),
                     'dirValue' => $directory,
                 ])
+                ->push(
+                    [
+                        'dirLabel' => 'Change Log',
+                        'dirValue' => 'ms-api-changes',
+                    ],
+                )
                 ->values()
         );
     }
@@ -169,20 +177,26 @@ class MSApiLogger
         if ($dir_type === 'api') {
             $log_files = $this->getFileNames($this->apiLogDir);
             $err_files = $this->getFileNames($this->apiErrDir);
+        } elseif ($dir_type === 'ms-api-changes') {
+            $log_files = $this->getFileNames($this->changeLogDir, '.txt');
         } else {
             $log_files = $this->getFileNames(MERCK_SCRAPER_LOG_DIR . "/$dir_type/log");
             $err_files = $this->getFileNames(MERCK_SCRAPER_LOG_DIR . "/$dir_type/error");
         }
 
-        if ($log_files) {
-            $message['logsFiles'] = $log_files;
-        }
+        $message = collect(
+            [
+                'logsFiles' => $log_files ?? [],
+                'errFiles' => $err_files ?? [],
+            ]
+        )
+            ->filter();
 
-        if ($err_files) {
-            $message['errFiles'] = $err_files;
-        }
-
-        return rest_ensure_response(!empty($message) ? $message : ['logsFiles' => [], 'errFiles' => []]);
+        return rest_ensure_response(
+            $message->isNotEmpty()
+                ? $message->toArray()
+                : ['logsFiles' => [], 'errFiles' => []]
+        );
     }
 
     /**
@@ -198,19 +212,27 @@ class MSApiLogger
         $file_name = $request['file'];
         $file_type = $request['fileType'];
         $dir_type = $request['fileDir'];
+        $file_path = $request['filePath'];
 
         if ($file_name && $file_type) {
-            if ($dir_type === 'api') {
-                $file_dir = $file_type === 'success'
-                    ? $this->apiLogDir
-                    : ($file_type === 'err' ? $this->apiErrDir : null);
-            } else {
-                $file_type = match ($file_type) {
-                    'err' => 'error',
-                    'success' => 'log',
-                };
+            $download_url = '';
+            if ($dir_type !== 'ms-api-changes') {
+                $file_name = "$file_name.log";
+                if ($dir_type === 'api') {
+                    $file_dir = $file_type === 'success'
+                        ? $this->apiLogDir
+                        : ($file_type === 'err' ? $this->apiErrDir : null);
+                } else {
+                    $file_type = match ($file_type) {
+                        'err'     => 'error',
+                        'success' => 'log',
+                    };
 
-                $file_dir = MERCK_SCRAPER_LOG_DIR . "/$dir_type/$file_type";
+                    $file_dir = MERCK_SCRAPER_LOG_DIR . "/$dir_type/$file_type";
+                }
+            } else {
+                $file_dir = $this->changeLogDir;
+                $file_name = "$file_name.txt";
             }
 
             if (!is_null($file_dir)) {

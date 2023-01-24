@@ -173,6 +173,12 @@ class MSApiScraper
     private Collection $protocolNames;
 
     /**
+     * @var Collection A collection of trial status' that should be
+     *                 published if the trial already exists in WordPress
+     */
+    private Collection $publicationStatus;
+
+    /**
      * @var array|Collection Array for whom the email needs to be sent to
      */
     private $sendTo;
@@ -432,7 +438,7 @@ class MSApiScraper
                 'fields'         => 'ids',
             ]
         );
-        if (!is_wp_error($all_trials) && $all_trials->found_posts > 0) {
+        if (!is_wp_error($all_trials) && $all_trials->found_posts > 0 && !$this->manualApiCall) {
             // Map through all the trials and return the post ID mapping to their NCT ID
             $remaining_trials =
                 collect($all_trials->posts)
@@ -464,9 +470,6 @@ class MSApiScraper
                         ));
             }
         }
-
-        // Path to the file
-        // wp_upload_dir()['baseurl'] . "/ms-api-changes/$this->changeLogName.txt"
 
         /**
          * Send the email only if it was run by the weekly call, after setting
@@ -786,9 +789,9 @@ class MSApiScraper
          * Now timestamp used to keep the log files in order
          */
         $this->nowTime       = Carbon::now('America/New_York');
-        $this->changeLogName = "trial-changes-{$this->nowTime->format('d-m-y-H:i:s')}";
-
         $timestamp = $this->nowTime->timestamp;
+
+        $this->changeLogName = "trial-changes-{$timestamp}";
 
         $this->apiLog      = self::initLogger("api-import", "api-$timestamp", "$this->apiLogDirectory/log", Logger::INFO);
         $this->apiResponse = self::initLogger('api-return', "api-return-$timestamp", "$this->apiLogDirectory/api-response", Logger::API);
@@ -933,6 +936,29 @@ class MSApiScraper
                         ->filter(),
                     'language' => $country_language['language'] ?? '',
                 ]);
+        }
+
+        $this->publicationStatus = collect(self::acfOptionField('clinical_trials_status_mapper'))
+            ->filter(fn ($value) => collect($value)
+                ->filter()
+                ->isNotEmpty());
+
+        if ($this->publicationStatus->isNotEmpty()) {
+            /**
+             * Creates an array of Post Status to Trial Status mapping. This is used to set
+             * Trials that already exist in WordPress, and update their Post Status based on
+             * their ClinicalTrials status changes
+             */
+            $this->publicationStatus = $this->publicationStatus
+                ->mapWithKeys(function ($value) {
+                    $items = collect($value)
+                        ->filter();
+                    return [
+                        $items->get('trial_post_status', '') => MSHelper::textareaToArr(
+                            $items->get('trial_status', '')
+                        )
+                    ];
+                });
         }
     }
 

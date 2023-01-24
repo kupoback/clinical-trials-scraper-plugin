@@ -146,6 +146,7 @@ class MSMainClass
         $this->loader->addAction('acf/init', $admin_options, 'acfOptionsPage');
         $this->loader->addAction('admin_menu', $admin_options, 'customOptsPage', 105);
         $this->loader->addAction('admin_init', $admin_options, 'settingsInit');
+        $this->loader->addFilter('acf/load_field/key=field_63cff7fab5aca', $admin_options, 'customPostStatusOptions');
 
         // Registers the Logger API
         $logger_api = new MSApiLogger();
@@ -185,6 +186,7 @@ class MSMainClass
         $this->loader->addAction('custom_trial_publication_status_add_form_fields', $plugin_post_status, 'statusTaxonomyCustomFields', 10, 2);
         $this->loader->addAction('created_custom_trial_publication_status', $plugin_post_status, 'saveStatusTaxonomyCustomFields', 10, 2);
         $this->loader->addAction('custom_trial_publication_status_edit_form_fields', $plugin_post_status, 'statusTaxonomyCustomFields', 10, 2);
+        $this->loader->addAction('delete_term_taxonomy', $plugin_post_status, 'deletedPostStatusTerm', 10, 1);
         $this->loader->addAction('edited_custom_trial_publication_status', $plugin_post_status, 'saveStatusTaxonomyCustomFields', 10, 2);
         $this->loader->addAction('manage_edit-custom_trial_publication_status_columns', $plugin_post_status, 'editStatusTaxonomyColumns');
         $this->loader->addAction('add_meta_boxes', $plugin_post_status, 'addStatusMetabox');

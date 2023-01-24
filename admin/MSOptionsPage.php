@@ -4,6 +4,8 @@ declare(strict_types = 1);
 
 namespace Merck_Scraper\Admin;
 
+use Merck_Scraper\Admin\Traits\MSAdminStatusTrait;
+
 /**
  * Adds and registers the Custom Options pages for the scraper
  *
@@ -16,11 +18,12 @@ namespace Merck_Scraper\Admin;
 class MSOptionsPage
 {
 
+    use MSAdminStatusTrait;
+
     /**
-     * Holds the values to be used in the fields callbacks
-     * @var
+     * @var mixed Holds the values to be used in the fields callbacks
      */
-    private $options;
+    private mixed $options;
 
     /**
      * A default ACF Options page
@@ -143,18 +146,18 @@ class MSOptionsPage
         register_setting(
             'writing',
             'custom-trial-publication-status-add-extra-admin-menu-item',
-            [$this, 'settingsSanitize'],
+            ['MSOptionsPage', 'settingsSanitize'],
         );
         add_settings_section(
             'custom-trial-publication-status-settings',
             __('Extended Post Status', 'merck-scraper'),
-            [$this, 'settingsSectionDescription'],
+            ['MSOptionsPage', 'settingsSectionDescription'],
             'writing',
         );
         add_settings_field(
             'custom-trial-status-add-extra-admin-menu-item',
             '<label for="custom-trial-status-add-extra-admin-menu-item">' . __('Move status to main admin menu.', 'merck-scraper') . '</label>',
-            [$this, 'settingsExtraAdminMenuItemField'],
+            ['MSOptionsPage', 'settingsExtraAdminMenuItemField'],
             'writing',
             'custom-trial-publication-status-settings',
         );
@@ -218,5 +221,21 @@ class MSOptionsPage
             <input id="custom-trial-status-add-extra-admin-menu-item" type="checkbox" value="1" name="custom-post-status-add-extra-admin-menu-item"' . checked(get_option('extended-post-status-add-extra-admin-menu-item', false), true, false) . '>
         ';
         echo $returner;
+    }
+
+    /**
+     * This method dynamically populates the choices for the field with the Post Status' allowed
+     *
+     * @param array $field
+     *
+     * @return array
+     */
+    public function customPostStatusOptions(array $field)
+    :array
+    {
+        $field['choices'] = collect(self::getAllStatusArray())
+            ->forget(['pending', 'private'])
+            ->toArray();
+        return $field;
     }
 }

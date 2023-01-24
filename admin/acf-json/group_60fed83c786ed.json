@@ -337,6 +337,82 @@
             "step": 1
         },
         {
+            "key": "field_63cff7fab5ac9",
+            "label": "Clinical Trials Status Mapper",
+            "name": "clinical_trials_status_mapper",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "<p>Enter in the language and countries associated to this language.<\/p>\r\n<p>For the language, use the full name spelling of the language. This is how a country will be flagged for listing purposes on the front end of the website.<\/p>",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "wpml_cf_preferences": 0,
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "field_63cff7fab5aca",
+            "button_label": "Add Status Map",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_63cff7fab5aca",
+                    "label": "Trial Post Status",
+                    "name": "trial_post_status",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "Select which post status relates to the Trial Status",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "wpml_cf_preferences": 3,
+                    "choices": {
+                        "draft": "Draft",
+                        "publish": "Published",
+                        "archive": "Archive"
+                    },
+                    "default_value": false,
+                    "return_format": "value",
+                    "multiple": 0,
+                    "allow_null": 0,
+                    "ui": 1,
+                    "ajax": 1,
+                    "placeholder": "",
+                    "parent_repeater": "field_63cff7fab5ac9"
+                },
+                {
+                    "key": "field_63cff7fab5acb",
+                    "label": "Trial Status",
+                    "name": "trial_status",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "wpml_cf_preferences": 1,
+                    "default_value": "",
+                    "maxlength": "",
+                    "rows": 4,
+                    "placeholder": "",
+                    "new_lines": "",
+                    "parent_repeater": "field_63cff7fab5ac9"
+                }
+            ]
+        },
+        {
             "key": "field_610414572226f",
             "label": "Google Maps",
             "name": "",
@@ -776,5 +852,5 @@
     "active": true,
     "description": "Option Settings for the Merck Scraper Plugin. Do not translate anything in here, as these are used for the API import only.",
     "show_in_rest": 0,
-    "modified": 1669048396
+    "modified": 1674582776
 }

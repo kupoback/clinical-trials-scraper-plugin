@@ -32,13 +32,14 @@
                 <div class="accordion" id="log-files">
                     <AccordionItem v-for="({id, fileDate, fileName, filePath}, index) in logFileContents"
                                    :key="index"
-                                   :api-url="apiGetLogUrl"
-                                   :title="dirSelect === 'api' ? fileDate : fileName"
                                    type="success"
-                                   :accordion-id="id"
-                                   :loading="gatheringFile"
-                                   :file-path="filePath"
+                                   :accordionId="id"
+                                   :apiUrl="apiGetLogUrl"
+                                   :download="dirSelect === 'ms-api-changes'"
                                    :fileDir="dirSelect"
+                                   :filePath="filePath"
+                                   :loading="gatheringFile"
+                                   :title="dirSelect === 'api' || dirSelect === 'ms-api-changes' ? fileDate : fileName"
                                    @deleteFile="deleteFile(id, filePath)" />
                 </div>
             </div>
@@ -48,13 +49,13 @@
                 <div class="accordion" id="error-files">
                     <AccordionItem v-for="({id, fileDate, fileName, filePath}, index) in errFileContents"
                                    :key="index"
-                                   :api-url="apiGetLogUrl"
-                                   :title="dirSelect === 'api' ? fileDate : fileName"
                                    type="err"
-                                   :accordion-id="id"
-                                   :loading="gatheringFile"
-                                   :file-path="filePath"
+                                   :accordionId="id"
+                                   :apiUrl="apiGetLogUrl"
                                    :fileDir="dirSelect"
+                                   :filePath="filePath"
+                                   :loading="gatheringFile"
+                                   :title="dirSelect === 'api' ? fileDate : fileName"
                                    @deleteFile="deleteFile(id, filePath)" />
                 </div>
             </div>
@@ -207,7 +208,7 @@
             fetchComplete() {
                 this.gatheringContents = false;
                 this.selectDisabled = false;
-            }
+            },
         },
         watch: {
             dirSelect: function(dirType) {

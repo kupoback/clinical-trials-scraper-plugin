@@ -60,6 +60,7 @@ trait MSEmailTrait
                 'TemplateLanguage' => true,
                 'TemplateID'       => (int) (self::acfOptionField('api_email_template_id') ?? 0),
                 'Variables'        => [
+                    'changelog' => wp_upload_dir()['baseurl'] . "/ms-api-changes/$this->changeLogName.txt",
                     'timestamp' => $this->nowTime
                         ->format("l F j, Y h:i A"),
                     'trials'    => '',

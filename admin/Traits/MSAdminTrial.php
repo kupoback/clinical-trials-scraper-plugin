@@ -207,11 +207,30 @@ trait MSAdminTrial
         } else {
             $trial_changes = collect(get_all_custom_field_meta($post_id, $this->acfJsonContents))
                 ->filter();
+
             // Updating our post
             $post_args
                 ->put('ID', $post_id);
+            // Do not override the title, content or name
             $post_args
                 ->forget(['post_title', 'post_content', 'post_name']);
+
+            /**
+             * Check the Post Status set in ACF, and see if the status matches
+             * the mapping laid out in ACF, and update it, as long as
+             * the Post ID is not in Trash
+             */
+            if (!in_array($trial_status, $allowed_status)) {
+                $post_status = $this->publicationStatus
+                    ->filter(fn ($value) => in_array($status_module->get('trial_status'), $value))
+                    ->keys()
+                    ->first();
+
+                if ($post_status) {
+                    $post_args->put('post_status', $post_status);
+                }
+            }
+            
             wp_update_post(
                 $post_args
                     ->toArray(),

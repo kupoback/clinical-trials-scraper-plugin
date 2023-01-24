@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Merck_Scraper\Admin;
 
+use Merck_Scraper\Admin\Traits\MSAdminStatusTrait;
 use WP_Error;
+use WP_Query;
 
 /**
  * The Admin-specific functionality of the plugin to manage custom post status'.
@@ -17,6 +19,9 @@ use WP_Error;
  */
 class MSCustomPostStatus
 {
+
+    use MSAdminStatusTrait;
+
     /**
      * Initialize the class and set its properties.
      *
@@ -45,7 +50,7 @@ class MSCustomPostStatus
                 $term_meta = get_option("taxonomy_term_$single_status->term_id");
                 $complete  = '';
                 $hidden    = 0;
-                if (array_key_exists('hide_in_drop_down', $term_meta) && $term_meta['hide_in_drop_down'] == 1) {
+                if (array_key_exists('hide_in_drop_down', $term_meta) && intval($term_meta['hide_in_drop_down']) == 1) {
                     $hidden = 1;
                 }
                 if ($post->post_status == $single_status->slug) {
@@ -71,7 +76,7 @@ class MSCustomPostStatus
         foreach ($status as $single_status) {
             $term_meta = get_option("taxonomy_term_$single_status->term_id");
             $hidden    = 0;
-            if (array_key_exists('hide_in_drop_down', $term_meta) && $term_meta['hide_in_drop_down'] == 1) {
+            if (array_key_exists('hide_in_drop_down', $term_meta) && intval($term_meta['hide_in_drop_down']) == 1) {
                 $hidden = 1;
             }
             if ($hidden == 0) {
@@ -99,7 +104,7 @@ class MSCustomPostStatus
             foreach ($status as $single_status) {
                 $term_meta = get_option("taxonomy_term_$single_status->term_id");
                 $hidden    = 0;
-                if (array_key_exists('hide_in_drop_down', $term_meta) && $term_meta['hide_in_drop_down'] == 1) {
+                if (array_key_exists('hide_in_drop_down', $term_meta) && intval($term_meta['hide_in_drop_down']) === 1) {
                     $hidden = 1;
                 } ?>
                 <script type="text/javascript">
@@ -189,7 +194,7 @@ class MSCustomPostStatus
                     )
                         ->put(
                             'public',
-                            (array_key_exists('public', $term_meta) && $term_meta['public'] == 1) || current_user_can('edit_posts'),
+                            (array_key_exists('public', $term_meta) && $term_meta['public'] == 1),
                         )
                         ->put(
                             'show_in_admin_all_list',
@@ -244,6 +249,7 @@ class MSCustomPostStatus
                 'desc'  => __('Status is not selectable in the admin dropdowns.', 'merck-scraper'),
             ],
         ];
+
         foreach ($fields as $key => $value) {
             $checked = '';
             if ($term_meta && $term_meta[$key] == 1) {
@@ -296,16 +302,50 @@ class MSCustomPostStatus
         }
 
         /* Update new values */
-        if (isset($_POST['term_meta'])) {
+        if ($_POST['term_meta'] ?? false) {
             $term_meta = get_option("taxonomy_term_$term_id");
             $cat_keys  = array_keys($_POST['term_meta']);
             foreach ($cat_keys as $key) {
-                if (isset($_POST['term_meta'][$key])) {
+                if ($_POST['term_meta'][$key] ?? false) {
                     $term_meta[$key] = $_POST['term_meta'][$key];
                 }
             }
             update_option("taxonomy_term_$term_id", $term_meta);
         }
+    }
+
+    /**
+     * When a Post Status is deleted in the admin, we want to reset any
+     * of the posts using it to Draft status so that they don't get lost
+     * in the admin
+     *
+     * @param $term_id
+     *
+     * @return void
+     */
+    public function deletedPostStatusTerm($term_id)
+    :void
+    {
+        $posts_using_status = new WP_Query(
+            [
+                'post_status' => get_term($term_id)->slug,
+                'posts_per_page' => -1,
+                'fields' => 'ids',
+            ]
+        );
+
+        if (!is_wp_error($posts_using_status) && $posts_using_status->found_posts > 0) {
+            collect($posts_using_status->posts)
+                ->each(fn ($post_id) => wp_update_post(
+                    [
+                        'ID'          => $post_id,
+                        'post_status' => 'draft',
+                    ],
+                ));
+        }
+
+        delete_option("taxonomy_term_$term_id");
+        delete_post_meta_by_key("taxonomy_term_$term_id");
     }
 
     /**
@@ -319,10 +359,11 @@ class MSCustomPostStatus
      * @param   $taxonomy
      * @param   $args
      *
-     * @return
+     * @return mixed
      * @since    1.0.2
      */
     public function overrideStatusTaxonomyOnSave($data, $term_id, $taxonomy, $args)
+    :mixed
     {
         if ($taxonomy == 'custom_trial_publication_status') {
             $slug = $data['slug'];
@@ -336,31 +377,15 @@ class MSCustomPostStatus
     }
 
     /**
-     * Returns all status
-     *
-     * @return
-     * @since    1.0.0
-     */
-    public function getStatus()
-    :array|WP_Error|string
-    {
-        return get_terms(
-            [
-                'taxonomy'   => 'custom_trial_publication_status',
-                'hide_empty' => false,
-            ]
-        );
-    }
-
-    /**
      * Edit the status taxonomy table
      *
      * @param   $columns
      *
-     * @return
+     * @return mixed
      * @since    1.0.0
      */
     public function editStatusTaxonomyColumns($columns)
+    :mixed
     {
         if (isset($columns['description'])) {
             unset($columns['description']);
@@ -391,16 +416,16 @@ class MSCustomPostStatus
         $term      = get_term($term_id);
         $term_meta = get_option("taxonomy_term_$term_id");
         if ('settings' === $column_name) {
-            if ($term_meta['public'] ?? false) {
+            if (array_key_exists('public', $term_meta) && $term_meta['public'] == 1) {
                 $content .= "&bullet; " . __('Public', 'merck-scraper') . "<br />";
             }
-            if ($term_meta['show_in_admin_all_list'] ?? false) {
+            if (array_key_exists('show_in_admin_all_list', $term_meta) && $term_meta['show_in_admin_all_list'] == 1) {
                 $content .= "&bullet; " . __('Show in admin "All" list', 'merck-scraper') . "<br />";
             }
-            if ($term_meta['show_in_admin_status_list'] ?? false) {
+            if (array_key_exists('show_in_admin_status_list', $term_meta) && $term_meta['show_in_admin_status_list'] == 1) {
                 $content .= "&bullet; " . __('Show in admin status list', 'merck-scraper') . "<br />";
             }
-            if ($term_meta['hide_in_drop_down'] ?? false) {
+            if (array_key_exists('hide_in_drop_down', $term_meta) && $term_meta['hide_in_drop_down'] == 1) {
                 $content .= "&bullet; " . __('Hide in admin drop downs', 'merck-scraper') . "<br />";
             }
             $content = rtrim($content, ', ');
@@ -460,38 +485,19 @@ class MSCustomPostStatus
                 $term_meta = get_option("taxonomy_term_$term->term_id");
             }
             $hidden = 0;
-            if ($term && ($term_meta['hide_in_drop_down'] ?? false)) {
+            if ($term && array_key_exists('hide_in_drop_down', $term_meta) && $term_meta['hide_in_drop_down'] == 1) {
                 $hidden = 1;
             }
             if ($key === $post->post_status) {
-                $returner .= '<option value="' . $key . '" selected="selected">' . $value . '</option>';
+                $returner .= "<option value='$key' selected='selected'>$value</option>";
             } else {
                 if (!$hidden) {
-                    $returner .= '<option value="' . $key . '">' . $value . '</option>';
+                    $returner .= "<option value='$key'>$value</option>";
                 }
             }
         }
         $returner .= '</select>';
         echo $returner;
-    }
-
-    /**
-     * Get array of all statuses
-     *
-     * @return array
-     * @since    1.0.0
-     */
-    public function getAllStatusArray()
-    :array
-    {
-        $core_statuses   = get_post_statuses();
-        $statuses        = $core_statuses;
-        $custom_statuses = self::getStatus();
-        foreach ($custom_statuses as $status) {
-            $statuses[$status->slug] = $status->name;
-        }
-
-        return $statuses;
     }
 
     /**
@@ -527,11 +533,11 @@ class MSCustomPostStatus
             foreach ($statuses as $status) {
                 $term_meta = get_option("taxonomy_term_$status->term_id");
                 if (!in_array($status->slug, $statuses_show_in_admin_all_list)) {
-                    if ($term_meta['show_in_admin_all_list'] === 1) {
+                    if ($term_meta['show_in_admin_all_list'] == 1) {
                         $statuses_show_in_admin_all_list[] = $status->slug;
                     }
                 } else {
-                    if ($term_meta['show_in_admin_all_list'] !== 1) {
+                    if ($term_meta['show_in_admin_all_list'] != 1) {
                         if (($key = array_search($status->slug, $statuses_show_in_admin_all_list)) !== false) {
                             unset($statuses_show_in_admin_all_list[$key]);
                         }

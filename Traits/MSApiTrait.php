@@ -77,16 +77,17 @@ trait MSApiTrait
      * Method to grab the folders contents
      *
      * @param  string  $folder_name
+     * @param  string  $file_extension
      *
      * @return false|Collection
      */
-    protected function getFileNames(string $folder_name)
+    protected function getFileNames(string $folder_name, string $file_extension = '.log')
     :bool|Collection
     {
         if (is_dir($folder_name)) {
             $dir_contents = scandir($folder_name);
             $dir_contents = collect($dir_contents)
-                ->filter(fn ($file) => strpos($file, '.log'))
+                ->filter(fn ($file) => strpos($file, $file_extension))
                 ->reverse()
                 ->values();
 
@@ -101,6 +102,7 @@ trait MSApiTrait
                         )
                                             ->format('F j, Y g:i A'),
                         'fileName' => $file,
+                        'fileUrl'  => '',
                     ]);
             }
         }
@@ -111,17 +113,18 @@ trait MSApiTrait
     /**
      * Grabs teh contents of the file and returns them via an array
      *
-     * @param  string  $file    The file name
-     * @param  string  $folder  The folder to look for the file in
+     * @param  string  $file          The file name
+     * @param  string  $folder        The folder to look for the file in
+     * @param  string  $download_url  The URL to download the file
      *
      * @return array|WP_Error
      */
-    protected function getFileContents(string $file = '', string $folder = '')
+    protected function getFileContents(string $file = '', string $folder = '', string $download_url = '')
     :WP_Error|array
     {
         // @TODO Could possibly refactor to pass in the full path instead of building it
         if ($file && $folder) {
-            $log_file = "$folder/$file.log";
+            $log_file = "$folder/$file";
             if (file_exists($log_file)) {
                 return [
                     'message'      => null,
