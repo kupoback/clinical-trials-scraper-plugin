@@ -28,6 +28,7 @@ class MSActivator
      * @since    1.0.0
      */
     public static function activate()
+    :void
     {
         /**
          * Create a .env file if it's never made

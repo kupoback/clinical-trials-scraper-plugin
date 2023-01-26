@@ -16,40 +16,6 @@ trait MSAdminTrial
     private Collection $new_changes;
 
     /**
-     * Filters each study, and checks if it has locations or not.
-     *
-     * If the trial has locations, it will parse and check against
-     * the allowed and disallowed countries to filter out those locations,
-     * then if there are any still, we will allow the trial to be imported
-     * otherwise if there are no leftover trials, it's removed from the import
-     *
-     * If there are no trial locations at all, we'll still import the trial
-     *
-     * @param  Collection  $studies A collection of studies from the API
-     *
-     * @return Collection
-     */
-    private function filterImportLocations(Collection $studies)
-    :Collection
-    {
-        return $studies
-            ->filter(function ($study) {
-                $study_protocol = $study->Study->ProtocolSection;
-                if ($study_protocol ?? false) {
-                    if (count($study_protocol->ContactsLocationsModule->LocationList->Location ?? []) > 0) {
-                        return $this->parseLocation(
-                            ($study_protocol->ContactsLocationsModule ?? null),
-                            ($study_protocol->StatusModule ?? null),
-                        )->get('locations')
-                         ->count() > 0;
-                    }
-                    return true;
-                }
-                return false;
-            });
-    }
-
-    /**
      * A separated loop to handle pagination of posts
      *
      * @param  Collection  $studies
@@ -230,7 +196,7 @@ trait MSAdminTrial
                     $post_args->put('post_status', $post_status);
                 }
             }
-            
+
             wp_update_post(
                 $post_args
                     ->toArray(),
@@ -304,7 +270,6 @@ trait MSAdminTrial
 
             //region Field Data Import
             // Map through our fields and update their values
-            // @TODO Uncomment out ACF saving before deploying
             $acf_fields
                 ->map(function ($field) use ($field_data, $post_id, $return, $trial_changes) {
                     $data_name = $field['data_name'] ?? '';
@@ -333,13 +298,7 @@ trait MSAdminTrial
                                     ->put($data_name, $arr_data->toArray());
                             }
 
-                            // return $this
-                            //     ->updateACF(
-                            //         $field['name'],
-                            //         $arr_data
-                            //             ->toArray(),
-                            //         $post_id,
-                            //     );
+                            return $this->updateACF($field['name'], $arr_data->toArray(), $post_id);
                         }
 
                         return false;
@@ -361,11 +320,7 @@ trait MSAdminTrial
                                 $this->new_changes->put($data_name, $field_data);
                             }
 
-                            // return $this->updateACF(
-                            //     $field['name'],
-                            //     $field_data,
-                            //     $post_id,
-                            // );
+                            return $this->updateACF($field['name'], $field_data, $post_id);
                         }
 
                         return false;
@@ -383,7 +338,7 @@ trait MSAdminTrial
                         $this->new_changes->put($data_name, $field_data);
                     }
 
-                    // return $this->updateACF($field['name'], $field_data, $post_id);
+                    return $this->updateACF($field['name'], $field_data, $post_id);
                 });
             //endregion
 
@@ -456,10 +411,9 @@ trait MSAdminTrial
             }
             //endregion
 
-            // @TODO Uncomment for saving of locations
-            // if ($contact_module->get('locations') && $contact_module->get('import')) {
-            //     $return->put('locations', collect($contact_module->get('locations')));
-            // }
+            if ($contact_module->get('locations') && $contact_module->get('import')) {
+                $return->put('locations', collect($contact_module->get('locations')));
+            }
         }
 
         /**
@@ -493,6 +447,40 @@ trait MSAdminTrial
         ini_restore('max_execution_time');
 
         return $return;
+    }
+
+    /**
+     * Filters each study, and checks if it has locations or not.
+     *
+     * If the trial has locations, it will parse and check against
+     * the allowed and disallowed countries to filter out those locations,
+     * then if there are any still, we will allow the trial to be imported
+     * otherwise if there are no leftover trials, it's removed from the import
+     *
+     * If there are no trial locations at all, we'll still import the trial
+     *
+     * @param  Collection  $studies A collection of studies from the API
+     *
+     * @return Collection
+     */
+    private function filterImportLocations(Collection $studies)
+    :Collection
+    {
+        return $studies
+            ->filter(function ($study) {
+                $study_protocol = $study->Study->ProtocolSection;
+                if ($study_protocol ?? false) {
+                    if (count($study_protocol->ContactsLocationsModule->LocationList->Location ?? []) > 0) {
+                        return $this->parseLocation(
+                            ($study_protocol->ContactsLocationsModule ?? null),
+                            ($study_protocol->StatusModule ?? null),
+                        )->get('locations')
+                         ->count() > 0;
+                    }
+                    return true;
+                }
+                return false;
+            });
     }
 
     /**
@@ -535,15 +523,16 @@ trait MSAdminTrial
         $existing_terms = collect(wp_get_post_terms($post_id, $taxonomy))
             ->filter()
             ->mapWithKeys(fn ($term) => [$term->slug => $term->name]);
+
         $mapped_terms = collect($terms)
             ->mapWithKeys(fn ($term) => [sanitize_title($term) => $term]);
+
         $new_terms = $existing_terms->diffAssoc($mapped_terms);
         if ($new_terms->isNotEmpty()) {
             // If we have new terms, add them to the new changes collection
             $this->new_changes
                 ->put($taxonomy, $terms);
         }
-        // @TODO Uncomment for saving of taxonomy terms
-        // wp_set_object_terms($post_id, $terms, $taxonomy, $append);
+        wp_set_object_terms($post_id, $terms, $taxonomy, $append);
     }
 }

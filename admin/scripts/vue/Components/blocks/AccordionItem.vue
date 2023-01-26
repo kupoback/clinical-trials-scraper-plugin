@@ -23,12 +23,13 @@
              data-bs-parent="#accordion-logs">
             <div class="accordion-body">
                 <Loading v-if="loadingFile" />
-                <button v-if="download"
+                <button v-if="!loadingFile && download"
                         class="btn btn-info btn-sm"
                         @click.prevent="downloadFile"
                         v-html="`Download File`" />
-                <vue-code-highlight v-if="!loadingFile && fileContents"
-                                    :language="fileType">
+                <vue-code-highlight
+                    v-if="!loadingFile && fileContents"
+                    :language="fileType">
                     <pre v-html="fileContents" />
                 </vue-code-highlight>
             </div>

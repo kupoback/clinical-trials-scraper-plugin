@@ -42,6 +42,11 @@ class MSFrontEndAPI
     {
     }
 
+    /**
+     * Registers endpoints accessible for the frontend
+     *
+     * @return void
+     */
     public function registerEndpoint()
     :void
     {
@@ -106,8 +111,7 @@ class MSFrontEndAPI
                                 $location['country'] ?: '',
                             ]
                         )
-                    )
-                    )
+                    ))
             );
         }
 

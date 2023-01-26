@@ -342,7 +342,7 @@
             "name": "clinical_trials_status_mapper",
             "aria-label": "",
             "type": "repeater",
-            "instructions": "<p>Enter in the language and countries associated to this language.<\/p>\r\n<p>For the language, use the full name spelling of the language. This is how a country will be flagged for listing purposes on the front end of the website.<\/p>",
+            "instructions": "<p>This allows for mapping of a specific Post Status to a specific Trial Status<\/p>\r\n<p>Please ensure that only ONE Post Status is used, and not used in multiple input fields, as the first instance of matching in the import will be used.<\/p>",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -852,5 +852,5 @@
     "active": true,
     "description": "Option Settings for the Merck Scraper Plugin. Do not translate anything in here, as these are used for the API import only.",
     "show_in_rest": 0,
-    "modified": 1674582776
+    "modified": 1674656839
 }

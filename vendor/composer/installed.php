@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'clique/merck-scraper',
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
-        'reference' => 'e5c1d82fcf35c22953e4c84e2ab89d9e2e5e4047',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
+        'reference' => 'cd9070962cc77424c763c84041c902e8be3722fe',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -29,9 +29,9 @@
             'dev_requirement' => false,
         ),
         'clique/merck-scraper' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => 'e5c1d82fcf35c22953e4c84e2ab89d9e2e5e4047',
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => 'cd9070962cc77424c763c84041c902e8be3722fe',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -376,7 +376,7 @@
         'roave/security-advisories' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '9c6c8f411c2eefd00a6400a892c9df1a74fe365a',
+            'reference' => '6120dcc6cea2150079c5b75d31f0c5ad2ab3206e',
             'type' => 'metapackage',
             'install_path' => NULL,
             'aliases' => array(),
@@ -428,9 +428,9 @@
             'dev_requirement' => false,
         ),
         'symfony/translation' => array(
-            'pretty_version' => 'v6.0.14',
-            'version' => '6.0.14.0',
-            'reference' => '6f99eb179aee4652c0a7cd7c11f2a870d904330c',
+            'pretty_version' => 'v6.0.19',
+            'version' => '6.0.19.0',
+            'reference' => '9c24b3fdbbe9fb2ef3a6afd8bbaadfd72dad681f',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/translation',
             'aliases' => array(),

@@ -698,6 +698,7 @@ return array(
     'Merck_Scraper\\Admin\\MSMetaBox' => $baseDir . '/Admin/MSMetaBox.php',
     'Merck_Scraper\\Admin\\MSOptionsPage' => $baseDir . '/Admin/MSOptionsPage.php',
     'Merck_Scraper\\Admin\\Traits\\MSAdminHttpTrait' => $baseDir . '/Admin/Traits/MSAdminHttpTrait.php',
+    'Merck_Scraper\\Admin\\Traits\\MSAdminStatusTrait' => $baseDir . '/Admin/Traits/MSAdminStatusTrait.php',
     'Merck_Scraper\\Admin\\Traits\\MSAdminTrait' => $baseDir . '/Admin/Traits/MSAdminTrait.php',
     'Merck_Scraper\\Admin\\Traits\\MSAdminTrial' => $baseDir . '/Admin/Traits/MSAdminTrial.php',
     'Merck_Scraper\\Admin\\Traits\\MSApiField' => $baseDir . '/Admin/Traits/MSApiField.php',

@@ -153,6 +153,9 @@ function run_ms()
 
 run_ms();
 
+/**
+ * Sets up the cron to delete 2 months worth of log files
+ */
 add_action('ms_scrape_log_cleanup', function () {
     (new MSAdminLoggerDelete())
         ->deleteTwoMonthsOfFiles();

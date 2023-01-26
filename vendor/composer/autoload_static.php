@@ -953,6 +953,7 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         'Merck_Scraper\\Admin\\MSMetaBox' => __DIR__ . '/../..' . '/Admin/MSMetaBox.php',
         'Merck_Scraper\\Admin\\MSOptionsPage' => __DIR__ . '/../..' . '/Admin/MSOptionsPage.php',
         'Merck_Scraper\\Admin\\Traits\\MSAdminHttpTrait' => __DIR__ . '/../..' . '/Admin/Traits/MSAdminHttpTrait.php',
+        'Merck_Scraper\\Admin\\Traits\\MSAdminStatusTrait' => __DIR__ . '/../..' . '/Admin/Traits/MSAdminStatusTrait.php',
         'Merck_Scraper\\Admin\\Traits\\MSAdminTrait' => __DIR__ . '/../..' . '/Admin/Traits/MSAdminTrait.php',
         'Merck_Scraper\\Admin\\Traits\\MSAdminTrial' => __DIR__ . '/../..' . '/Admin/Traits/MSAdminTrial.php',
         'Merck_Scraper\\Admin\\Traits\\MSApiField' => __DIR__ . '/../..' . '/Admin/Traits/MSApiField.php',

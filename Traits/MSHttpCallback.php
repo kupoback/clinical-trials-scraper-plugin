@@ -48,8 +48,7 @@ trait MSHttpCallback
         string $request_type = "GET",
         array  $query_args = [],
         array  $guzzle_args = [],
-    )
-    {
+    ) {
         if ($api_base) {
             $handler_stack = HandlerStack::create(new CurlHandler());
             $handler_stack->push(Middleware::retry($this->retryCall(), $this->retryDelay()));

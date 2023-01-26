@@ -163,7 +163,6 @@ class MSOptionsPage
         );
     }
 
-
     /**
      * Creates the options' page for a mounted Vue Component
      *

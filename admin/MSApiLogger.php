@@ -33,6 +33,9 @@ class MSApiLogger
      */
     protected array $dotFiles = ['.', '..'];
 
+    /**
+     * @var string Constant for the file dir path to the API Changelog directory
+     */
     protected string $changeLogDir = MERCK_SCRAPER_API_CHANGES_DIR;
 
     /**
@@ -156,6 +159,7 @@ class MSApiLogger
                         'dirValue' => 'ms-api-changes',
                     ],
                 )
+                ->sortBy('dirLabel')
                 ->values()
         );
     }

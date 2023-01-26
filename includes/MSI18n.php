@@ -23,11 +23,12 @@ class MSI18n
      * @since    1.0.0
      */
     public function loadMSTextdomain()
+    :void
     {
         load_plugin_textdomain(
             'merck-scraper',
             false,
-            dirname(dirname(plugin_basename(__FILE__))) . '/languages/'
+            dirname(plugin_basename(__FILE__), 2) . '/languages/'
         );
     }
 }

@@ -162,5 +162,4 @@ trait MSAdminHttpTrait
             __("Error, unable to complete HTTP request. No base_uri set in Merck Scraper Options.", "merck-scraper")
         );
     }
-
 }

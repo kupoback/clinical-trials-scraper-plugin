@@ -117,9 +117,30 @@
             },
             async selectLogDir(dirType) {
                 this.fetchSetup();
-    
-                this.logFileHeader = `${dirType} Log Files`;
-                this.errFileHeader = `${dirType} Error Files`
+                let dirName;
+                switch (dirType) {
+                    case 'api':
+                        dirName = 'API Logged';
+                        break;
+                    case 'ms-api-changes':
+                        dirName = 'Change Log';
+                        break;
+                    case 'email':
+                        dirName = 'Email Logged';
+                        break;
+                    case 'http':
+                        dirName = 'Http Logged';
+                        break;
+                    case 'iplookup':
+                        dirName = 'IP Lookup Logged';
+                        break;
+                    default:
+                        dirName = '';
+                        break;
+                }
+                
+                this.logFileHeader = `${dirName} Files`;
+                this.errFileHeader = `${dirName} Error Files`
                 
                 await this.getLogContents(false, dirType)
                           .finally(() => this.fetchComplete());

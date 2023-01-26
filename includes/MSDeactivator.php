@@ -25,6 +25,7 @@ class MSDeactivator
      * @since    1.0.0
      */
     public static function deactivate()
+    :void
     {
         /**
          * Since we've registered custom post types and  custom taxonomies, we'll want to flush the permalinks

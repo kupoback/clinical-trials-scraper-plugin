@@ -50,9 +50,7 @@ trait MSApiTrait
         array  $callback = [],
         string $query_args = '',
         array  $args = [],
-    )
-    :void
-    {
+    ):void {
         $rest_prefix = "$this->apiNamespace/$this->apiVersion";
 
         if ($query_args) {
@@ -72,7 +70,6 @@ trait MSApiTrait
     }
 
     //region File Grabber
-
     /**
      * Method to grab the folders contents
      *
