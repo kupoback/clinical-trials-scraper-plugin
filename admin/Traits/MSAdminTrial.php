@@ -4,6 +4,8 @@ namespace Merck_Scraper\Admin\Traits;
 
 use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+
 use function get_all_custom_field_meta;
 
 trait MSAdminTrial
@@ -127,8 +129,10 @@ trait MSAdminTrial
         $do_not_import  = false;
         $trial_status   = sanitize_title($status_module->get('trial_status', ''));
         $allowed_status = $this->trialStatus
-            ->map(fn ($status) => sanitize_title($status))
-            ->toArray();
+            ->map(fn ($status) => sanitize_title($status));
+        $trial_post_status = $this->publicationStatus
+            ->filter(fn ($status_arr) => collect($status_arr)->search($trial_status))
+            ->keys();
 
         // Set up the post data
         $parse_args = $this->parsePostArgs(
@@ -144,7 +148,7 @@ trait MSAdminTrial
         $post_args = collect(wp_parse_args($parse_args, $this->trialPostDefault));
 
         // Update some parameters to not import the post OR set its status to trash
-        if (!in_array($trial_status, $allowed_status)) {
+        if (!$allowed_status->search($trial_status)) {
             $do_not_import = true;
             $post_args->put('post_status', 'trash');
         }
@@ -186,15 +190,15 @@ trait MSAdminTrial
              * the mapping laid out in ACF, and update it, as long as
              * the Post ID is not in Trash
              */
-            if (!in_array($trial_status, $allowed_status)) {
-                $post_status = $this->publicationStatus
-                    ->filter(fn ($value) => in_array($status_module->get('trial_status'), $value))
-                    ->keys()
-                    ->first();
+            if ($trial_post_status->isNotEmpty()) {
+                $existing_status = get_post_status($post_id);
+                $post_status     = $trial_post_status->first();
 
-                if ($post_status) {
-                    $post_args->put('post_status', $post_status);
+                if ($post_status !== $existing_status) {
+                    $this->new_changes
+                        ->put('postStatus', $post_status);
                 }
+                $post_args->put('post_status', $post_status);
             }
 
             wp_update_post(

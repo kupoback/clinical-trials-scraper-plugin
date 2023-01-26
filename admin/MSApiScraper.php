@@ -954,11 +954,16 @@ class MSApiScraper
                     $items = collect($value)
                         ->filter();
                     return [
-                        $items->get('trial_post_status', '') => MSHelper::textareaToArr(
-                            $items->get('trial_status', '')
+                        $items->get('trial_post_status', '') => collect(
+                            MSHelper::textareaToArr(
+                                $items->get('trial_status', '')
+                            )
                         )
+                        ->map(fn ($value) => sanitize_title($value))
+                        ->filter()
                     ];
-                });
+                })
+                ->filter();
         }
     }
 
