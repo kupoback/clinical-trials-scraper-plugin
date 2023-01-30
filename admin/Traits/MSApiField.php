@@ -438,21 +438,22 @@ trait MSApiField
      *
      * @return Collection
      */
-    protected function parseLocation(null|object $location_module, null|object $trial_status)
+    protected function parseLocation(null|object $location_module, null|object $trial_status, null|object $id_module)
     :Collection
     {
         try {
-            $import_trial   = true;
             $allowed_status = $this->trialStatus
                 ->toArray();
             /**
              * Map through all the locations, and set them up for import. During this time
              * we will be getting the latitude and longitude from Google Maps
              */
-            $locations = collect($location_module->LocationList->Location ?? []);
+            $locations = collect($location_module->LocationList->Location ?? [])
+                ->filter();
+
             if ($locations->isNotEmpty()) {
                 $trial_status = $trial_status->OverallStatus ?? '';
-                $locations    = $locations
+                return $locations
                     ->map(function ($location) use ($allowed_status, $trial_status) {
                         $location_status = $location->LocationStatus ?? '';
                         $country         = $location->LocationCountry ?? '';
@@ -509,18 +510,9 @@ trait MSApiField
                     })
                     ->filter()
                     ->values();
-
-                if ($locations->isEmpty()) {
-                    $import_trial = false;
-                }
             }
 
-            return collect(
-                [
-                    'locations' => $locations,
-                    'import'    => $import_trial,
-                ],
-            );
+            return collect();
         } catch (Exception $exception) {
             $this->returnException(
                 'location module',
@@ -562,6 +554,70 @@ trait MSApiField
             'post_content' => $post_args['content'] ?? '',
             'post_excerpt' => isset($post_args['content']) ? Helper::generateExcerpt($post_args['content'], 31) : '',
         ];
+    }
+
+    /**
+     * Filters through all the locations to determine whether the trial
+     * should be imported or skipped
+     *
+     * @param  object|null  $location_module
+     * @param  object|null  $trial_status
+     * @param  object|null  $id_module
+     *
+     * @return bool
+     */
+    protected function hasImportableLocations(null|object $location_module, null|object $trial_status, null|object $id_module)
+    :bool
+    {
+        try {
+            $allowed_status = $this->trialStatus
+                ->toArray();
+            /**
+             * Map through all the locations, and set them up for import. During this time
+             * we will be getting the latitude and longitude from Google Maps
+             */
+            $locations = collect($location_module->LocationList->Location ?? [])
+                ->filter();
+
+            if ($locations->isNotEmpty()) {
+                $trial_status = $trial_status->OverallStatus ?? '';
+                return $locations
+                    ->map(function ($location) use ($allowed_status, $trial_status) {
+                        $location_status      = $location->LocationStatus ?? '';
+                        $country              = $location->LocationCountry ?? '';
+                        $lower_country        = Str::lower($country);
+                        $allowed_locations    = $this->allowedTrialLocations;
+                        $disallowed_locations = $this->disallowedTrialLocations;
+                        $has_status           = false;
+                        $in_array             = false;
+
+                        if ($allowed_locations->isNotEmpty()) {
+                            $in_array = $allowed_locations->contains($lower_country);
+                        }
+
+                        if (!$in_array && $disallowed_locations->isNotEmpty()) {
+                            $in_array = !$disallowed_locations->contains($lower_country);
+                        }
+
+                        if ($in_array && (in_array(Str::lower($location_status), $allowed_status) || $trial_status)) {
+                            $has_status = true;
+                        }
+
+                        return $in_array && $has_status;
+                    })
+                    ->filter()
+                    ->values()
+                    ->isNotEmpty();
+            }
+
+            return false;
+        } catch (Exception $exception) {
+            $this->returnException(
+                'location module',
+                $exception->getMessage(),
+            );
+            return false;
+        }
     }
 
     /**

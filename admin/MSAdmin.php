@@ -222,7 +222,7 @@ class MSAdmin
      *
      * @return array
      */
-    public function addColumns(array $columns)
+    public function addColumnsTrials(array $columns)
     :array
     {
         // Save the $columns['date'] field
@@ -243,12 +243,12 @@ class MSAdmin
     }
 
     /**
-     * Displays the data for the custom field defined in addAcfColumns
+     * Displays the data for the custom field defined in addAcfColumns for Trials
      *
      * @param string $column_key The column key name
      * @param int    $post_id    The post_id
      */
-    public function showCustomCol(string $column_key, int $post_id)
+    public function showCustomTrialsColumn(string $column_key, int $post_id)
     :void
     {
         if ($column_key === 'nct_id') {
@@ -267,16 +267,73 @@ class MSAdmin
     }
 
     /**
-     * Sets up the custom columns to be filterable
+     * Sets up the custom columns to be filterable for Trials
      *
      * @param array $columns An array of registered Admin columns
      *
      * @return array
      */
-    public function filterCustomCol(array $columns)
+    public function filterTrialsColumn(array $columns)
     :array
     {
         $columns['nct_id'] = 'nct_id';
+        return $columns;
+    }
+
+    /**
+     * Adds custom columns to the locations post type
+     *
+     * @param array $columns An array of the existing registered columns
+     *
+     * @return array
+     */
+    public function addColumnsLocations(array $columns)
+    :array
+    {
+        // Save the $columns['date'] field
+        $post_date = $columns['date'];
+        unset($columns['date']);
+
+        // Add any custom columns here before the `date` field
+        $custom_columns = [
+            'country' => __("Country", 'merck-scraper'),
+            'date'   => $post_date,
+        ];
+
+        return array_merge(
+            $columns,
+            $custom_columns
+        );
+    }
+
+    /**
+     * Displays the data for the custom field defined in addAcfColumns for Locations
+     *
+     * @param string $column_key The column key name
+     * @param int    $post_id    The post_id
+     */
+    public function showCustomLocationsColumn(string $column_key, int $post_id)
+    :void
+    {
+        if ($column_key === 'country') {
+            printf(
+                '<span>%s</span>',
+                get_field('api_data_country', $post_id) ?: '-',
+            );
+        }
+    }
+
+    /**
+     * Sets up the custom columns to be filterable for Locations
+     *
+     * @param array $columns An array of registered Admin columns
+     *
+     * @return array
+     */
+    public function filterLocationsColumn(array $columns)
+    :array
+    {
+        $columns['country'] = 'country';
         return $columns;
     }
 
@@ -296,6 +353,17 @@ class MSAdmin
             if ('nct_id' === $query->get('orderby')) {
                 $query->set('orderby', 'meta_value');
                 $query->set('meta_key', 'api_data_nct_id');
+            }
+        }
+
+        if ($query->get('post_type') === 'locations' && is_admin()) {
+            if (!$query->is_main_query()) {
+                return;
+            }
+
+            if ('country' === $query->get('orderby')) {
+                $query->set('orderby', 'meta_value');
+                $query->set('meta_key', 'api_data_country');
             }
         }
     }
@@ -332,14 +400,22 @@ class MSAdmin
     {
         global $wpdb;
         if ($this->isTrialsAdmin()) {
-            /**
-             * Extend the post_title search to search the api_data_nct_id
-             */
-            $where = preg_replace(
-                "/\(\s*$wpdb->posts.post_title\s+LIKE\s*('[^']+')\s*\)/",
-                "($wpdb->posts.post_title LIKE $1) OR ($wpdb->postmeta.meta_key = 'api_data_nct_id' AND $wpdb->postmeta.meta_value LIKE $1)",
-                $where
-            );
+            if (get_current_screen()->id === 'edit-locations') {
+                $where = preg_replace(
+                    "/\(\s*$wpdb->posts.post_title\s+LIKE\s*('[^']+')\s*\)/",
+                    "($wpdb->posts.post_title LIKE $1) OR ($wpdb->postmeta.meta_key = 'api_data_country' AND $wpdb->postmeta.meta_value LIKE $1)",
+                    $where
+                );
+            } else {
+                /**
+                 * Extend the post_title search to search the api_data_nct_id
+                 */
+                $where = preg_replace(
+                    "/\(\s*$wpdb->posts.post_title\s+LIKE\s*('[^']+')\s*\)/",
+                    "($wpdb->posts.post_title LIKE $1) OR ($wpdb->postmeta.meta_key = 'api_data_nct_id' AND $wpdb->postmeta.meta_value LIKE $1)",
+                    $where
+                );
+            }
 
             /**
              * Remove searching for the post_content
@@ -350,6 +426,7 @@ class MSAdmin
                 $where
             );
         }
+
         return $where;
     }
 

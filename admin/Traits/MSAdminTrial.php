@@ -106,7 +106,7 @@ trait MSAdminTrial
         //region Modules
         $arms_module      = $this->parseArms($field_data->get('ArmsInterventionsModule', null));
         $condition_module = $this->parseCondition($field_data->get('ConditionsModule', null));
-        $contact_module   = $this->parseLocation($field_data->get('ContactsLocationsModule', null), $field_data->get('StatusModule', null));
+        $contact_module   = $this->parseLocation($field_data->get('ContactsLocationsModule', null), $field_data->get('StatusModule', null), $field_data->get('IdentificationModule', null));
         $desc_module      = $this->parseDescription($field_data->get('DescriptionModule', null));
         $design_module    = $this->parseDesign($field_data->get('DesignModule', null));
         $eligible_module  = $this->parseEligibility($field_data->get('EligibilityModule', null));
@@ -131,7 +131,7 @@ trait MSAdminTrial
         $allowed_status = $this->trialStatus
             ->map(fn ($status) => sanitize_title($status));
         $trial_post_status = $this->publicationStatus
-            ->filter(fn ($status_arr) => collect($status_arr)->search($trial_status))
+            ->filter(fn ($status_arr) => collect($status_arr)->containsStrict($trial_status))
             ->keys();
 
         // Set up the post data
@@ -148,11 +148,11 @@ trait MSAdminTrial
         $post_args = collect(wp_parse_args($parse_args, $this->trialPostDefault));
 
         // Update some parameters to not import the post OR set its status to trash
-        if (!$allowed_status->search($trial_status)) {
+        if (!$allowed_status->containsStrict($trial_status)) {
             $do_not_import = true;
             $post_args->put('post_status', 'trash');
         }
-
+        
         if ($post_id === 0) {
             // Don't import the post and dump out of the loop for this item
             if ($do_not_import) {
@@ -415,30 +415,30 @@ trait MSAdminTrial
             }
             //endregion
 
-            if ($contact_module->get('locations') && $contact_module->get('import')) {
-                $return->put('locations', collect($contact_module->get('locations')));
+            if ($contact_module->isNotEmpty()) {
+                $return->put('locations', $contact_module);
             }
-        }
 
-        /**
-         * Final filter to ensure all empty data is removed
-         */
-        $this->new_changes = $this->new_changes
-            ->filter();
+            /**
+             * Final filter to ensure all empty data is removed
+             */
+            $this->new_changes = $this->new_changes
+                ->filter();
 
-        /**
-         * Pass the new changes data to the changelog file,
-         * but not when triggered from the admin
-         */
-        if ($this->new_changes->isNotEmpty()
-            // && !$this->manualApiCall
-        ) {
-            $this->changeLog
-                ->info(
-                    "Changes for $nct_id",
-                    $this->new_changes
-                        ->toArray()
-                );
+            /**
+             * Pass the new changes data to the changelog file,
+             * but not when triggered from the admin
+             */
+            if ($this->new_changes->isNotEmpty()
+                // && !$this->manualApiCall
+            ) {
+                $this->changeLog
+                    ->info(
+                        "Changes for $nct_id",
+                        $this->new_changes
+                            ->toArray()
+                    );
+            }
         }
 
         $return->put('ID', $post_id);
@@ -472,14 +472,13 @@ trait MSAdminTrial
     {
         return $studies
             ->filter(function ($study) {
-                $study_protocol = $study->Study->ProtocolSection;
-                if ($study_protocol ?? false) {
-                    if (count($study_protocol->ContactsLocationsModule->LocationList->Location ?? []) > 0) {
-                        return $this->parseLocation(
-                            ($study_protocol->ContactsLocationsModule ?? null),
-                            ($study_protocol->StatusModule ?? null),
-                        )->get('locations')
-                         ->count() > 0;
+                if ($study->Study->ProtocolSection ?? false) {
+                    if (count($study->Study->ProtocolSection->ContactsLocationsModule->LocationList->Location ?? []) > 0) {
+                        return $this->hasImportableLocations(
+                            ($study->Study->ProtocolSection->ContactsLocationsModule ?? null),
+                            ($study->Study->ProtocolSection->StatusModule ?? null),
+                            ($study->Study->ProtocolSection->IdentificationModule ?? null),
+                        );
                     }
                     return true;
                 }

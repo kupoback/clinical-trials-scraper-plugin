@@ -115,11 +115,19 @@ class MSMainClass
 
         $this->loader->addAction('admin_enqueue_scripts', $plugin_admin, 'enqueueStyles');
         $this->loader->addAction('admin_enqueue_scripts', $plugin_admin, 'enqueueScripts');
-        $this->loader->addAction('manage_trials_posts_columns', $plugin_admin, 'addColumns');
+        $this->loader->addAction('manage_trials_posts_columns', $plugin_admin, 'addColumnsTrials');
+        $this->loader->addAction('manage_locations_posts_columns', $plugin_admin, 'addColumnsLocations');
         $this->loader->addAction(
             'manage_trials_posts_custom_column',
             $plugin_admin,
-            'showCustomCol',
+            'showCustomTrialsColumn',
+            10,
+            2
+        );
+        $this->loader->addAction(
+            'manage_locations_posts_custom_column',
+            $plugin_admin,
+            'showCustomLocationsColumn',
             10,
             2
         );
@@ -132,7 +140,8 @@ class MSMainClass
          */
         $this->loader->addAction('pre_get_posts', $plugin_admin, 'trialsAdminQuery');
         $this->loader->addAction('before_delete_post', $plugin_admin, 'removeTrialLocations', 99, 2);
-        $this->loader->addFilter('manage_edit-trials_sortable_columns', $plugin_admin, 'filterCustomCol');
+        $this->loader->addFilter('manage_edit-trials_sortable_columns', $plugin_admin, 'filterTrialsColumn');
+        $this->loader->addFilter('manage_edit-locations_sortable_columns', $plugin_admin, 'filterLocationsColumn');
         $this->loader->addFilter('posts_join', $plugin_admin, 'trialsAdminJoin');
         $this->loader->addFilter('posts_where', $plugin_admin, 'trialsAdminWhere');
         $this->loader->addFilter('posts_distinct', $plugin_admin, 'trialsAdminDistinct');

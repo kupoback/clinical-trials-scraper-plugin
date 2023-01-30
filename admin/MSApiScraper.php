@@ -375,7 +375,7 @@ class MSApiScraper
                 ->map(fn ($study) => Str::lower($study->get('NCT_ID')))
                 ->each(function ($study) use ($additional_nct_ids) {
                     $found_nctid = $additional_nct_ids
-                        ->search($study);
+                        ->containsStrict($study);
                     if (is_int($found_nctid)) {
                         $additional_nct_ids->forget($found_nctid);
                     }
@@ -475,12 +475,14 @@ class MSApiScraper
          * Send the email only if it was run by the weekly call, after setting
          * up the API Log with the right contents
          */
-        if (!$this->manualApiCall && $studies_imported->isNotEmpty()) {
+        if ($studies_imported->isNotEmpty()) {
             $this
                 ->apiLog
                 ->info("Imported {$studies_imported->count()} Studies", $studies_imported->toArray());
 
-            self::emailSetup($studies_imported, $num_not_imported);
+            if (!$this->manualApiCall) {
+                self::emailSetup($studies_imported, $num_not_imported);
+            }
         }
 
         // Close the log and text files
@@ -722,7 +724,7 @@ class MSApiScraper
 
                         $this->totalFound = $this->totalFound - ($initial_count - $studies->count());
 
-                        $studies       = $studies
+                        $studies = $studies
                             ->filter(function ($study) use ($trashed_posts) {
                                 // Filter the data removing ones that are marked as "trash"
                                 $study_id_module = collect(
