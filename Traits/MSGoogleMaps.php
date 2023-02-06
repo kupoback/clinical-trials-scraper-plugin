@@ -125,19 +125,21 @@ trait MSGoogleMaps
                     ->values()
                     ->isNotEmpty())
                 ->mapWithKeys(function ($array) {
-                    $types = collect($array->types)
-                        ->filter(fn ($type) => $type !== 'political');
+                    $type = collect($array->types)
+                        ->filter(fn ($type) => $type !== 'political')
+                        ->first();
 
-                    $the_type = match ($types->first()) {
+                    $the_type = match ($type) {
                         'locality'                    => 'city',
                         'administrative_area_level_1' => 'state',
                         'postal_code'                 => 'zipcode',
-                        default                       => '',
+                        default                       => $type,
                     };
 
                     return [$the_type => $array->long_name];
                 })
-                ->filter();
+                ->filter()
+            ;
 
             $subpremise    = $address->pull('subpremise');
             $street_number = $address->pull('street_number');

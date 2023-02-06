@@ -5,7 +5,7 @@ Tags:
 Requires at least: 6.0
 Tested up to: 6.1.1
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,12 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 == Description ==
 
 == Changelog ==
+
+= 1.2.1 =
+
+Fixed an issue with the Locations not importing the street or other address fields due to the match mapping
+
+Added in a new way to fetch missing Location data if any of the fields are empty, even if the location is already imported
 
 = 1.2.0 =
 

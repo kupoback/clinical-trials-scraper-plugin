@@ -195,11 +195,32 @@ trait MSLocationTrait
                         : "All";
                 }
 
-                if ($data_grabbed->isEmpty()) {
+                // Grab all the necessary fields, and check if any of them
+                // are missing from the data entry of an existing post
+                // so that we can refresh that data
+                $all_fields = collect(
+                    [
+                        'facility',
+                        'street',
+                        'city',
+                        'zipcode',
+                        'phone',
+                        'country',
+                        'latitude',
+                        'longitude',
+                    ]
+                )
+                    ->mapWithKeys(fn ($value) => [$value => $value])
+                    ->forget(collect($data_grabbed->first())
+                                 ->keys()
+                                 ->toArray());
+
+                if ($data_grabbed->isEmpty() || $all_fields->isNotEmpty()) {
                     $gm_geocoder_data = $this->getFullLocation(
                         collect(
                             [
                                 $facility,
+                                $location['state'] ?? '',
                                 $location['city'] ?? '',
                                 $location['state'] ?? '',
                                 $location['zip'] ?? ($location['zipcode'] ?? ''),
