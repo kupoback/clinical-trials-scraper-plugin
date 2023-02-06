@@ -185,6 +185,7 @@ if (!wp_next_scheduled('ms_govt_scrape_cron')) {
     // Grab the next day, and set it up
     wp_schedule_event(
         $now
+            // ->next(CarbonInterface::THURSDAY)
             ->next(CarbonInterface::THURSDAY)
             ->timestamp,
         'thursdays',

@@ -206,8 +206,6 @@ trait MSLocationTrait
                         'zipcode',
                         'phone',
                         'country',
-                        'latitude',
-                        'longitude',
                     ]
                 )
                     ->mapWithKeys(fn ($value) => [$value => $value])
