@@ -480,7 +480,12 @@ class MSApiScraper
                 ->apiLog
                 ->info("Imported {$studies_imported->count()} Studies", $studies_imported->toArray());
 
-            if (!$this->manualApiCall) {
+            // Stop emails being sent out from local envs
+            $home_url = class_exists('SitePress')
+                ? apply_filters('wpml_home_url', get_home_url())
+                : get_home_url();
+
+            if (!$this->manualApiCall || !Str::contains($home_url, ['test', '.dev', '.app', 'localhost'])) {
                 self::emailSetup($studies_imported, $num_not_imported);
             }
         }

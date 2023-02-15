@@ -27,10 +27,11 @@
 		"optimize-autoloader": true,
 		"preferred-install": "dist",
 		"allow-plugins": {
-			"composer/installers": true,
-			"roots/wordpress-core-installer": true,
-			"kylekatarnls/update-helper": true
-		}
+            "composer/installers": true,
+            "roots/wordpress-core-installer": true,
+            "kylekatarnls/update-helper": true,
+            "php-http/discovery": true
+        }
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,

@@ -34,6 +34,20 @@ trait MSApiField
             $study_protocol = collect();
 
             if ($other_ids->isNotEmpty()) {
+                $eudract_number = $other_ids
+                    ->filter(fn ($second_id) => ($second_id->SecondaryIdType ?? false)
+                                                && $second_id->SecondaryIdType === 'EudraCT Number')
+                    ->values();
+
+                if ($eudract_number->isNotEmpty()) {
+                    $eudract_number = $eudract_number
+                        ->map(fn ($id) => $id->SecondaryId ?? false)
+                        ->filter()
+                        ->first();
+                } else {
+                    $eudract_number = '';
+                }
+
                 $other_ids = $other_ids
                     ->map(fn ($second_id) => $second_id->SecondaryId ?? '')
                     ->filter();
@@ -84,8 +98,8 @@ trait MSApiField
                 [
                     'post_title'     => $title,
                     'brief_title'    => $id_module->BriefTitle ?? '',
+                    'eudract_number' => $eudract_number ?? '',
                     'nct_id'         => $id_module->NCTId ?? '',
-                    'url'            => $base_url . $id_module->NCTId,
                     'official_title' => $id_module->OfficialTitle ?? '',
                     'other_ids'      => $other_ids,
                     'study_keyword'  => $id_module
@@ -93,6 +107,7 @@ trait MSApiField
                                             ->OrgStudyId ?? '',
                     'study_protocol' => $study_protocol
                         ->first(),
+                    'url'            => $base_url . $id_module->NCTId,
                 ],
             );
         } catch (Exception $exception) {
