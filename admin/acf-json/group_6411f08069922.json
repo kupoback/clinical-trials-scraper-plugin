@@ -1,0 +1,46 @@
+{
+    "key": "group_6411f08069922",
+    "title": "Override Content",
+    "fields": [
+        {
+            "key": "field_6411f0809beb1",
+            "label": "Override Content",
+            "name": "override_content",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Determines whether or not to override the WYSIWYG content with the latest description from CT.gov",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "wpml_cf_preferences": 3,
+            "message": "",
+            "default_value": 1,
+            "ui_on_text": "Override",
+            "ui_off_text": "Do Not Override",
+            "ui": 1
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "trials"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "side",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1678898532
+}

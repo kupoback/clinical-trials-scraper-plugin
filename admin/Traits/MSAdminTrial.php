@@ -152,7 +152,7 @@ trait MSAdminTrial
             $do_not_import = true;
             $post_args->put('post_status', 'trash');
         }
-        
+
         if ($post_id === 0) {
             // Don't import the post and dump out of the loop for this item
             if ($do_not_import) {
@@ -183,7 +183,14 @@ trait MSAdminTrial
                 ->put('ID', $post_id);
             // Do not override the title, content or name
             $post_args
-                ->forget(['post_title', 'post_content', 'post_name']);
+                ->forget(['post_title', 'post_name']);
+
+            // Based on a field on the trial, determines whether we omit
+            // the post_content from the WYSIWYG so that we can overwrite it
+            if (!get_field('override_content', $post_id)) {
+                $post_args
+                    ->forget(['post_content']);
+            }
 
             /**
              * Check the Post Status set in ACF, and see if the status matches

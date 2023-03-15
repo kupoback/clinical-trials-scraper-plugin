@@ -166,6 +166,7 @@ class MSAdmin
             'group_618e88f57b867', // Trial Ages
             'group_6220de6da8144', // Location Single Post
             'group_63b8738bbcc0e', // Trial Notes
+            'group_6411f08069922', // Trial Content Override
         ];
 
         if (in_array($group['key'], $groups)) {
