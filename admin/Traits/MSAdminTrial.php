@@ -272,7 +272,9 @@ trait MSAdminTrial
                     'lead_sponsor_name'       => $sponsor_module->get('lead_sponsor_name', ''),
                     'gender'                  => $eligible_module->get('gender', ''),
                     'minimum_age'             => $eligible_module->get('minimum_age', ''),
+                    'minimum_age_type'             => $eligible_module->get('minimum_age_type', ''),
                     'maximum_age'             => $eligible_module->get('maximum_age', ''),
+                    'maximum_age_type'             => $eligible_module->get('maximum_age_type', ''),
                     'other_ids'               => $id_module->get('other_ids', ''),
                     // 'interventions' => $arms_module->get('interventions'),
                     'phase'                   => $design_module->get('phase', ''),
@@ -290,7 +292,6 @@ trait MSAdminTrial
                         if ($sub_fields && $sub_fields->isNotEmpty()) {
                             // Retrieve the data based on the parent data_name
                             $arr_data    = $field_data->get($data_name) ?? collect();
-                            $arr_changes = collect();
                             if ($arr_data->isEmpty()) {
                                 return false;
                             }
@@ -392,6 +393,19 @@ trait MSAdminTrial
                 // Reset the Trial Age terms, in case the ages previously imported have changed.
                 wp_delete_object_term_relationships($post_id, 'trial_age');
 
+                /**
+                 * This is left here if the client changes their mind on how they want this to work
+                 */
+                //region Convert To Years
+                // $min_age = self::convertAgeToYears(
+                //     intval($eligible_module->get('minimum_age')),
+                //     $eligible_module->get('minimum_age_type')
+                // );
+                // $max_age = self::convertAgeToYears(
+                //     intval($eligible_module->get('maximum_age')),
+                //     $eligible_module->get('maximum_age_type')
+                // );
+                //endregion
                 $min_age = intval($eligible_module->get('minimum_age'));
                 $max_age = intval($eligible_module->get('maximum_age'));
 

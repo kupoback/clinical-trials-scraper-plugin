@@ -420,19 +420,57 @@ trait MSApiField
         try {
             return collect(
                 [
-                    'gender'      => $eligibility_module->Gender ?? '',
-                    'minimum_age' => intval(
-                        Helper::stripYears(
-                            $eligibility_module->MinimumAge ?? '',
+                    'gender'           => $eligibility_module->Gender ?? '',
+                    // Definitive minimum age
+                    'minimum_age' => self::convertAgeToYears(
+                        intval(
+                            Helper::stripYears(
+                                $eligibility_module->MinimumAge ?? '',
+                            ) ?: 0
+                        ),
+                        self::singularLowerText(
+                            self::filterTrimDigits(
+                                $eligibility_module->MinimumAge ?? 'years'
+                            )
                         )
-                            ?: 0 // Definitive minimum age
                     ),
-                    'maximum_age' => intval(
-                        Helper::stripYears(
-                            $eligibility_module->MaximumAge ?? '',
+                    // Definitive minimum age
+                    'maximum_age' => self::convertAgeToYears(
+                        intval(
+                            Helper::stripYears(
+                                $eligibility_module->MaximumAge ?? '',
+                            ) ?: 0
+                        ),
+                        self::singularLowerText(
+                            self::filterTrimDigits(
+                                $eligibility_module->MaximumAge ?? 'years'
+                            )
                         )
-                            ?: 999 // Definitive maximum age
                     ),
+                    //region Future Possible updates
+                    // Old method, use if using minimum_age_type
+                    // 'minimum_age'      => intval(
+                    //     Helper::stripYears(
+                    //         $eligibility_module->MinimumAge ?? '',
+                    //     )
+                    //         ?: 0,
+                    // ),
+                    // Uncomment and use backup_group_60fae8b82087d
+                    // 'minimum_age_type' => self::singularLowerText(
+                    //     self::filterTrimDigits($eligibility_module->MinimumAge) ?? 'years',
+                    // ),
+                    // Old method, use if using maximum_age_type
+                    // 'maximum_age'      => intval(
+                    //     Helper::stripYears(
+                    //         $eligibility_module->MaximumAge ?? '',
+                    //     )
+                    //         ?: 999,
+                    // ),
+                    // Uncomment and use backup_group_60fae8b82087d
+                    // 'maximum_age_type' => self::singularLowerText(
+                    //     self::filterTrimDigits($eligibility_module->MaximumAge) ?? 'years',
+                    // ),
+                    //endregion
                 ],
             );
         } catch (Exception $exception) {
@@ -450,6 +488,7 @@ trait MSApiField
      *
      * @param  null|object  $location_module  The location array data grabbed
      * @param  null|object  $trial_status     The status of the trial
+     * @param  null|object  $id_module        The id module object
      *
      * @return Collection
      */
@@ -468,6 +507,7 @@ trait MSApiField
 
             if ($locations->isNotEmpty()) {
                 $trial_status = $trial_status->OverallStatus ?? '';
+
                 return $locations
                     ->map(function ($location) use ($allowed_status, $trial_status) {
                         $location_status = $location->LocationStatus ?? '';
@@ -596,6 +636,7 @@ trait MSApiField
 
             if ($locations->isNotEmpty()) {
                 $trial_status = $trial_status->OverallStatus ?? '';
+
                 return $locations
                     ->map(function ($location) use ($allowed_status, $trial_status) {
                         $location_status      = $location->LocationStatus ?? '';
@@ -631,6 +672,7 @@ trait MSApiField
                 'location module',
                 $exception->getMessage(),
             );
+
             return false;
         }
     }
@@ -686,6 +728,53 @@ trait MSApiField
     }
 
     /**
+     * Filters and trims out the digits of a text string
+     *
+     * @param  string  $text
+     *
+     * @return string
+     */
+    protected function filterTrimDigits(string $text)
+    :string
+    {
+        return trim(preg_replace('/[[:digit:]]/', '', $text));
+    }
+
+    /**
+     * Returns a singular and lower-cased text string
+     *
+     * @param  string  $text
+     *
+     * @return string
+     */
+    protected function singularLowerText(string $text)
+    :string
+    {
+        return Str::singular(
+            Str::lower($text),
+        );
+    }
+
+    /**
+     * Need to set the age to 0 if the age type is month or day
+     * as it is under a year
+     *
+     * @param  int     $age   The age int
+     * @param  string  $type  The age type
+     *
+     * @return int
+     */
+    protected function convertAgeToYears(int $age, string $type)
+    :int
+    {
+        if ($type === 'day' || $type === 'month') {
+            return 0;
+        }
+
+        return $age;
+    }
+
+    /**
      * Easier method to combine acf data updates
      *
      * @param  string      $field_name  The ACF field name
@@ -732,8 +821,8 @@ trait MSApiField
                 if ($keyword) {
                     return ucwords(
                         trim(
-                            rtrim($this->filterParenthesis($keyword), ',')
-                        )
+                            rtrim($this->filterParenthesis($keyword), ','),
+                        ),
                     );
                 }
 

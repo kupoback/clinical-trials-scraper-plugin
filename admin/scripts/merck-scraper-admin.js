@@ -1,5 +1,9 @@
 document.addEventListener("DOMContentLoaded", (event) => {
-    
+
+    /**
+     * Add disabled/read-only attributes to the HTML
+     * @param {HTMLElement} elm
+     */
     const disableElmAtts = elm => {
         // elm.disabled = true;
         elm.readOnly = true;
@@ -7,7 +11,18 @@ document.addEventListener("DOMContentLoaded", (event) => {
         // elm.ariaDisabled = true;
         elm.ariaReadOnly = true;
     };
-    
+
+    /**
+     * Disable dropdown elements
+     * @param {HTMLElement} elm
+     */
+    const disableDropdown = elm => {
+        disableElmAtts(elm)
+        elm.onClick = false;
+        elm.onKeyDown = false
+        elm.style.pointerEvents = 'none';
+    }
+
     const disableElms = apiDataElms => {
         if (apiDataElms.length) {
             // Map through them
@@ -27,14 +42,27 @@ document.addEventListener("DOMContentLoaded", (event) => {
                         disableElmAtts(elm);
                     });
                 }
+
+                /**
+                 * Iterate through textarea fields
+                 */
                 const elmTextArea = elm.querySelectorAll('textarea[id*="acf-field"]');
                 if (elmTextArea.length) {
                     [...elmTextArea].map(elm => disableElmAtts(elm));
                 }
+
+                /**
+                 * Iterate through select elements
+                 */
+                const elmSelect = elm.querySelectorAll('select[id*="acf-field"]');
+                console.log(elmSelect)
+                if (elmSelect.length) {
+                    [...elmSelect].map(elm => disableDropdown(elm));
+                }
             });
         }
     }
-    
+
     // Check if ACF is defined
     if (typeof acf !== undefined) {
         const apiDataElms = document.querySelectorAll('[data-name^="api_data_"]');

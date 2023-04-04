@@ -254,7 +254,7 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-third",
+                "class": "one-fifth",
                 "id": ""
             },
             "wpml_cf_preferences": 3,
@@ -275,7 +275,7 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-third",
+                "class": "one-fifth",
                 "id": ""
             },
             "wpml_cf_preferences": 3,
@@ -288,6 +288,34 @@
             "append": ""
         },
         {
+            "key": "field_642c3d0f384d7",
+            "label": "Minimum Age Type",
+            "name": "api_data_minimum_age_type",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "one-fifth",
+                "id": ""
+            },
+            "wpml_cf_preferences": 3,
+            "choices": {
+                "year": "Years",
+                "month": "Months",
+                "day": "Days"
+            },
+            "default_value": false,
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": ""
+        },
+        {
             "key": "field_611a91258b075",
             "label": "Maximum Age",
             "name": "api_data_maximum_age",
@@ -298,7 +326,7 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-third",
+                "class": "one-fifth",
                 "id": ""
             },
             "wpml_cf_preferences": 3,
@@ -309,6 +337,34 @@
             "step": "",
             "prepend": "",
             "append": ""
+        },
+        {
+            "key": "field_642c3cbc384d6",
+            "label": "Maximum Age Type",
+            "name": "api_data_maximum_age_type",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "one-fifth",
+                "id": ""
+            },
+            "wpml_cf_preferences": 3,
+            "choices": {
+                "year": "Years",
+                "month": "Months",
+                "day": "Days"
+            },
+            "default_value": false,
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": ""
         },
         {
             "key": "field_611a919d8b080",
@@ -586,5 +642,5 @@
     "active": true,
     "description": "Default Fields that are mapped and imported from the Merck Scraper",
     "show_in_rest": 0,
-    "modified": 1680625037
+    "modified": 1680625137
 }

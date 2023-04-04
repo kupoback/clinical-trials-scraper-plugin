@@ -5,7 +5,7 @@ Tags:
 Requires at least: 6.0
 Tested up to: 6.1.1
 Requires PHP: 7.4
-Stable tag: 1.4
+Stable tag: 1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,21 +15,25 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 
 == Changelog ==
 
+= 1.5 =
+
+* Updated the logic for calculating the minimum and maximum age range so that they display correctly in years as 0 if they are set as such in their string text
+
 = 1.4 =
 
-Added field for allowing to override or not the CT.gov WYSIWYG content
+* Added field for allowing to override or not the CT.gov WYSIWYG content
 
 = 1.3 =
 
-Added new field for Eudract Number from the SecondaryInfo fields
+* Added new field for Eudract Number from the SecondaryInfo fields
 
-Added mapping to capture the Eudract Number during the API call
+* Added mapping to capture the Eudract Number during the API call
 
 = 1.2.1 =
 
-Fixed an issue with the Locations not importing the street or other address fields due to the match mapping
+* Fixed an issue with the Locations not importing the street or other address fields due to the match mapping
 
-Added in a new way to fetch missing Location data if any of the fields are empty, even if the location is already imported
+* Added in a new way to fetch missing Location data if any of the fields are empty, even if the location is already imported
 
 = 1.2.0 =
 
