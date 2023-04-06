@@ -3,7 +3,7 @@
         'name' => 'clique/merck-scraper',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '4173c96a4330dced74c581933f82df7b0a1f3bbf',
+        'reference' => '9f186d90a5fc751a9dc9d95178a09d9379147a4e',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -31,7 +31,7 @@
         'clique/merck-scraper' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '4173c96a4330dced74c581933f82df7b0a1f3bbf',
+            'reference' => '9f186d90a5fc751a9dc9d95178a09d9379147a4e',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -208,15 +208,15 @@
         'php-http/async-client-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '1.0',
-                1 => '*',
+                0 => '*',
+                1 => '1.0',
             ),
         ),
         'php-http/client-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '1.0',
-                1 => '*',
+                0 => '*',
+                1 => '1.0',
             ),
         ),
         'php-http/discovery' => array(
