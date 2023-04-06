@@ -439,7 +439,7 @@ trait MSApiField
                         intval(
                             Helper::stripYears(
                                 $eligibility_module->MaximumAge ?? '',
-                            ) ?: 0
+                            ) ?: 999
                         ),
                         self::singularLowerText(
                             self::filterTrimDigits(
