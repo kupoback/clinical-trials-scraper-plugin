@@ -259,10 +259,18 @@ class MSAdmin
             );
         }
 
+        $trial_notes = get_field('trial_notes', $post_id);
+
+        if (is_array($trial_notes)) {
+            $trial_notes = collect($trial_notes)
+                ->filter()
+                ->implode('');
+        }
+
         if ($column_key === 'notes') {
             printf(
                 '<span>%s</span>',
-                get_field('trial_notes', $post_id) ?: 'No notes created yet',
+                $trial_notes ?: 'No notes created yet',
             );
         }
     }

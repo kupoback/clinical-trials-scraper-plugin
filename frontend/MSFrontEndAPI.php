@@ -79,6 +79,19 @@ class MSFrontEndAPI
             WP_REST_Server::READABLE,
             [$this, 'getTrials'],
         );
+
+        $this->registerRoute(
+            'fix-trial-notes',
+            WP_REST_Server::READABLE,
+            [$this, 'fixTrialNotes'],
+            '',
+            [
+                'lang' => [
+                    'required' => true,
+                    'validate_callback' => [$this, 'sanitizeText']
+                ]
+            ]
+        );
     }
 
     /**
@@ -161,10 +174,81 @@ class MSFrontEndAPI
                                 ];
                             }),
                     )
-                    ->toArray());
+                    ->toArray()
+            );
         }
 
         return rest_ensure_response(['count' => 0, 'trials' => []]);
+    }
+
+    /**
+     * An API response to fix the trial notes for each language
+     *
+     * @param  WP_REST_Request  $request
+     *
+     * @return WP_Error|WP_REST_Response|WP_HTTP_Response
+     */
+    public function fixTrialNotes(WP_REST_Request $request)
+    :WP_Error|WP_REST_Response|WP_HTTP_Response
+    {
+        $language_code = $request->get_param('lang');
+        $default_language = ICL_LANGUAGE_CODE;
+        if ($language_code !== 'en') {
+            global $sitepress;
+            $sitepress->switch_lang($language_code);
+        }
+
+        $trials = new WP_Query(
+            [
+                'post_type' => 'trials',
+                'posts_per_page' => -1,
+                'suppress_filters' => false,
+                'fields' => 'ids',
+            ]
+        );
+
+        if (!is_wp_error($trials) && $trials->found_posts > 0) {
+            $trials_fixed = collect();
+            $trials_err = collect();
+
+            collect($trials->posts)
+                ->map(function ($trial) use ($trials_err, $trials_fixed) {
+                    $trial_notes = get_field('trial_notes', $trial);
+
+                    if (!$trial_notes) {
+                        return false;
+                    }
+
+                    if (is_array($trial_notes)) {
+                        $updated_field = update_field(
+                            'trial_notes',
+                            collect($trial_notes)
+                                ->filter()
+                                ->implode(''),
+                            $trial
+                        );
+                        if ($updated_field) {
+                            $trials_fixed->push($trial);
+                        } else {
+                            $trials_err->push($trial);
+                        }
+                    } else {
+                        $trials_fixed->push($trial);
+                    }
+                });
+
+            return rest_ensure_response(
+                [
+                    'err' => false,
+                    'trials_fixed' => $trials_fixed
+                        ->toArray(),
+                    'trials_err' => $trials_err
+                        ->toArray(),
+                ]
+            );
+        }
+
+        return rest_ensure_response(['err' => true, 'msg' => __("No trials found for language", 'merck-scraper')]);
     }
 
     /**
@@ -177,5 +261,20 @@ class MSFrontEndAPI
     {
         $this->taxName  = $this->acfOptionField('category_type') ?: 'conditions';
         $this->gmApiKey = $this->acfOptionField('google_maps_server_side_api_key');
+    }
+
+    /**
+     * @param $value
+     *
+     * @return mixed|WP_Error
+     */
+    public function sanitizeText($value)
+    :mixed
+    {
+        if (!is_string($value)) {
+            return new WP_Error('rest_invalid_param', esc_html__('Must be a string.', 'focus-project-theme'), ['status' => 400]);
+        }
+
+        return filter_var($value, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
     }
 }
