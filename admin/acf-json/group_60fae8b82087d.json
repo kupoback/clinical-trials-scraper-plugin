@@ -93,7 +93,7 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-fifth",
+                "class": "one-third",
                 "id": ""
             },
             "wpml_cf_preferences": 3,
@@ -114,7 +114,7 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-fifth",
+                "class": "one-third",
                 "id": ""
             },
             "wpml_cf_preferences": 3,
@@ -135,7 +135,7 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-fifth",
+                "class": "one-third",
                 "id": ""
             },
             "wpml_cf_preferences": 3,
@@ -156,7 +156,7 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-fifth",
+                "class": "one-third",
                 "id": ""
             },
             "wpml_cf_preferences": 3,
@@ -177,7 +177,28 @@
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
-                "class": "one-fifth",
+                "class": "one-third",
+                "id": ""
+            },
+            "wpml_cf_preferences": 3,
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_6441467e029b2",
+            "label": "Merck Protocol ID",
+            "name": "api_data_mk_id",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "one-third",
                 "id": ""
             },
             "wpml_cf_preferences": 3,
@@ -586,5 +607,5 @@
     "active": true,
     "description": "Default Fields that are mapped and imported from the Merck Scraper",
     "show_in_rest": 0,
-    "modified": 1680625037
+    "modified": 1681999576
 }

@@ -36,7 +36,7 @@ trait MSApiField
             if ($other_ids->isNotEmpty()) {
                 $eudract_number = $other_ids
                     ->filter(fn ($second_id) => ($second_id->SecondaryIdType ?? false)
-                                                && $second_id->SecondaryIdType === 'EudraCT Number')
+                                                && Str::contains($second_id->SecondaryIdType, 'EudraCT'))
                     ->values();
 
                 if ($eudract_number->isNotEmpty()) {
@@ -47,6 +47,21 @@ trait MSApiField
                 } else {
                     $eudract_number = '';
                 }
+
+                $merck_protocol_id = $other_ids
+                    ->filter(fn ($second_id) => ($second_id->SecondaryIdDomain ?? false)
+                                                && Str::contains($second_id->SecondaryIdDomain, "Merck"))
+                    ->values();
+
+                if ($merck_protocol_id->isNotEmpty()) {
+                    $merck_protocol_id = $merck_protocol_id
+                        ->map(fn ($id) => $id->SecondaryId ?? false)
+                        ->filter(fn ($id) => Str::contains($id, "MK-"))
+                        ->first();
+                } else {
+                    $merck_protocol_id = '';
+                }
+
 
                 $other_ids = $other_ids
                     ->map(fn ($second_id) => $second_id->SecondaryId ?? '')
@@ -99,6 +114,7 @@ trait MSApiField
                     'post_title'     => $title,
                     'brief_title'    => $id_module->BriefTitle ?? '',
                     'eudract_number' => $eudract_number ?? '',
+                    'mk_id'          => $merck_protocol_id ?? '',
                     'nct_id'         => $id_module->NCTId ?? '',
                     'official_title' => $id_module->OfficialTitle ?? '',
                     'other_ids'      => $other_ids,

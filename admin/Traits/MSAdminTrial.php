@@ -263,6 +263,7 @@ trait MSAdminTrial
                     'brief_title'             => $id_module->get('brief_title', ''),
                     'official_title'          => $id_module->get('official_title', ''),
                     'eudract_number'          => $id_module->get('eudract_number', ''),
+                    'mk_id'                   => $id_module->get('mk_id', ''),
                     'trial_purpose'           => $desc_module->get('trial_purpose', ''),
                     'study_keyword'           => $id_module->get('study_keyword', ''),
                     'study_protocol'          => $id_module->get('study_protocol', ''),

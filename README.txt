@@ -5,7 +5,7 @@ Tags:
 Requires at least: 6.0
 Tested up to: 6.1.1
 Requires PHP: 7.4
-Stable tag: 1.5.2
+Stable tag: 1.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,18 @@ This plugin is used to scrape data from clinicaltrials.gov website with WPML int
 == Description ==
 
 == Changelog ==
+
+= 1.6 =
+
+Added new field for capturing the Merck Protocol Number from the ID Module
+
+Added mapping in the MSApiField for fetching the value and returning it
+
+Added mapping to save that value to the db as `api_data_mk_id`
+
+Updated all `composer` dependencies
+
+Updated all `npm` packages
 
 = 1.5.2 =
 
