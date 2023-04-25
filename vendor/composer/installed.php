@@ -3,7 +3,7 @@
         'name' => 'clique/merck-scraper',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '3c0be4bb52507af46369a037c659e2a59b3d4312',
+        'reference' => '4441b0db099ea98e581dc8b34061562a7e8e0426',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -31,7 +31,7 @@
         'clique/merck-scraper' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '3c0be4bb52507af46369a037c659e2a59b3d4312',
+            'reference' => '4441b0db099ea98e581dc8b34061562a7e8e0426',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -309,8 +309,8 @@
         'psr/http-client-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '*',
             ),
         ),
         'psr/http-factory' => array(
@@ -325,8 +325,8 @@
         'psr/http-factory-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '*',
             ),
         ),
         'psr/http-message' => array(
@@ -341,8 +341,8 @@
         'psr/http-message-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '*',
             ),
         ),
         'psr/log' => array(
