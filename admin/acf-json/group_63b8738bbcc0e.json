@@ -42,5 +42,7 @@
     "active": true,
     "description": "This creates a side section for the client to enter notes for a trial",
     "show_in_rest": 0,
-    "modified": 1673032764
+    "modified": 1682446870,
+    "local_file": "\/Users\/mak\/Sites\/merck-scraper\/web\/app\/plugins\/merck-scraper-wpml\/Admin\/acf-json\/group_63b8738bbcc0e.json",
+    "acfml_field_group_mode": "advanced"
 }

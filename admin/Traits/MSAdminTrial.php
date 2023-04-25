@@ -52,6 +52,8 @@ trait MSAdminTrial
                     );
 
                     if ($study_import->get('locations', false)) {
+                        error_log(print_r($study_import->get('locations'), true));
+
                         $location_ids = $this->locationsImport(
                             $study_import->get('locations'),
                             $study_import->get('NCT_ID'),

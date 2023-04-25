@@ -607,5 +607,7 @@
     "active": true,
     "description": "Default Fields that are mapped and imported from the Merck Scraper",
     "show_in_rest": 0,
-    "modified": 1681999576
+    "modified": 1682446874,
+    "local_file": "\/Users\/mak\/Sites\/merck-scraper\/web\/app\/plugins\/merck-scraper-wpml\/Admin\/acf-json\/group_60fae8b82087d.json",
+    "acfml_field_group_mode": "advanced"
 }

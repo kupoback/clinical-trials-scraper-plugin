@@ -3,7 +3,7 @@
         'name' => 'clique/merck-scraper',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '4441b0db099ea98e581dc8b34061562a7e8e0426',
+        'reference' => 'fcc91466e63adbf33e72b7f1100a681ef02a36e0',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -31,7 +31,7 @@
         'clique/merck-scraper' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '4441b0db099ea98e581dc8b34061562a7e8e0426',
+            'reference' => 'fcc91466e63adbf33e72b7f1100a681ef02a36e0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -381,7 +381,7 @@
         'roave/security-advisories' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '685cc175e08d0e370787bc511a186de6220ae3cf',
+            'reference' => 'd2832e4594571d458e36fb4622220915a3c3a8f4',
             'type' => 'metapackage',
             'install_path' => NULL,
             'aliases' => array(),

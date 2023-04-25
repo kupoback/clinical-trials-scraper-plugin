@@ -6,6 +6,7 @@
             "key": "field_618e88fe820ab",
             "label": "Age Range",
             "name": "age_range",
+            "aria-label": "",
             "type": "group",
             "instructions": "Enter in an age range for the taxonomy term.<br \/>\r\nIf the age is for birth, set it to 0 or leave it empty.<br \/>\r\nIf the age range is for maximum allowed, then set it to 999, or leave it empty.",
             "required": 0,
@@ -22,6 +23,7 @@
                     "key": "field_618e8904820ac",
                     "label": "Minimum Age",
                     "name": "minimum_age",
+                    "aria-label": "",
                     "type": "number",
                     "instructions": "",
                     "required": 0,
@@ -44,6 +46,7 @@
                     "key": "field_618e8912820ad",
                     "label": "Maximum Age",
                     "name": "maximum_age",
+                    "aria-label": "",
                     "type": "number",
                     "instructions": "",
                     "required": 0,
@@ -83,5 +86,7 @@
     "active": true,
     "description": "Sets up the age range needed for the Ages Taxonomy.",
     "show_in_rest": 0,
-    "modified": 1639669498
+    "modified": 1682446873,
+    "local_file": "\/Users\/mak\/Sites\/merck-scraper\/web\/app\/plugins\/merck-scraper-wpml\/Admin\/acf-json\/group_618e88f57b867.json",
+    "acfml_field_group_mode": "advanced"
 }

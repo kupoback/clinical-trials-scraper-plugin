@@ -852,5 +852,7 @@
     "active": true,
     "description": "Option Settings for the Merck Scraper Plugin. Do not translate anything in here, as these are used for the API import only.",
     "show_in_rest": 0,
-    "modified": 1674656839
+    "modified": 1682446871,
+    "local_file": "\/Users\/mak\/Sites\/merck-scraper\/web\/app\/plugins\/merck-scraper-wpml\/Admin\/acf-json\/group_60fed83c786ed.json",
+    "acfml_field_group_mode": "advanced"
 }

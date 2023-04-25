@@ -42,5 +42,7 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1678898532
+    "modified": 1682446873,
+    "local_file": "\/Users\/mak\/Sites\/merck-scraper\/web\/app\/plugins\/merck-scraper-wpml\/Admin\/acf-json\/group_6411f08069922.json",
+    "acfml_field_group_mode": "advanced"
 }

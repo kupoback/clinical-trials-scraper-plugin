@@ -75,6 +75,7 @@ define("MERCK_SCRAPER_API_CHANGES_DIR", WP_CONTENT_DIR . "/uploads/ms-api-change
  */
 register_activation_hook(__FILE__, function () {
     MSActivator::activate();
+    ms_register_cron_jobs();
 });
 
 /**
@@ -176,35 +177,38 @@ add_action('ms_govt_scrape_cron', function () {
     }
 });
 
-$now = Carbon::now('America/New_York');
+function ms_register_cron_jobs()
+:void
+{
+    $now = Carbon::now('America/New_York');
 
-/**
- * If the cron job isn't scheduled to run, we'll set it up to run
- */
-if (!wp_next_scheduled('ms_govt_scrape_cron')) {
-    // Grab the next day, and set it up
-    wp_schedule_event(
-        $now
-            // ->next(CarbonInterface::FRIDAY)
-            ->next(CarbonInterface::FRIDAY)
-            ->timestamp,
-        'fridays',
-        'ms_govt_scrape_cron',
-    );
-}
+    /**
+     * If the cron job isn't scheduled to run, we'll set it up to run
+     */
+    if (! wp_next_scheduled('ms_govt_scrape_cron')) {
+        // Grab the next day, and set it up
+        wp_schedule_event(
+            $now
+                ->next(CarbonInterface::FRIDAY)
+                ->timestamp,
+            'ms_fridays',
+            'ms_govt_scrape_cron',
+        );
+    }
 
-/**
- * Cron job for deleting logs from two months ago, every 2 months
- */
-if (!wp_next_scheduled('ms_scrape_log_cleanup')) {
-    wp_schedule_event(
-        $now
-            ->addMonths(2)
-            ->startOfMonth()
-            ->timestamp,
-        'two_months',
-        'ms_scrape_log_cleanup',
-    );
+    /**
+     * Cron job for deleting logs from two months ago, every 2 months
+     */
+    if (! wp_next_scheduled('ms_scrape_log_cleanup')) {
+        wp_schedule_event(
+            $now
+                ->addMonths(2)
+                ->startOfMonth()
+                ->timestamp,
+            'ms_two_months',
+            'ms_scrape_log_cleanup',
+        );
+    }
 }
 
 /**

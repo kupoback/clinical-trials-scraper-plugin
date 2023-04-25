@@ -200,14 +200,14 @@ class MSAdmin
     {
         return collect($schedules)
             ->put(
-                'thursdays',
+                'ms_fridays',
                 [
                     'interval' => 604800,
-                    'display'  => __("Thursday Once Weekly", 'merck-scraper'),
+                    'display'  => __("Fridays Once Weekly", 'merck-scraper'),
                 ]
             )
             ->put(
-                'two_months',
+                'ms_two_months',
                 [
                     'interval' => 5260000,
                     'display' => __('Every 2 months', 'merck-scraper'),
