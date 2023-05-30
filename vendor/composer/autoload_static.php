@@ -9,7 +9,6 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
-        'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
@@ -181,8 +180,8 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         ),
         'Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/php-http/message/src',
-            1 => __DIR__ . '/..' . '/php-http/message-factory/src',
+            0 => __DIR__ . '/..' . '/php-http/message-factory/src',
+            1 => __DIR__ . '/..' . '/php-http/message/src',
         ),
         'Http\\Discovery\\' => 
         array (
@@ -656,7 +655,6 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         'Http\\Client\\Promise\\HttpFulfilledPromise' => __DIR__ . '/..' . '/php-http/httplug/src/Promise/HttpFulfilledPromise.php',
         'Http\\Client\\Promise\\HttpRejectedPromise' => __DIR__ . '/..' . '/php-http/httplug/src/Promise/HttpRejectedPromise.php',
         'Http\\Discovery\\ClassDiscovery' => __DIR__ . '/..' . '/php-http/discovery/src/ClassDiscovery.php',
-        'Http\\Discovery\\Composer\\Plugin' => __DIR__ . '/..' . '/php-http/discovery/src/Composer/Plugin.php',
         'Http\\Discovery\\Exception' => __DIR__ . '/..' . '/php-http/discovery/src/Exception.php',
         'Http\\Discovery\\Exception\\ClassInstantiationFailedException' => __DIR__ . '/..' . '/php-http/discovery/src/Exception/ClassInstantiationFailedException.php',
         'Http\\Discovery\\Exception\\DiscoveryFailedException' => __DIR__ . '/..' . '/php-http/discovery/src/Exception/DiscoveryFailedException.php',
@@ -670,6 +668,7 @@ class ComposerStaticInit0acb5048e9a3947e7ea59732f7ea19bd
         'Http\\Discovery\\NotFoundException' => __DIR__ . '/..' . '/php-http/discovery/src/NotFoundException.php',
         'Http\\Discovery\\Psr17Factory' => __DIR__ . '/..' . '/php-http/discovery/src/Psr17Factory.php',
         'Http\\Discovery\\Psr17FactoryDiscovery' => __DIR__ . '/..' . '/php-http/discovery/src/Psr17FactoryDiscovery.php',
+        'Http\\Discovery\\Psr18Client' => __DIR__ . '/..' . '/php-http/discovery/src/Psr18Client.php',
         'Http\\Discovery\\Psr18ClientDiscovery' => __DIR__ . '/..' . '/php-http/discovery/src/Psr18ClientDiscovery.php',
         'Http\\Discovery\\Strategy\\CommonClassesStrategy' => __DIR__ . '/..' . '/php-http/discovery/src/Strategy/CommonClassesStrategy.php',
         'Http\\Discovery\\Strategy\\CommonPsr17ClassesStrategy' => __DIR__ . '/..' . '/php-http/discovery/src/Strategy/CommonPsr17ClassesStrategy.php',

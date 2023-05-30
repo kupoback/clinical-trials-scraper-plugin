@@ -52,13 +52,13 @@ trait MSAdminTrial
                     );
 
                     if ($study_import->get('locations', false)) {
-                        error_log(print_r($study_import->get('locations'), true));
-
                         $location_ids = $this->locationsImport(
                             $study_import->get('locations'),
                             $study_import->get('NCT_ID'),
                         );
+
                         $study_import = $study_import->forget('locations');
+
                         // Update the imported trial with the location IDs we just imported
                         update_field('api_data_location_ids', $location_ids->implode(';'), $study_import->get('ID'));
 
