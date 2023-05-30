@@ -19,7 +19,7 @@
 	"license": "ISC",
 	"homepage": "https://bitbucket.org/clique_studios/merck-scraper-plugin#readme",
 	"devDependencies": {
-		"axios": "^0.24",
+		"axios": "^1.0",
 		"bootstrap": "^5.0",
 		"browser-sync": "^2.27",
 		"browser-sync-webpack-plugin": "^2.3",
