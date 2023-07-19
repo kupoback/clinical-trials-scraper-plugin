@@ -116,6 +116,11 @@ class MSApiScraper
     private Collection $disallowedTrialLocations;
 
     /**
+     * @var string The site's environment type
+     */
+    private string $envType = 'production';
+
+    /**
      * @var false|Logger Instantiates the error logger for the API
      */
     private Logger|bool $errorLog;
@@ -223,6 +228,7 @@ class MSApiScraper
     {
         // An array of people who the email notification should be sent out to
         $this->sendTo = collect($email_params);
+        $this->envType = env('WP_ENV') ?? 'production';
     }
 
     /**

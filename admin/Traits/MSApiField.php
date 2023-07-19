@@ -36,8 +36,13 @@ trait MSApiField
             if ($other_ids->isNotEmpty()) {
                 $eudract_number = $other_ids
                     ->filter(fn ($second_id) => ($second_id->SecondaryIdType ?? false)
-                                                && Str::contains($second_id->SecondaryIdType, 'EudraCT'))
+                                                && Str::contains($second_id->SecondaryIdType, [
+                                                    'Eudra',
+                                                    // 'EU CT',
+                            ]))
                     ->values();
+
+                error_log(print_r($eudract_number, true));
 
                 if ($eudract_number->isNotEmpty()) {
                     $eudract_number = $eudract_number
@@ -68,11 +73,11 @@ trait MSApiField
                     ->filter();
             }
 
-            $base_url = $this->acfOptionField('clinical_trials_show_page');
+            $base_url = static::acfOptionField('clinical_trials_show_page');
 
             $title = '';
             if ($id_module->BriefTitle !== null) {
-                $title          = trim($this->filterParenthesis($id_module->BriefTitle));
+                $title          = trim(static::filterParenthesis($id_module->BriefTitle));
                 $study_keywords = self::extractParenthesis($id_module->BriefTitle);
                 if (!empty($study_keywords)) {
                     $study_protocol = collect($study_keywords)
@@ -127,7 +132,7 @@ trait MSApiField
                 ],
             );
         } catch (Exception $exception) {
-            $this->returnException(
+            static::returnException(
                 'id module',
                 $exception->getMessage(),
             );
@@ -165,7 +170,7 @@ trait MSApiField
                 ],
             );
         } catch (Exception $exception) {
-            $this->returnException(
+            static::returnException(
                 'status module',
                 $exception->getMessage(),
             );
@@ -193,7 +198,7 @@ trait MSApiField
                 ],
             );
         } catch (Exception $exception) {
-            $this->returnException(
+            static::returnException(
                 'sponsor module',
                 $exception->getMessage(),
             );
@@ -235,7 +240,7 @@ trait MSApiField
                 ],
             );
         } catch (Exception $exception) {
-            $this->returnException(
+            static::returnException(
                 'description module',
                 $exception->getMessage(),
             );
@@ -264,7 +269,7 @@ trait MSApiField
                 ],
             );
         } catch (Exception $exception) {
-            $this->returnException(
+            static::returnException(
                 'condition module',
                 $exception->getMessage(),
             );
@@ -322,7 +327,7 @@ trait MSApiField
                 ],
             );
         } catch (Exception $exception) {
-            $this->returnException(
+            static::returnException(
                 'design module',
                 $exception->getMessage(),
             );
@@ -368,7 +373,7 @@ trait MSApiField
                 ],
             );
         } catch (Exception $exception) {
-            $this->returnException(
+            static::returnException(
                 'arms/interventions module',
                 $exception->getMessage(),
             );
@@ -414,7 +419,7 @@ trait MSApiField
                 ],
             );
         } catch (Exception $exception) {
-            $this->returnException(
+            static::returnException(
                 'outcome module',
                 $exception->getMessage(),
             );
@@ -490,7 +495,7 @@ trait MSApiField
                 ],
             );
         } catch (Exception $exception) {
-            $this->returnException(
+            static::returnException(
                 'eligibility module',
                 $exception->getMessage(),
             );
@@ -553,14 +558,14 @@ trait MSApiField
 
                         $languages = collect();
                         if ($this->countryMappedLanguages->isNotEmpty()) {
-                            $languages = $this->mapLanguage($country);
+                            $languages = static::mapLanguage($country);
                         }
 
                         if ($in_array && $has_status) {
                             return [
                                 'city'              => $location->LocationCity ?? '',
                                 'country'           => $country,
-                                'facility'          => trim($this->filterParenthesis($location->LocationFacility ?? '')),
+                                'facility'          => trim(static::filterParenthesis($location->LocationFacility ?? '')),
                                 'id'                => Str::camel(sanitize_title($location->LocationFacility ?? '')),
                                 'phone'             => $phone ?? '',
                                 'post_title'        => strtr(
@@ -585,7 +590,7 @@ trait MSApiField
 
             return collect();
         } catch (Exception $exception) {
-            $this->returnException(
+            static::returnException(
                 'location module',
                 $exception->getMessage(),
             );
@@ -607,6 +612,35 @@ trait MSApiField
         return collect(
             [],
         );
+    }
+
+
+    /**
+     * Parses the Derived Section's Condition Browser Module
+     *
+     * @param  object  $condition_module  The Condition Browser Module object
+     *
+     * @return Collection
+     */
+    protected function parseMesh(object $condition_module)
+    :Collection
+    {
+        return collect(
+            [
+                ...collect($condition_module->ConditionMeshList->ConditionMesh ?? [])
+                    ->filter()
+                    ->map(fn ($value) => $value->ConditionMeshTerm ?? '')
+                    ->filter()
+                ->toArray(),
+                ...collect($condition_module->ConditionAncestorList->ConditionAncestor ?? [])
+                    ->filter()
+                    ->map(fn ($value) => $value->ConditionAncestorTerm ?? '')
+                    ->filter()
+                ->toArray(),
+            ]
+        )
+            ->unique()
+            ->filter();
     }
 
     /**
@@ -684,7 +718,7 @@ trait MSApiField
 
             return false;
         } catch (Exception $exception) {
-            $this->returnException(
+            static::returnException(
                 'location module',
                 $exception->getMessage(),
             );
@@ -837,7 +871,7 @@ trait MSApiField
                 if ($keyword) {
                     return ucwords(
                         trim(
-                            rtrim($this->filterParenthesis($keyword), ','),
+                            rtrim(static::filterParenthesis($keyword), ','),
                         ),
                     );
                 }

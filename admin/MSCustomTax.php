@@ -27,45 +27,70 @@ class MSCustomTax
     public function registerTaxonomy()
     :void
     {
+        /**
+         * Register Trials Taxonomies
+         */
         self::loopTaxonomy(
             collect(
                 [
                     // Trial Category Taxonomy
-                    'trial_ta' => self::taxonomyArray("Therapeutic Area", "Therapeutic Area", 'trial-ta'),
+                    'trial_ta' => static::taxonomyArray("Therapeutic Area", 'trial-ta'),
                     // Study Keyword Taxonomy
-                    'study_keyword' => self::taxonomyArray("Study Keyword", "Study Keywords", 'study-keyword'),
+                    'study_keyword' => static::taxonomyArray("Study Keyword", 'study-keyword'),
                     // Trial Studies Taxonomy
-                    'conditions' => self::taxonomyArray("Condition", "Conditions", 'condition'),
+                    'conditions' => static::taxonomyArray("Condition", 'condition'),
                     // Trial Status Taxonomy
-                    'trial_status' => self::taxonomyArray("Trial Status", "Trial Status", 'trial-status'),
+                    'trial_status' => static::taxonomyArray("Trial Status", 'trial-status'),
                     // Trial Drugs Taxonomy
-                    'trial_drugs' => self::taxonomyArray("Trial Drug", "Trial Drugs", 'trial-drugs', false),
+                    'trial_drugs' => static::taxonomyArray("Trial Drug", 'trial-drugs', false),
                     // Trial Age Taxonomy
-                    'trial_age' => self::taxonomyArray("Trial Age", "Trial Ages", 'trial-age'),
+                    'trial_age' => static::taxonomyArray("Trial Age", 'trial-age'),
                     // Trial Umbrella Protocols
-                    'trial_umbrella' => self::taxonomyArray("Umbrella Protocol", "Umbrella Protocols", 'trial-umbrella'),
+                    'trial_umbrella' => static::taxonomyArray("Umbrella Protocol", 'trial-umbrella'),
                 ]
             ),
             ["trials"]
         );
 
+        /**
+         * Register Locations Taxonomies
+         */
         self::loopTaxonomy(
             collect(
                 [
                     // Location NCTID Taxonomy
-                    'location_nctid' => self::taxonomyArray("NCTID", "NCTIDs", 'location-nctid'),
+                    'location_nctid' => static::taxonomyArray("NCTID", 'location-nctid'),
                     // Location Status Taxonomy
-                    'location_status' => self::taxonomyArray("Status", "Status", 'location-status'),
+                    'location_status' => static::taxonomyArray("Status", 'location-status'),
                 ]
             ),
             ['locations'],
         );
 
+        /**
+         * Register the Search Keywords for Programs and Trials if they exist
+         */
+        self::loopTaxonomy(
+            collect(
+                [
+                    'search_keywords' => static::taxonomyArray(
+                        "Search Keyword",
+                        "",
+                        false,
+                    )
+                ]
+            ),
+            ['trials', 'programs']
+        );
+
+        /**
+         * Register Trials and Locations taxonomies
+         */
         self::loopTaxonomy(
             collect(
                 [
                     // Trial Language Taxonomy
-                    'trial_language' => self::taxonomyArray("Language", "Languages", 'trial-language'),
+                    'trial_language' => static::taxonomyArray("Language", 'trial-language'),
                 ]
             ),
             ['trials', 'locations']
@@ -74,8 +99,7 @@ class MSCustomTax
         self::loopTaxonomy(
             collect(
                 [
-                    'custom_trial_publication_status' => self::taxonomyArray(
-                        'Custom Trial Publication Status',
+                    'custom_trial_publication_status' => static::taxonomyArray(
                         'Custom Trial Publication Status',
                         'custom-trial-publication-status',
                         false,

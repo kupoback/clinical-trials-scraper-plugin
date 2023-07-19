@@ -92,16 +92,17 @@ trait MSAdminTrait
      * Creates an array return for registering a taxonomy
      *
      * @param string      $singular         The taxonomy singular name
-     * @param string      $plural           The taxonomy plural name
      * @param null|string $tax_slug         The taxonomy archive slug
      * @param bool        $hierarchical     Whether this mimics a category or a tag
      * @param array       $additional_args  Additional args to override taxonomy settings
      */
-    protected function taxonomyArray(string $singular, string $plural, string $tax_slug = null, bool $hierarchical = true, array $additional_args = [])
+    protected function taxonomyArray(string $singular, string $tax_slug = null, bool $hierarchical = true, array $additional_args = [])
     :array
     {
         $single_lower = strtolower($singular);
+        $plural = Str::plural($singular);
         $plural_lower = strtolower($plural);
+
         return wp_parse_args($additional_args, [
             "labels"            => [
                 "name"                       => _x($singular, "Taxonomy General Name", "merck-scraper"),

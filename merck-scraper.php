@@ -177,6 +177,11 @@ add_action('ms_govt_scrape_cron', function () {
     }
 });
 
+/**
+ * Event to register all cron jobs
+ *
+ * @return void
+ */
 function ms_register_cron_jobs()
 :void
 {

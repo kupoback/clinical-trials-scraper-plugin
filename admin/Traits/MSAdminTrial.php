@@ -29,7 +29,7 @@ trait MSAdminTrial
     {
         // Map through our studies and begin assigning data to fields
         if ($studies->count() > 0) {
-            $this->updatePosition(
+            static::updatePosition(
                 "Trials Found",
                 [
                     'position'    => 1,
@@ -39,20 +39,20 @@ trait MSAdminTrial
 
             return $studies
                 ->map(function ($study) {
-                    $study_import = $this->studyImport(
-                        collect(
-                            collect($study)
-                                ->get('Study')
-                                ->ProtocolSection,
-                        ),
+                    $study_object = collect($study)
+                        ->get('Study');
+                    $study_import = static::studyImport(
+                        collect($study_object->ProtocolSection),
+                        collect($study_object->DerivedSection),
                         $study
                             ->Study
                             ->ProtocolSection
                             ->Rank,
                     );
 
-                    if ($study_import->get('locations', false)) {
-                        $location_ids = $this->locationsImport(
+                    if ($study_import->get('locations', false)
+                        && in_array($this->envType, ['staging', 'production'])) {
+                        $location_ids = static::locationsImport(
                             $study_import->get('locations'),
                             $study_import->get('NCT_ID'),
                         );
@@ -68,7 +68,7 @@ trait MSAdminTrial
                             $location_ids
                                 ->map(fn ($id) => get_field('api_data_country', $id))
                                 ->filter()
-                                ->map(fn ($country) => $this->mapLanguage($country))
+                                ->map(fn ($country) => static::mapLanguage($country))
                                 ->flatten(1)
                                 ->values()
                                 ->filter()
@@ -93,7 +93,7 @@ trait MSAdminTrial
      * @return false|Collection
      * @throws Exception
      */
-    private function studyImport(object $field_data, int $position_index)
+    private function studyImport(object $field_data, object $derived_data, int $position_index)
     :bool|Collection
     {
         set_time_limit(600);
@@ -106,26 +106,27 @@ trait MSAdminTrial
         $this->new_changes = collect();
 
         //region Modules
-        $arms_module      = $this->parseArms($field_data->get('ArmsInterventionsModule', null));
-        $condition_module = $this->parseCondition($field_data->get('ConditionsModule', null));
-        $contact_module   = $this->parseLocation($field_data->get('ContactsLocationsModule', null), $field_data->get('StatusModule', null), $field_data->get('IdentificationModule', null));
-        $desc_module      = $this->parseDescription($field_data->get('DescriptionModule', null));
-        $design_module    = $this->parseDesign($field_data->get('DesignModule', null));
-        $eligible_module  = $this->parseEligibility($field_data->get('EligibilityModule', null));
-        $id_module        = $this->parseId($field_data->get('IdentificationModule', null));
-        $status_module    = $this->parseStatus($field_data->get('StatusModule', null));
-        $sponsor_module   = $this->parseSponsors($field_data->get('SponsorCollaboratorsModule', null));
+        $arms_module      = static::parseArms($field_data->get('ArmsInterventionsModule', null));
+        $condition_module = static::parseCondition($field_data->get('ConditionsModule', null));
+        $contact_module   = static::parseLocation($field_data->get('ContactsLocationsModule', null), $field_data->get('StatusModule', null), $field_data->get('IdentificationModule', null));
+        $desc_module      = static::parseDescription($field_data->get('DescriptionModule', null));
+        $design_module    = static::parseDesign($field_data->get('DesignModule', null));
+        $eligible_module  = static::parseEligibility($field_data->get('EligibilityModule', null));
+        $id_module        = static::parseId($field_data->get('IdentificationModule', null));
+        $status_module    = static::parseStatus($field_data->get('StatusModule', null));
+        $sponsor_module   = static::parseSponsors($field_data->get('SponsorCollaboratorsModule', null));
+        $mesh_module      = static::parseMesh($derived_data->get('ConditionBrowseModule', null));
         //endregion
 
         // Not currently used field mappings
         // $oversight_module = $field_data->get('OversightModule');
-        // $outcome_module   = $this->parseOutcome($field_data->get('OutcomesModule'));
-        // $ipd_module = $this->parseIDP($field_data->get('IPDSharingStatementModule'));
+        // $outcome_module   = static::parseOutcome($field_data->get('OutcomesModule'));
+        // $ipd_module = static::parseIDP($field_data->get('IPDSharingStatementModule'));
 
         $this->nctId = $id_module->get('nct_id', '');
         $nct_id      = $this->nctId;
         // Grabs the post_id from the DB based on the NCT ID value
-        $post_id = intval($this->dbFetchPostId('meta_value', $nct_id));
+        $post_id = intval(static::dbFetchPostId('meta_value', $nct_id));
 
         // Default post status
         $do_not_import  = false;
@@ -137,7 +138,7 @@ trait MSAdminTrial
             ->keys();
 
         // Set up the post data
-        $parse_args = $this->parsePostArgs(
+        $parse_args = static::parsePostArgs(
             [
                 'title'   => $id_module
                     ->get('post_title'),
@@ -158,7 +159,7 @@ trait MSAdminTrial
         if ($post_id === 0) {
             // Don't import the post and dump out of the loop for this item
             if ($do_not_import) {
-                return $this->doNotImportTrial(
+                return static::doNotImportTrial(
                     0,
                     $post_args->get('post_title'),
                     $nct_id,
@@ -241,7 +242,7 @@ trait MSAdminTrial
             return false;
         }
 
-        $this->updatePosition(
+        static::updatePosition(
             "Trials Import",
             [
                 'position'    => $position_index,
@@ -314,7 +315,7 @@ trait MSAdminTrial
                                     ->put($data_name, $arr_data->toArray());
                             }
 
-                            return $this->updateACF($field['name'], $arr_data->toArray(), $post_id);
+                            return static::updateACF($field['name'], $arr_data->toArray(), $post_id);
                         }
 
                         return false;
@@ -336,7 +337,7 @@ trait MSAdminTrial
                                 $this->new_changes->put($data_name, $field_data);
                             }
 
-                            return $this->updateACF($field['name'], $field_data, $post_id);
+                            return static::updateACF($field['name'], $field_data, $post_id);
                         }
 
                         return false;
@@ -354,7 +355,7 @@ trait MSAdminTrial
                         $this->new_changes->put($data_name, $field_data);
                     }
 
-                    return $this->updateACF($field['name'], $field_data, $post_id);
+                    return static::updateACF($field['name'], $field_data, $post_id);
                 });
             //endregion
 
@@ -365,13 +366,22 @@ trait MSAdminTrial
             collect(
                 [
                     // Set the key as the taxonomy name
-                    'study_keyword' => $condition_module->get('keywords'),
+                    'study_keyword' => collect([
+                        ...$condition_module->get('keywords'),
+                        ...$mesh_module->toArray(),])
+                        ->filter()
+                        ->toArray(),
                     'conditions'    => $condition_module->get('conditions'),
                     'trial_status'  => $status_module->get('trial_status'),
                     // 'trial_category'  => [],
                 ],
             )
-                ->each(fn ($terms, $taxonomy) => self::mergeAndSaveTerms($post_id, $terms, $taxonomy));
+                ->each(fn ($terms, $taxonomy) => static::mergeAndSaveTerms($post_id, $terms, $taxonomy));
+
+            /**
+             * Append the mesh module to Search Keywords
+             */
+            static::mergeAndSaveTerms($post_id, $mesh_module->toArray(), 'search_keywords', true);
 
             /**
              * Set up the taxonomy terms for Trial Drugs
@@ -388,7 +398,7 @@ trait MSAdminTrial
                             $tax_terms = (array) $terms;
                         }
 
-                        self::mergeAndSaveTerms($post_id, $tax_terms ?? [], $taxonomy);
+                        static::mergeAndSaveTerms($post_id, $tax_terms ?? [], $taxonomy);
                     });
             }
 
@@ -400,11 +410,11 @@ trait MSAdminTrial
                  * This is left here if the client changes their mind on how they want this to work
                  */
                 //region Convert To Years
-                // $min_age = self::convertAgeToYears(
+                // $min_age = static::convertAgeToYears(
                 //     intval($eligible_module->get('minimum_age')),
                 //     $eligible_module->get('minimum_age_type')
                 // );
-                // $max_age = self::convertAgeToYears(
+                // $max_age = static::convertAgeToYears(
                 //     intval($eligible_module->get('maximum_age')),
                 //     $eligible_module->get('maximum_age_type')
                 // );
@@ -423,8 +433,8 @@ trait MSAdminTrial
                         ->each(function ($term) use ($min_age, $max_age, $post_id) {
                             $term_min_age = intval($term['min_age']);
                             $term_max_age = intval($term['max_age']);
-                            if ($this->inBetween($term_min_age, $min_age, $max_age)
-                                || $this->inBetween($term_max_age, $min_age, $max_age)
+                            if (static::inBetween($term_min_age, $min_age, $max_age)
+                                || static::inBetween($term_max_age, $min_age, $max_age)
                             ) {
                                 /**
                                  * For whatever reason, the comparison has to be if set equal
@@ -433,7 +443,7 @@ trait MSAdminTrial
                                  */
                                 ($min_age === 0 && $max_age === 999)
                                     ? []
-                                    : self::mergeAndSaveTerms($post_id, $term['slug'], 'trial_age', true);
+                                    : static::mergeAndSaveTerms($post_id, $term['slug'], 'trial_age', true);
                             }
                         });
                 }
@@ -499,7 +509,7 @@ trait MSAdminTrial
             ->filter(function ($study) {
                 if ($study->Study->ProtocolSection ?? false) {
                     if (count($study->Study->ProtocolSection->ContactsLocationsModule->LocationList->Location ?? []) > 0) {
-                        return $this->hasImportableLocations(
+                        return static::hasImportableLocations(
                             ($study->Study->ProtocolSection->ContactsLocationsModule ?? null),
                             ($study->Study->ProtocolSection->StatusModule ?? null),
                             ($study->Study->ProtocolSection->IdentificationModule ?? null),
@@ -561,6 +571,7 @@ trait MSAdminTrial
             $this->new_changes
                 ->put($taxonomy, $terms);
         }
+
         wp_set_object_terms($post_id, $terms, $taxonomy, $append);
     }
 }
