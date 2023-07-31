@@ -34,19 +34,30 @@ trait MSApiField
             $study_protocol = collect();
 
             if ($other_ids->isNotEmpty()) {
-                $eudract_number = $other_ids
-                    ->filter(fn ($second_id) => ($second_id->SecondaryIdType ?? false)
-                                                && Str::contains($second_id->SecondaryIdType, [
-                                                    'Eudra',
-                                                    // 'EU CT',
-                            ]))
+                // Pull the EU CT number
+                $eu_ct_number = $other_ids
+                    ->filter(fn ($second_id) => ($second_id->SecondaryIdDomain ?? false)
+                                                && Str::contains($second_id->SecondaryIdDomain, ['EU CT']))
                     ->values();
 
-                error_log(print_r($eudract_number, true));
+                // Pull the Eudra CT Number
+                $eudract_number = $other_ids
+                    ->filter(fn ($second_id) => ($second_id->SecondaryIdType ?? false)
+                                                   && Str::contains($second_id->SecondaryIdType, ['Eudra']))
+                    ->values();
 
+                /**
+                 * Check if EudraCT exists, as that's the most important one first
+                 * Otherwise, we will fall back to the EU CT number, or leave it empty
+                 */
                 if ($eudract_number->isNotEmpty()) {
                     $eudract_number = $eudract_number
                         ->map(fn ($id) => $id->SecondaryId ?? false)
+                        ->filter()
+                        ->first();
+                } elseif ($eu_ct_number->isNotEmpty()) {
+                    $eudract_number = $eu_ct_number
+                        ->map(fn($id) => $id->SecondaryId ?? false)
                         ->filter()
                         ->first();
                 } else {

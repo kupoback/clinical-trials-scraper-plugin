@@ -25,6 +25,8 @@ Mapped MeSH Condition Modules to Search Keywords and Study Keywords
 
 Added capturing of additional EudraCT numbers
 
+Capturing EudraCT numbers first, then falling back to EU CT before defaulting the value
+
 = 1.7.1 =
 
 Fixed issue with left behind error_log
