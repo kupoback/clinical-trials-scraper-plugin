@@ -115,7 +115,7 @@ trait MSAdminTrial
         $id_module        = static::parseId($field_data->get('IdentificationModule', null));
         $status_module    = static::parseStatus($field_data->get('StatusModule', null));
         $sponsor_module   = static::parseSponsors($field_data->get('SponsorCollaboratorsModule', null));
-        $mesh_module      = static::parseMesh($derived_data->get('ConditionBrowseModule', null));
+        $mesh_module      = static::parseMesh($derived_data->get('ConditionBrowseModule', (object) []));
         //endregion
 
         // Not currently used field mappings

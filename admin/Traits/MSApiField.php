@@ -629,29 +629,38 @@ trait MSApiField
     /**
      * Parses the Derived Section's Condition Browser Module
      *
-     * @param  object  $condition_module  The Condition Browser Module object
+     * @param  null|object  $condition_module  The Condition Browser Module object
      *
      * @return Collection
      */
-    protected function parseMesh(object $condition_module)
+    protected function parseMesh(null|object $condition_module)
     :Collection
     {
-        return collect(
-            [
-                ...collect($condition_module->ConditionMeshList->ConditionMesh ?? [])
-                    ->filter()
-                    ->map(fn ($value) => $value->ConditionMeshTerm ?? '')
-                    ->filter()
-                ->toArray(),
-                ...collect($condition_module->ConditionAncestorList->ConditionAncestor ?? [])
-                    ->filter()
-                    ->map(fn ($value) => $value->ConditionAncestorTerm ?? '')
-                    ->filter()
-                ->toArray(),
-            ]
-        )
-            ->unique()
-            ->filter();
+        try {
+            return collect(
+                [
+                    ...collect($condition_module->ConditionMeshList->ConditionMesh ?? [])
+                        ->filter()
+                        ->map(fn ($value) => $value->ConditionMeshTerm ?? '')
+                        ->filter()
+                        ->toArray(),
+                    ...collect($condition_module->ConditionAncestorList->ConditionAncestor ?? [])
+                        ->filter()
+                        ->map(fn ($value) => $value->ConditionAncestorTerm ?? '')
+                        ->filter()
+                        ->toArray(),
+                ],
+            )
+                ->unique()
+                ->filter();
+        } catch (Exception $exception) {
+            static::returnException(
+                'mesh module',
+                $exception->getMessage(),
+            );
+        }
+
+        return collect();
     }
 
     /**
